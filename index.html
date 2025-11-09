@@ -21,7 +21,7 @@
     <!-- 中文注释：Font Awesome图标库，提供了你在页面上看到的各种小图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <!-- 中文注释：【修复问题2】将地图相关的样式(CSS)和脚本(JS)文件提前到这里加载，确保在使用前它们已经准备就绪 -->
+    <!-- 中文注释：将地图相关的样式(CSS)和脚本(JS)文件提前到这里加载，确保在使用前它们已经准备就绪 -->
     <!-- 中文注释：Leaflet地图库的样式文件，定义了地图的外观 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <!-- 中文注释：Leaflet地图搜索框插件的样式文件 -->
@@ -35,11 +35,15 @@
     <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
     <!-- 中文注释：一个用于农历和公历转换的库 -->
     <script src="https://unpkg.com/solarlunar@2.0.7/solarlunar.min.js"></script>
+    <!-- 中文注释：用于“导出为图片”功能的库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <!-- 中文注释：从Google Fonts加载网络字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Long+Cang&family=Zhi+Mang+Xing&family=Smiley+Sans&display=swap" rel="stylesheet">
+    <!-- 【优化】预加载一个包含大量字体的样式表，确保所有字体可选 -->
+    <link id="google-fonts-link" href="https://fonts.googleapis.com/css2?family=Anton&family=Baloo+2&family=Bebas+Neue&family=Bitter&family=Caveat&family=Cormorant&family=Dancing+Script&family=EB+Garamond&family=Gochi+Hand&family=Honk&family=Indie+Flower&family=Inconsolata&family=Kalam&family=Kosugi+Maru&family=Lato&family=Lobster&family=Long+Cang&family=Lora&family=LXGW+WenKai&family=M+PLUS+Rounded+1c&family=Ma+Shan+Zheng&family=Merriweather&family=Montserrat&family=Noto+Sans+JP&family=Noto+Sans+KR&family=Noto+Sans+SC&family=Noto+Sans+TC&family=Noto+Serif+SC&family=Nunito&family=Open+Sans&family=Oswald&family=Pacifico&family=Patrick+Hand&family=Permanent+Marker&family=Pixelify+Sans&family=Playfair+Display&family=Poppins&family=Raleway&family=Righteous&family=Roboto+Mono&family=Roboto+Slab&family=Roboto&family=Shadows+Into+Light&family=Smiley+Sans&family=Source+Code+Pro&family=Space+Mono&family=Varela+Round&family=ZCOOL+KuaiLe&family=ZCOOL+KuHei&family=ZCOOL+XiaoWei&family=Zeyada&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+
 
     <!-- 中文注释：下面是CSS样式部分，它决定了网页的所有外观，比如颜色、布局、大小等 -->
     <style>
@@ -444,7 +448,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             display: none;
         }
-        /* 中文注释：【修复问题2】确保地图搜索框在深色模式下也清晰可见 */
+        /* 中文注释：确保地图搜索框在深色模式下也清晰可见 */
         .leaflet-control-geocoder { z-index: 402 !important; }
         .leaflet-control-geocoder-form input {
             background-color: var(--card-bg) !important;
@@ -555,7 +559,7 @@
         }
         
         /* 中文注释：收藏、字体、主题等带头部的页面专属样式 */
-        #favorites-page, #font-settings-page, #theme-settings-page, #anniversary-page, #accounting-page, #snippets-page { padding: 0; }
+        #favorites-page, #font-settings-page, #theme-settings-page, #anniversary-page, #accounting-page, #snippets-page, #games-page { padding: 0; }
         #favorites-list-container, #font-settings-content, .page-content {
             padding: 15px;
             padding-top: 85px; /* 85px = 70px header + 15px padding */
@@ -747,6 +751,139 @@
         .snippet-collection-manage-header { display: none; padding: 15px; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
         .snippet-collection.manage-mode .snippet-collection-header { display: none; }
         .snippet-collection.manage-mode .snippet-collection-manage-header { display: flex; }
+        
+        /* ======================================================================= */
+        /* 中文注释：小游戏页面样式 */
+        /* ======================================================================= */
+        .game-selection-menu {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .game-selection-menu .button {
+            margin-left: 0;
+            flex-basis: 100px;
+            flex-grow: 1;
+        }
+        .game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-top: 10px;
+        }
+        .game-container.active {
+            display: flex;
+        }
+        .game-controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .game-controls select, .game-controls .button {
+            width: auto;
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+        .game-status {
+            font-weight: bold;
+            font-size: 16px;
+            min-height: 24px;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        /* 井字棋样式 */
+        #tictactoe-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 240px; height: 240px; background-color: var(--primary-text); padding: 5px; border-radius: 5px; }
+        .tictactoe-cell { background-color: var(--card-bg); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 48px; font-weight: bold; }
+        .tictactoe-cell:hover { background-color: var(--global-bg); }
+
+        /* 五子棋样式 */
+        #gobang-board { display: grid; grid-template-columns: repeat(15, 1fr); border: 2px solid var(--primary-text); width: 100%; max-width: 450px; aspect-ratio: 1 / 1; background-color: #e3b778; position: relative; }
+        .dark-mode #gobang-board { background-color: #6a5638; }
+        .gobang-cell { position: relative; width: 100%; height: 100%; cursor: pointer; }
+        .gobang-cell::before, .gobang-cell::after { content: ''; position: absolute; background-color: var(--primary-text); pointer-events: none; }
+        .gobang-cell::before { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%); }
+        .gobang-cell::after { width: 1px; height: 100%; left: 50%; top: 0; transform: translateX(-50%); }
+        .gobang-piece { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 1px 1px 3px rgba(0,0,0,0.4); pointer-events: none; }
+        .gobang-piece.black { background: radial-gradient(circle at 30% 30%, #555, #000); }
+        .gobang-piece.white { background: radial-gradient(circle at 30% 30%, #fff, #ccc); }
+
+        /* 扫雷样式 */
+        #minesweeper-grid { display: grid; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); }
+        .minesweeper-cell { width: 25px; height: 25px; background-color: #bdbdbd; font-size: 14px; font-weight: bold; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; }
+        .dark-mode .minesweeper-cell { background-color: #424242; }
+        .minesweeper-cell.revealed { background-color: #e0e0e0; }
+        .dark-mode .minesweeper-cell.revealed { background-color: #212121; }
+        .minesweeper-cell.mine { background-color: var(--danger-color); }
+        .minesweeper-cell[data-mines="1"] { color: #007aff; } .minesweeper-cell[data-mines="2"] { color: #34c759; } .minesweeper-cell[data-mines="3"] { color: #ff453a; } .minesweeper-cell[data-mines="4"] { color: #5856d6; } .minesweeper-cell[data-mines="5"] { color: #ff9500; } .minesweeper-cell[data-mines="6"] { color: #5ac8fa; } .minesweeper-cell[data-mines="7"] { color: #ff2d55; } .minesweeper-cell[data-mines="8"] { color: #af52de; }
+
+        /* 贪吃蛇 & 俄罗斯方块 & 星球保卫战 共用方向盘/按键样式 */
+        .dpad-container { display: grid; grid-template-areas: ". up ." "left . right" ". down ."; gap: 10px; margin-top: 20px; }
+        .button-layout-container { display: flex; gap: 10px; margin-top: 20px; }
+        .dpad-btn { width: 50px; height: 50px; background-color: var(--secondary-text); border-radius: 50%; color: white; font-size: 24px; border: none; display: flex; justify-content: center; align-items: center; }
+        .dpad-btn:active { background-color: var(--primary-text); }
+        .dpad-btn[data-dir="up"] { grid-area: up; } .dpad-btn[data-dir="down"] { grid-area: down; } .dpad-btn[data-dir="left"] { grid-area: left; } .dpad-btn[data-dir="right"] { grid-area: right; }
+
+        /* 贪吃蛇样式 */
+        #snake-canvas { border: 2px solid var(--primary-text); max-width: 100%; background-image: linear-gradient(var(--border-color) 1px, transparent 1px), linear-gradient(to right, var(--border-color) 1px, transparent 1px); background-size: 20px 20px; background-color: #c7fec7; }
+        .dark-mode #snake-canvas { background-color: #0b2e0b; }
+        
+        /* 俄罗斯方块样式 */
+        .tetris-layout { display: flex; justify-content: center; align-items: flex-start; gap: 15px; width: 100%; flex-wrap: wrap; }
+        #tetris-canvas { background-color: #1a1a1a; border: 2px solid var(--primary-text); }
+        .tetris-side-panel { display: flex; flex-direction: column; gap: 10px; }
+        .tetris-next-piece { background: #1a1a1a; padding: 5px; border-radius: 5px; border: 1px solid var(--primary-text); }
+        
+        /* 2048 样式 */
+        #game2048-board { width: 100%; max-width: 450px; aspect-ratio: 1 / 1; background-color: #bbada0; border-radius: 6px; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 10px; padding: 10px; position: relative; }
+        .game2048-cell { background-color: #cdc1b4; border-radius: 3px; }
+        .game2048-tile { position: absolute; border-radius: 3px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: all 0.1s ease-in-out; }
+        .game2048-tile[data-value="2"] { background: #eee4da; color: #776e65; } .game2048-tile[data-value="4"] { background: #ede0c8; color: #776e65; } .game2048-tile[data-value="8"] { background: #f2b179; color: #f9f6f2; } .game2048-tile[data-value="16"] { background: #f59563; color: #f9f6f2; } .game2048-tile[data-value="32"] { background: #f67c5f; color: #f9f6f2; } .game2048-tile[data-value="64"] { background: #f65e3b; color: #f9f6f2; } .game2048-tile[data-value="128"] { background: #edcf72; color: #f9f6f2; } .game2048-tile[data-value="256"] { background: #edcc61; color: #f9f6f2; } .game2048-tile[data-value="512"] { background: #edc850; color: #f9f6f2; } .game2048-tile[data-value="1024"] { background: #edc53f; color: #f9f6f2; } .game2048-tile[data-value="2048"] { background: #edc22e; color: #f9f6f2; }
+        
+        /* 21点 (Blackjack) 样式 */
+        #blackjack-table { width: 100%; max-width: 450px; background-color: #006400; border: 5px solid #8B4513; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+        .blackjack-hand { display: flex; min-height: 90px; }
+        .blackjack-hand .blackjack-card { margin-left: -30px; }
+        .blackjack-hand .blackjack-card:first-child { margin-left: 0; }
+        .blackjack-card { width: 60px; height: 90px; background-color: white; border: 1px solid black; border-radius: 5px; position: relative; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); font-size: 20px; font-weight: bold; }
+        .blackjack-card.hidden { background-image: repeating-linear-gradient(45deg, #6ca0fc, #6ca0fc 10px, #4c88ed 10px, #4c88ed 20px); }
+        .blackjack-card span { position: absolute; }
+        .blackjack-card .rank { top: 5px; left: 5px; }
+        .blackjack-card .suit { bottom: 5px; right: 5px; font-size: 24px; }
+        .blackjack-card.red { color: red; } .blackjack-card.black { color: black; }
+        .blackjack-area h4 { color: white; text-shadow: 1px 1px 2px black; }
+
+        /* 数独 (Sudoku) 样式 */
+        #sudoku-board { display: grid; grid-template-columns: repeat(9, 1fr); border: 2px solid var(--primary-text); width: 100%; max-width: 450px; aspect-ratio: 1 / 1; }
+        .sudoku-row { display: contents; } /* Make row a non-visual grid element */
+        .sudoku-cell { display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-color); font-size: clamp(16px, 4vw, 24px); cursor: pointer; aspect-ratio: 1 / 1; }
+        .sudoku-cell:nth-child(3n) { border-right-width: 2px; border-right-color: var(--primary-text); }
+        #sudoku-board .sudoku-row:nth-child(3n) .sudoku-cell { border-bottom-width: 2px; border-bottom-color: var(--primary-text); }
+        .sudoku-cell.selected { background-color: var(--accent-color) !important; color: white !important; }
+        .sudoku-cell.given { font-weight: bold; background-color: var(--global-bg); color: var(--secondary-text); cursor: not-allowed; }
+        .sudoku-cell.error { color: var(--danger-color) !important; background-color: #ff3b3020 !important; }
+        #sudoku-numpad { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+        #sudoku-numpad button { flex-basis: 35px; font-size: 18px; padding: 10px 5px; }
+
+        /* 星球保卫战 & 是人就下100层 样式 */
+        .fullscreen-canvas-container { width: 100%; max-width: 450px; aspect-ratio: 3 / 4; }
+        #planetdefender-canvas, #doodlejump-canvas { background-color: #000; border: 2px solid var(--primary-text); width: 100%; height: 100%; }
+        
+        /* 点灯游戏 样式 */
+        #lightsout-grid { display: grid; gap: 5px; padding: 5px; background-color: var(--primary-text); border-radius: 5px; }
+        .lightsout-cell { aspect-ratio: 1 / 1; border-radius: 50%; cursor: pointer; transition: background-color 0.2s; }
+        .lightsout-cell.on { background-color: #fdd835; box-shadow: 0 0 10px #fdd835; }
+        .lightsout-cell.off { background-color: #424242; }
 
     </style>
 </head>
@@ -894,6 +1031,15 @@
                         <h3 data-lang-key="accent_color_theme">一键主题色</h3>
                         <div class="theme-setting-item"><label data-lang-key="accent_color">强调色</label><div class="controls"><input type="color" id="theme-accent-color"><button class="button button-secondary" data-action="reset-theme" data-key="accentColor">重置</button></div></div>
                     </div>
+                    <!-- 新增：自定义全局CSS -->
+                    <div class="theme-section">
+                        <h3>自定义全局 CSS</h3>
+                        <textarea id="custom-css-input" placeholder="在此输入CSS代码，它将覆盖所有样式..."></textarea>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="button button-primary" data-action="apply-custom-css" style="flex-grow: 1; margin-left: 0;">应用</button>
+                            <button class="button button-secondary" data-action="reset-custom-css" style="flex-grow: 1; margin-left: 0;">重置</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -989,6 +1135,236 @@
                 <div class="page-content" id="snippet-collection-container"></div>
             </div>
 
+            <!-- ======================================================================= -->
+            <!-- 中文注释：小游戏页面 -->
+            <!-- ======================================================================= -->
+            <div id="games-page" class="page">
+                <div class="page-header">
+                    <i class="fas fa-arrow-left back-btn" data-action="back-to-my-page"></i>
+                    <h2 class="title" data-lang-key="games">小游戏</h2>
+                </div>
+                <div class="page-content">
+                    <div class="game-selection-menu">
+                        <button class="button button-primary" data-action="select-game" data-game="gobang">五子棋</button>
+                        <button class="button button-primary" data-action="select-game" data-game="minesweeper">扫雷</button>
+                        <button class="button button-primary" data-action="select-game" data-game="snake">贪吃蛇</button>
+                        <button class="button button-primary" data-action="select-game" data-game="game2048">2048</button>
+                        <button class="button button-primary" data-action="select-game" data-game="tetris" data-lang-key="game_tetris">俄罗斯方块</button>
+                        <button class="button button-primary" data-action="select-game" data-game="tictactoe" data-lang-key="game_tictactoe">井字棋</button>
+                        <button class="button button-primary" data-action="select-game" data-game="sudoku" data-lang-key="game_sudoku">数独</button>
+                        <button class="button button-primary" data-action="select-game" data-game="blackjack" data-lang-key="game_blackjack">21点</button>
+                        <button class="button button-primary" data-action="select-game" data-game="planetdefender" data-lang-key="game_planetdefender">星球保卫战</button>
+                        <button class="button button-primary" data-action="select-game" data-game="lightsout" data-lang-key="game_lightsout">点灯游戏</button>
+                        <button class="button button-primary" data-action="select-game" data-game="doodlejump" data-lang-key="game_doodlejump">是人就下100层</button>
+                    </div>
+
+                    <!-- 五子棋容器 -->
+                    <div id="gobang-container" class="game-container">
+                        <div class="game-status" id="gobang-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="gobang-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" selected data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-gobang" data-lang-key="new_game"></button>
+                        </div>
+                        <div id="gobang-board"></div>
+                    </div>
+
+                    <!-- 扫雷容器 -->
+                    <div id="minesweeper-container" class="game-container">
+                        <div class="game-status" id="minesweeper-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="minesweeper-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-minesweeper" data-lang-key="new_game"></button>
+                        </div>
+                        <div id="minesweeper-grid"></div>
+                    </div>
+                    
+                    <!-- 贪吃蛇容器 -->
+                    <div id="snake-container" class="game-container">
+                        <div class="game-status" id="snake-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="snake-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" selected data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-snake" data-lang-key="start_game"></button>
+                        </div>
+                        <canvas id="snake-canvas" width="300" height="300"></canvas>
+                        <div class="dpad-container">
+                            <button class="dpad-btn" data-dir="up"><i class="fas fa-arrow-up"></i></button>
+                            <button class="dpad-btn" data-dir="left"><i class="fas fa-arrow-left"></i></button>
+                            <button class="dpad-btn" data-dir="right"><i class="fas fa-arrow-right"></i></button>
+                            <button class="dpad-btn" data-dir="down"><i class="fas fa-arrow-down"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- 2048 容器 -->
+                    <div id="game2048-container" class="game-container">
+                        <div class="game-status" id="game2048-status"></div>
+                        <div class="game-controls">
+                            <button class="button button-secondary" data-action="start-game2048" data-lang-key="new_game"></button>
+                        </div>
+                        <div id="game2048-board"></div>
+                    </div>
+                    
+                    <!-- 井字棋容器 -->
+                    <div id="tictactoe-container" class="game-container">
+                        <div class="game-status" id="tictactoe-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="tictactoe-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" data-lang-key="medium"></option>
+                                <option value="hard" selected data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-tictactoe" data-lang-key="new_game"></button>
+                        </div>
+                        <div id="tictactoe-board"></div>
+                    </div>
+                    
+                    <!-- 俄罗斯方块容器 -->
+                    <div id="tetris-container" class="game-container">
+                        <div class="game-status" id="tetris-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="tetris-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" selected data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-tetris" data-lang-key="start_game"></button>
+                        </div>
+                        <div class="tetris-layout">
+                            <canvas id="tetris-canvas" width="200" height="400"></canvas>
+                            <div class="tetris-side-panel">
+                                <h4 data-lang-key="game_tetris_next">下一个</h4>
+                                <canvas id="tetris-next-canvas" class="tetris-next-piece" width="80" height="80"></canvas>
+                            </div>
+                        </div>
+                         <div class="dpad-container">
+                            <button class="dpad-btn" data-dir="up"><i class="fas fa-sync-alt"></i></button>
+                            <button class="dpad-btn" data-dir="left"><i class="fas fa-arrow-left"></i></button>
+                            <button class="dpad-btn" data-dir="right"><i class="fas fa-arrow-right"></i></button>
+                            <button class="dpad-btn" data-dir="down"><i class="fas fa-arrow-down"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- 21点容器 -->
+                    <div id="blackjack-container" class="game-container">
+                        <div class="game-status" id="blackjack-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="blackjack-difficulty">
+                                <option value="easy" data-lang-key="easy">1 Deck</option>
+                                <option value="medium" selected data-lang-key="medium">4 Decks</option>
+                                <option value="hard" data-lang-key="hard">8 Decks</option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-blackjack" data-lang-key="new_game"></button>
+                        </div>
+                        <div id="blackjack-table">
+                            <div class="blackjack-area">
+                                <h4>庄家 (<span id="blackjack-dealer-score">0</span>)</h4>
+                                <div id="blackjack-dealer-hand" class="blackjack-hand"></div>
+                            </div>
+                            <div class="blackjack-area">
+                                <h4>你 (<span id="blackjack-player-score">0</span>)</h4>
+                                <div id="blackjack-player-hand" class="blackjack-hand"></div>
+                            </div>
+                        </div>
+                        <div id="blackjack-actions" class="game-controls"></div>
+                    </div>
+                    
+                    <!-- 数独容器 -->
+                    <div id="sudoku-container" class="game-container">
+                        <div class="game-status" id="sudoku-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                            <select id="sudoku-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" selected data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-sudoku" data-lang-key="new_game"></button>
+                            <button class="button button-secondary" data-action="check-sudoku" data-lang-key="game_sudoku_check">检查</button>
+                            <button class="button button-secondary" data-action="hint-sudoku" data-lang-key="game_sudoku_hint">提示</button>
+                        </div>
+                        <div id="sudoku-board"></div>
+                        <div id="sudoku-numpad"></div>
+                    </div>
+                    
+                    <!-- 星球保卫战容器 -->
+                    <div id="planetdefender-container" class="game-container">
+                        <div class="game-status" id="planetdefender-status"></div>
+                        <div class="game-controls">
+                            <span data-lang-key="difficulty"></span>:
+                             <select id="planetdefender-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" selected data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-planetdefender" data-lang-key="start_game"></button>
+                        </div>
+                        <div class="fullscreen-canvas-container">
+                            <canvas id="planetdefender-canvas"></canvas>
+                        </div>
+                        <div class="button-layout-container">
+                            <button class="dpad-btn" data-dir="left"><i class="fas fa-undo-alt"></i></button>
+                            <button class="dpad-btn" data-dir="fire" style="width: 80px; height: 80px;"><i class="fas fa-crosshairs"></i></button>
+                            <button class="dpad-btn" data-dir="right"><i class="fas fa-redo-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- 点灯游戏容器 -->
+                    <div id="lightsout-container" class="game-container">
+                        <div class="game-status" id="lightsout-status"></div>
+                        <div class="game-controls">
+                             <span data-lang-key="difficulty"></span>:
+                             <select id="lightsout-difficulty">
+                                <option value="easy" data-lang-key="easy">3x3</option>
+                                <option value="medium" selected data-lang-key="medium">4x4</option>
+                                <option value="hard" data-lang-key="hard">5x5</option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-lightsout" data-lang-key="new_game"></button>
+                        </div>
+                        <div id="lightsout-grid"></div>
+                    </div>
+
+                    <!-- 是人就下100层容器 -->
+                    <div id="doodlejump-container" class="game-container">
+                        <div class="game-status" id="doodlejump-status"></div>
+                        <div class="game-controls">
+                             <span data-lang-key="difficulty"></span>:
+                             <select id="doodlejump-difficulty">
+                                <option value="easy" data-lang-key="easy"></option>
+                                <option value="medium" selected data-lang-key="medium"></option>
+                                <option value="hard" data-lang-key="hard"></option>
+                            </select>
+                            <button class="button button-secondary" data-action="start-doodlejump" data-lang-key="start_game"></button>
+                        </div>
+                         <div class="fullscreen-canvas-container">
+                            <canvas id="doodlejump-canvas"></canvas>
+                        </div>
+                        <!-- 新增：为是人就下100层增加屏幕按钮 -->
+                        <div class="button-layout-container">
+                            <button class="dpad-btn" data-dir="left" style="width: 80px; height: 80px;"><i class="fas fa-arrow-left"></i></button>
+                            <button class="dpad-btn" data-dir="right" style="width: 80px; height: 80px;"><i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
         <!-- 中文注释：底部导航栏 -->
@@ -1032,6 +1408,10 @@
                 <span data-lang-key="snippets">言语集</span>
             </div>
         </div>
+        <!-- 中文注释：小游戏菜单项 -->
+        <div class="menu-section">
+             <div class="menu-item" data-action="show-page" data-page="games-page"><i class="fas fa-gamepad"></i> <span data-lang-key="games">小游戏</span></div>
+        </div>
         <div class="menu-section">
             <div class="menu-item" data-action="show-page" data-page="theme-settings-page"><i class="fas fa-palette"></i> <span data-lang-key="theme">主题</span></div>
             <div class="menu-item" data-action="show-page" data-page="font-settings-page"><i class="fas fa-font"></i> <span data-lang-key="font_settings">字体设置</span></div>
@@ -1059,14 +1439,18 @@
 <script>
     /*
      * 中文注释：这是一个自我提醒，确保代码在整个页面加载完毕后才开始运行。
-     * 【修复#1】卡顿和无响应问题：
-     * 问题的根源在于 e.preventDefault() 在 touchstart 事件中被立即调用，这阻止了浏览器的默认滚动行为。
-     * 正确的做法是只在确认长按（计时器触发）后才阻止默认行为（比如弹出菜单时阻止后续的点击），
-     * 或者在 touchmove 时清除计时器，让滚动正常发生。
-     * 这里的修复是：从 touchstart 的处理函数中移除了 e.preventDefault()。
      */
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        // 【新增-代码健壮性】使用 try...catch 包裹整个应用逻辑，防止初始化错误导致整个应用白屏。
+        try {
+            main();
+        } catch (error) {
+            console.error("应用启动时发生致命错误:", error);
+            document.body.innerHTML = `<h1>应用加载失败</h1><p>很抱歉，程序遇到一个无法恢复的错误。请尝试清除浏览器缓存后重试。</p><pre>${error.stack}</pre>`;
+        }
+    });
 
+    async function main() {
         // =======================================================================
         // 1. 数据库核心 (IndexedDB)
         // 中文注释：这部分代码负责和手机本地的数据库打交道，用来存储你的所有数据（日记、设置等）。
@@ -1119,7 +1503,7 @@
         // 2. 全局变量和状态
         // 中文注释：这里定义了一些全局变量，用来在内存中临时存放应用的状态和数据，方便随时取用。
         // =======================================================================
-        let appData = { profile: {}, diaries: [], notebooks: [], settings: { darkMode: false, language: 'zh-CN', theme: {}, font: null, showLunarCalendar: false, showHolidays: false, fontPresets: [] }, anniversaries: [], transactions: [], snippets: [], snippetCollections: [] };
+        let appData = { profile: {}, diaries: [], notebooks: [], settings: { darkMode: false, language: 'zh-CN', theme: {}, font: null, showLunarCalendar: false, showHolidays: false, fontPresets: [], customCss: '' }, anniversaries: [], transactions: [], snippets: [], snippetCollections: [] };
         let quickDiaryData = { media: [], mood: '', weather: '', location: null, notebookId: 1, customTimestamp: null };
         let pendingProfileImages = { avatar: null, background: null };
         let currentDate = new Date();
@@ -1129,17 +1513,20 @@
         let mediaRecorder, audioChunks = [];
         let tempFont = { type: null, data: null, name: null };
         let accountingState = { view: 'month', date: new Date() };
+        // 中文注释：游戏相关的状态变量
+        let activeGame = { name: null, instance: null };
+
 
         // =======================================================================
         // 3. 多语言引擎
         // 中文注释：这里存放了所有支持的语言文本。当切换语言时，程序会从这里找到对应的文字并显示在界面上。
         // =======================================================================
         const translations = {
-            'zh-CN': { nav_diary: '日记', date: '日期', notebooks: '日记本', my: '我的', diaries: '日记', days: '记录天数', recent_diaries: '近期日记', new: '新建', map: '地图', theme: '主题', language: '语言', dark_mode: '黑夜模式', export_data: '导出数据', import_data: '导入数据', select_language: '选择语言', cancel: '取消', reset: '重置', upload: '上传', global_theme: '全局主题', bg_color: '背景色', bg_image: '背景图', diary_theme: '日记主题', primary_text_color: '主文字颜色', secondary_text_color: '次文字颜色', theme_settings: '主题设置', delete: '删除', no_diaries: '还没有日记', add_comment: '评论', year: '年', month: '月', edit: '编辑', save: '保存', new_diary: '写新日记', edit_diary: '编辑日记', content: '内容', mood: '心情', weather: '天气', location: '位置', images: '图片', notebook: '日记本', default_notebook: '默认日记本', all_diaries: '全部', new_notebook: '新建日记本', notebook_name: '日记本名称', confirm_delete: '确认删除吗？此操作不可撤销。', delete_success: '删除成功', import_confirm: '导入数据将覆盖当前所有数据，确定吗？此操作会清除包括纪念日、记账本等所有数据。', import_success: '导入成功！', export_success: '导出成功！', no_recent_diaries: '最近没有写日记哦', accent_color_theme: '一键主题色', accent_color: '强调色', edit_profile: '编辑资料', profile_name: '昵称', profile_id: 'ID', profile_bio: '个人简介', upload_avatar: '上传头像', upload_background: '上传背景', write_something: '写点什么...', select_notebook: '选择日记本', location_failed: '无法获取地理位置，日记将不包含位置信息。请检查手机定位服务和应用权限。', edit_notebook_name: '编辑日记本名称', change_notebook_cover: '更换封面', enter_cover_url: '请输入封面图片URL', upload_from_local: '本地上传', default_notebook_no_delete: '默认日记本不能删除', my_favorites: '收藏', no_favorites: '还没有收藏任何日记', set_custom_date: '设置发布时间', link_url: '链接地址', enter_link_url: '请输入网址', pin_diary: '置顶日记', unpin_diary: '取消置顶', pinned: '已置顶', show_lunar_calendar: '显示农历', show_holidays: '显示节日', no_holiday_today: '今天没有特别的节日', add_audio: '添加语音', live_record: '实时录音', upload_audio: '上传音频', recording: '录音中...', stop_recording: '停止录音', record_failed: '录音失败，请检查麦克风权限。', set_location: '设置地点', auto_detect: '自动获取', select_on_map: '地图选点', manual_entry: '手动输入', enter_location_name: '请输入地点名称', font_settings: '字体设置', builtin_fonts: '字体选择', web_font_url: '网络字体URL', local_font_file: '本地字体文件', local_font_warning: '警告：上传本地字体文件可能会占用大量存储空间并导致应用卡顿。', reset_to_default: '重置为默认字体', apply: '应用', manage_presets: '管理预设', save_as_preset: '保存为新预设', delete_preset: '删除预设', enter_preset_name: '请输入预设名称', preset_name: '预设名称', no_presets_to_delete: '没有可删除的预设', my_presets: '我的预设', built_in_group: '内置字体', anniversaries: '纪念日', accounting: '记账本', snippets: '言语集', add_anniversary: '添加纪念日', anniversary_name: '名称', anniversary_date: '日期', anniversary_type: '类型', anniversary: '纪念日', target_day: '目标日', passed: '已过', remaining: '还有', days_unit: '天', add_transaction: '添加账单', transaction_type: '类型', income: '收入', expense: '支出', amount: '金额', description: '描述', total_income: '总收入', total_expense: '总支出', balance: '结余', add_snippet_collection: '新建言语集', collection_name: '言语集名称', add_snippet: '发表言语', snippet_content: '言语内容', no_items_yet: '还没有任何记录，点击右上角“+”添加吧！', edit_anniversary: '编辑纪念日', edit_transaction: '编辑账单', edit_snippet: '编辑言语', pin: '置顶', unpin: '取消置顶', change_background: '更换背景', view_day: '日', view_month: '月', view_year: '年', confirm_selection: '在此选定', search_location: '搜索地点...', word_count_unit: '字', manage_snippets: '管理言语', delete_selected: '删除所选' },
-            'zh-TW': { nav_diary: '日記', date: '日期', notebooks: '日記本', my: '我的', diaries: '日記', days: '記錄天數', recent_diaries: '近期日記', new: '新建', map: '地圖', theme: '主題', language: '語言', dark_mode: '黑夜模式', export_data: '匯出資料', import_data: '匯入資料', select_language: '選擇語言', cancel: '取消', reset: '重置', upload: '上傳', global_theme: '全域主題', bg_color: '背景顏色', bg_image: '背景圖片', diary_theme: '日記主題', primary_text_color: '主文字顏色', secondary_text_color: '次要文字顏色', theme_settings: '主題設定', delete: '刪除', no_diaries: '還沒有日記', add_comment: '評論', year: '年', month: '月', edit: '編輯', save: '儲存', new_diary: '寫新日記', edit_diary: '編輯日記', content: '內容', mood: '心情', weather: '天氣', location: '位置', images: '圖片', notebook: '日記本', default_notebook: '預設日記本', all_diaries: '全部', new_notebook: '新建日記本', notebook_name: '日記本名稱', confirm_delete: '確認刪除嗎？此操作不可撤銷。', delete_success: '刪除成功', import_confirm: '導入數據將覆蓋當前所有數據，確定嗎？此操作會清除包括紀念日、記賬本等所有數據。', import_success: '導入成功！', export_success: '導出成功！', no_recent_diaries: '最近沒有寫日記哦', accent_color_theme: '一鍵主題色', accent_color: '強調色', edit_profile: '編輯資料', profile_name: '暱稱', profile_id: 'ID', profile_bio: '個人簡介', upload_avatar: '上傳頭像', upload_background: '上傳背景', write_something: '寫點什麼...', select_notebook: '選擇日記本', location_failed: '無法獲取地理位置，日記將不包含位置信息。請檢查手機定位服務和應用權限。', edit_notebook_name: '編輯日記本名稱', change_notebook_cover: '更換封面', enter_cover_url: '請輸入封面圖片URL', upload_from_local: '本地上傳', default_notebook_no_delete: '預設日記本不能刪除', my_favorites: '收藏', no_favorites: '還沒有收藏任何日記', set_custom_date: '設定發佈時間', link_url: '連結網址', enter_link_url: '請輸入網址', pin_diary: '置頂日記', unpin_diary: '取消置頂', pinned: '已置頂', show_lunar_calendar: '顯示農曆', show_holidays: '顯示節日', no_holiday_today: '今天沒有特別的節日', add_audio: '添加語音', live_record: '即時錄音', upload_audio: '上傳音訊', recording: '錄音中...', stop_recording: '停止錄音', record_failed: '錄音失敗，請檢查麥克風權限。', set_location: '設定地點', auto_detect: '自動獲取', select_on_map: '地圖選點', manual_entry: '手動輸入', enter_location_name: '請輸入地點名稱', font_settings: '字體設定', builtin_fonts: '字體選擇', web_font_url: '網路字體URL', local_font_file: '本機字體檔案', local_font_warning: '警告：上傳本機字體檔案可能會佔用大量儲存空間並導致應用程式卡頓。', reset_to_default: '重設為預設字體', apply: '套用', manage_presets: '管理預設', save_as_preset: '另存為預設', delete_preset: '刪除預設', enter_preset_name: '請輸入預設名稱', preset_name: '預設名稱', no_presets_to_delete: '沒有可刪除的預設', my_presets: '我的預設', built_in_group: '內建字體', anniversaries: '紀念日', accounting: '記帳本', snippets: '言語集', add_anniversary: '新增紀念日', anniversary_name: '名稱', anniversary_date: '日期', anniversary_type: '類型', anniversary: '紀念日', target_day: '目標日', passed: '已過', remaining: '還有', days_unit: '天', add_transaction: '新增帳單', transaction_type: '類型', income: '收入', expense: '支出', amount: '金額', description: '描述', total_income: '總收入', total_expense: '總支出', balance: '結餘', add_snippet_collection: '新建言語集', collection_name: '言語集名稱', add_snippet: '發表言語', snippet_content: '言語內容', no_items_yet: '還沒有任何記錄，點擊右上角“+”新增吧！', edit_anniversary: '編輯紀念日', edit_transaction: '編輯帳單', edit_snippet: '編輯言語', pin: '置頂', unpin: '取消置頂', change_background: '更換背景', view_day: '日', view_month: '月', view_year: '年', confirm_selection: '在此選定', search_location: '搜尋地點...', word_count_unit: '字', manage_snippets: '管理言語', delete_selected: '刪除所選' },
-            'ja': { nav_diary: '日記', date: '日付', notebooks: '日記帳', my: '私', diaries: '日記', days: '記録日数', recent_diaries: '最近の日記', new: '新規', map: '地図', theme: 'テーマ', language: '言語', dark_mode: 'ダークモード', export_data: 'データエクスポート', import_data: 'データインポート', select_language: '言語を選択', cancel: 'キャンセル', reset: 'リセット', upload: 'アップロード', global_theme: '全体テーマ', bg_color: '背景色', bg_image: '背景画像', diary_theme: '日記テーマ', primary_text_color: 'メインテキスト色', secondary_text_color: 'サブテキスト色', theme_settings: 'テーマ設定', delete: '削除', no_diaries: '日記がありません', add_comment: 'コメント', year: '年', month: '月', edit: '編集', save: '保存', new_diary: '新しい日記', edit_diary: '日記を編集', content: '内容', mood: '気分', weather: '天気', location: '場所', images: '写真', notebook: '日記帳', default_notebook: 'デフォルト', all_diaries: 'すべて', new_notebook: '新しい日記帳', notebook_name: '日記帳の名前', confirm_delete: '本当に削除しますか？', delete_success: '削除しました', import_confirm: 'インポートすると現在のデータが上書きされます。よろしいですか？この操作は記念日や会計帳などのデータもすべて消去します。', import_success: 'インポート成功！', export_success: 'エクスポート成功！', no_recent_diaries: '最近の日記はありません', accent_color_theme: 'アクセントカラー', accent_color: 'アクセントカラー', edit_profile: 'プロフィール編集', profile_name: 'ニックネーム', profile_id: 'ID', profile_bio: '自己紹介', upload_avatar: 'アバターをアップロード', upload_background: '背景をアップロード', write_something: '何か書く...', select_notebook: '日記帳を選択', location_failed: '位置情報を取得できませんでした。日記に位置情報は含まれません。端末の位置情報サービスとアプリの権限を確認してください。', edit_notebook_name: '日記帳名を編集', change_notebook_cover: 'カバーを変更', enter_cover_url: 'カバー画像のURLを入力', upload_from_local: 'ローカルからアップロード', default_notebook_no_delete: 'デフォルトの日記帳は削除できません', my_favorites: 'お気に入り', no_favorites: 'お気に入りの日記はありません', set_custom_date: '投稿日時を設定', link_url: 'リンクURL', enter_link_url: 'URLを入力してください', pin_diary: '日記をピン留め', unpin_diary: 'ピン留めを解除', pinned: 'ピン留め済み', show_lunar_calendar: '旧暦を表示', show_holidays: '祝日を表示', no_holiday_today: '今日は特別な祝日はありません', add_audio: '音声を追加', live_record: 'ライブ録音', upload_audio: '音声をアップロード', recording: '録音中...', stop_recording: '録音停止', record_failed: '録音に失敗しました。マイクの権限を確認してください。', set_location: '場所を設定', auto_detect: '自動検出', select_on_map: '地図で選択', manual_entry: '手動入力', enter_location_name: '場所の名前を入力', font_settings: 'フォント設定', builtin_fonts: 'フォント選択', web_font_url: 'WebフォントURL', local_font_file: 'ローカルフォントファイル', local_font_warning: '警告：ローカルフォントファイルをアップロードすると、ストレージを大量に消費し、アプリの動作が遅くなる可能性があります。', reset_to_default: 'デフォルトにリセット', apply: '適用', manage_presets: 'プリセット管理', save_as_preset: 'プリセットとして保存', delete_preset: 'プリセットを削除', enter_preset_name: 'プリセット名を入力', preset_name: 'プリセット名', no_presets_to_delete: '削除できるプリセットがありません', my_presets: 'マイプリセット', built_in_group: '内蔵フォント', anniversaries: '記念日', accounting: '会計帳', snippets: '言葉集', add_anniversary: '記念日を追加', anniversary_name: '名前', anniversary_date: '日付', anniversary_type: 'タイプ', anniversary: '記念日', target_day: '目標日', passed: '経過', remaining: '残り', days_unit: '日', add_transaction: '取引を追加', transaction_type: 'タイプ', income: '収入', expense: '支出', amount: '金額', description: '説明', total_income: '総収入', total_expense: '総支出', balance: '残高', add_snippet_collection: '新しい言葉集を作成', collection_name: '言葉集の名前', add_snippet: '言葉を追加', snippet_content: '内容', no_items_yet: 'まだ記録がありません。右上の「+」をクリックして追加してください。', edit_anniversary: '記念日を編集', edit_transaction: '取引を編集', edit_snippet: '言葉を編集', pin: 'ピン留め', unpin: 'ピン留め解除', change_background: '背景を変更', view_day: '日', view_month: '月', view_year: '年', confirm_selection: 'ここで選択', search_location: '場所を検索...', word_count_unit: '字', manage_snippets: '言葉を管理', delete_selected: '選択項目を削除' },
-            'en': { nav_diary: 'Diary', date: 'Date', notebooks: 'Notebooks', my: 'My', diaries: 'Diaries', days: 'Days', recent_diaries: 'Recent Diaries', new: 'New', map: 'Map', theme: 'Theme', language: 'Language', dark_mode: 'Dark Mode', export_data: 'Export Data', import_data: 'Import Data', select_language: 'Select Language', cancel: 'Cancel', reset: 'Reset', upload: 'Upload', global_theme: 'Global Theme', bg_color: 'Background Color', bg_image: 'Background Image', diary_theme: 'Diary Theme', primary_text_color: 'Primary Text Color', secondary_text_color: 'Secondary Text Color', theme_settings: 'Theme Settings', delete: 'Delete', no_diaries: 'No diaries yet', add_comment: 'Comment', year: 'Year', month: 'Month', edit: 'Edit', save: 'Save', new_diary: 'New Diary', edit_diary: 'Edit Diary', content: 'Content', mood: 'Mood', weather: 'Weather', location: 'Location', images: 'Images', notebook: 'Notebook', default_notebook: 'Default Notebook', all_diaries: 'All', new_notebook: 'New Notebook', notebook_name: 'Notebook Name', confirm_delete: 'Are you sure you want to delete this? This action cannot be undone.', delete_success: 'Deleted successfully', import_confirm: 'Importing will overwrite all current data. Are you sure? This action will also clear all data including anniversaries, transactions, etc.', import_success: 'Import successful!', export_success: 'Export successful!', no_recent_diaries: 'No recent diaries', accent_color_theme: 'Accent Color Theme', accent_color: 'Accent Color', edit_profile: 'Edit Profile', profile_name: 'Name', profile_id: 'ID', profile_bio: 'Bio', upload_avatar: 'Upload Avatar', upload_background: 'Upload Background', write_something: 'Write something...', select_notebook: 'Select Notebook', location_failed: 'Could not get location. The diary will not include location data. Please check your device\'s location services and app permissions.', edit_notebook_name: 'Edit Notebook Name', change_notebook_cover: 'Change Cover', enter_cover_url: 'Enter cover image URL', upload_from_local: 'Upload from Local', default_notebook_no_delete: 'The default notebook cannot be deleted', my_favorites: 'Favorite', no_favorites: 'No favorite diaries yet', set_custom_date: 'Set Post Time', link_url: 'Link URL', enter_link_url: 'Please enter a URL', pin_diary: 'Pin Diary', unpin_diary: 'Unpin Diary', pinned: 'Pinned', show_lunar_calendar: 'Show Lunar', show_holidays: 'Show Holidays', no_holiday_today: 'No special holiday today', add_audio: 'Add Audio', live_record: 'Live Record', upload_audio: 'Upload Audio', recording: 'Recording...', stop_recording: 'Stop Recording', record_failed: 'Recording failed. Please check microphone permissions.', set_location: 'Set Location', auto_detect: 'Auto-detect', select_on_map: 'Select on Map', manual_entry: 'Manual Entry', enter_location_name: 'Enter location name', font_settings: 'Font Settings', builtin_fonts: 'Font Selection', web_font_url: 'Web Font URL', local_font_file: 'Local Font File', local_font_warning: 'Warning: Uploading local font files may consume significant storage and cause performance issues.', reset_to_default: 'Reset to Default', apply: 'Apply', manage_presets: 'Manage Presets', save_as_preset: 'Save as Preset', delete_preset: 'Delete Preset', enter_preset_name: 'Enter preset name', preset_name: 'Preset Name', no_presets_to_delete: 'No presets to delete', my_presets: 'My Presets', built_in_group: 'Built-in', anniversaries: 'Anniversaries', accounting: 'Accounting', snippets: 'Snippets', add_anniversary: 'Add Anniversary', anniversary_name: 'Name', anniversary_date: 'Date', anniversary_type: 'Type', anniversary: 'Anniversary', target_day: 'Target Day', passed: 'passed', remaining: 'remaining', days_unit: 'days', add_transaction: 'Add Transaction', transaction_type: 'Type', income: 'Income', expense: 'Expense', amount: 'Amount', description: 'Description', total_income: 'Total Income', total_expense: 'Total Expense', balance: 'Balance', add_snippet_collection: 'New Collection', collection_name: 'Collection Name', add_snippet: 'Add Snippet', snippet_content: 'Snippet Content', no_items_yet: 'No items yet. Click the "+" icon in the top right to add one!', edit_anniversary: 'Edit Anniversary', edit_transaction: 'Edit Transaction', edit_snippet: 'Edit Snippet', pin: 'Pin', unpin: 'Unpin', change_background: 'Change Background', view_day: 'Day', view_month: 'Month', view_year: 'Year', confirm_selection: 'Confirm Selection', search_location: 'Search location...', word_count_unit: 'words', manage_snippets: 'Manage Snippets', delete_selected: 'Delete Selected' },
-            'ko': { nav_diary: '일기', date: '날짜', notebooks: '일기장', my: '내 정보', diaries: '일기', days: '기록한 날', recent_diaries: '최근 일기', new: '새로 만들기', map: '지도', theme: '테마', language: '언어', dark_mode: '다크 모드', export_data: '데이터 내보내기', import_data: '데이터 가져오기', select_language: '언어 선택', cancel: '취소', reset: '초기화', upload: '업로드', global_theme: '전체 테마', bg_color: '배경색', bg_image: '배경 이미지', diary_theme: '일기 테마', primary_text_color: '기본 텍스트 색상', secondary_text_color: '보조 텍스트 색상', theme_settings: '테마 설정', delete: '삭제', no_diaries: '일기가 없습니다', add_comment: '댓글', year: '년', month: '월', edit: '수정', save: '저장', new_diary: '새 일기', edit_diary: '일기 수정', content: '내용', mood: '기분', weather: '날씨', location: '위치', images: '사진', notebook: '일기장', default_notebook: '기본 일기장', all_diaries: '전체', new_notebook: '새 일기장', notebook_name: '일기장 이름', confirm_delete: '정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.', delete_success: '삭제 성공', import_confirm: '가져오기를 하면 현재 모든 데이터가 덮어쓰여집니다. 계속하시겠습니까? 이 작업은 기념일, 가계부 등 모든 데이터도 삭제합니다.', import_success: '가져오기 성공!', export_success: '내보내기 성공!', no_recent_diaries: '최근 일기가 없습니다', accent_color_theme: '악센트 컬러 테마', accent_color: '악센트 컬러', edit_profile: '프로필 편집', profile_name: '이름', profile_id: 'ID', profile_bio: '소개', upload_avatar: '아바타 업로드', upload_background: '배경 업로드', write_something: '무엇인가 쓰기...', select_notebook: '일기장 선택', location_failed: '위치 정보를 가져올 수 없습니다. 일기에는 위치 데이터가 포함되지 않습니다. 기기의 위치 서비스 및 앱 권한을 확인하십시오.', edit_notebook_name: '일기장 이름 편집', change_notebook_cover: '표지 변경', enter_cover_url: '표지 이미지 URL 입력', upload_from_local: '로컬에서 업로드', default_notebook_no_delete: '기본 일기장은 삭제할 수 없습니다', my_favorites: '즐겨찾기', no_favorites: '즐겨찾기한 일기가 없습니다', set_custom_date: '게시 시간 설정', link_url: '링크 URL', enter_link_url: 'URL을 입력하세요', pin_diary: '일기 고정', unpin_diary: '고정 해제', pinned: '고정됨', show_lunar_calendar: '음력 표시', show_holidays: '공휴일 표시', no_holiday_today: '오늘은 특별한 휴일이 없습니다', add_audio: '오디오 추가', live_record: '실시간 녹음', upload_audio: '오디오 업로드', recording: '녹음 중...', stop_recording: '녹음 중지', record_failed: '녹음에 실패했습니다. 마이크 권한을 확인하십시오.', set_location: '위치 설정', auto_detect: '자동 감지', select_on_map: '지도에서 선택', manual_entry: '수동 입력', enter_location_name: '위치 이름 입력', font_settings: '글꼴 설정', builtin_fonts: '글꼴 선택', web_font_url: '웹 글꼴 URL', local_font_file: '로컬 글꼴 파일', local_font_warning: '경고: 로컬 글꼴 파일을 업로드하면 상당한 저장 공간을 차지하고 성능 문제가 발생할 수 있습니다.', reset_to_default: '기본값으로 재설정', apply: '적용', manage_presets: '프리셋 관리', save_as_preset: '프리셋으로 저장', delete_preset: '프리셋 삭제', enter_preset_name: '프리셋 이름 입력', preset_name: '프리셋 이름', no_presets_to_delete: '삭제할 프리셋이 없습니다', my_presets: '내 프리셋', built_in_group: '내장 글꼴', anniversaries: '기념일', accounting: '가계부', snippets: '스니펫', add_anniversary: '기념일 추가', anniversary_name: '이름', anniversary_date: '날짜', anniversary_type: '유형', anniversary: '기념일', target_day: '목표일', passed: '지남', remaining: '남음', days_unit: '일', add_transaction: '거래 추가', transaction_type: '유형', income: '수입', expense: '지출', amount: '금액', description: '설명', total_income: '총 수입', total_expense: '총 지출', balance: '잔액', add_snippet_collection: '새 컬렉션', collection_name: '컬렉션 이름', add_snippet: '스니펫 추가', snippet_content: '스니펫 내용', no_items_yet: '아직 항목이 없습니다. 오른쪽 상단의 "+" 아이콘을 클릭하여 추가하세요!', edit_anniversary: '기념일 편집', edit_transaction: '거래 편집', edit_snippet: '스니펫 편집', pin: '고정', unpin: '고정 해제', change_background: '배경 변경', view_day: '일', view_month: '월', view_year: '년', confirm_selection: '여기서 선택', search_location: '위치 검색...', word_count_unit: '자', manage_snippets: '스니펫 관리', delete_selected: '선택 삭제' }
+            'zh-CN': { nav_diary: '日记', date: '日期', notebooks: '日记本', my: '我的', diaries: '日记', days: '记录天数', recent_diaries: '近期日记', new: '新建', map: '地图', theme: '主题', language: '语言', dark_mode: '黑夜模式', export_data: '导出数据', import_data: '导入数据', select_language: '选择语言', cancel: '取消', reset: '重置', upload: '上传', global_theme: '全局主题', bg_color: '背景色', bg_image: '背景图', diary_theme: '日记主题', primary_text_color: '主文字颜色', secondary_text_color: '次文字颜色', theme_settings: '主题设置', delete: '删除', no_diaries: '还没有日记', add_comment: '评论', year: '年', month: '月', edit: '编辑', save: '保存', new_diary: '写新日记', edit_diary: '编辑日记', content: '内容', mood: '心情', weather: '天气', location: '位置', images: '图片', notebook: '日记本', default_notebook: '默认日记本', all_diaries: '全部', new_notebook: '新建日记本', notebook_name: '日记本名称', confirm_delete: '确认删除吗？此操作不可撤销。', delete_success: '删除成功', import_confirm: '导入数据将覆盖当前所有数据，确定吗？此操作会清除包括纪念日、记账本等所有数据。', import_success: '导入成功！', export_success: '导出成功！', no_recent_diaries: '最近没有写日记哦', accent_color_theme: '一键主题色', accent_color: '强调色', edit_profile: '编辑资料', profile_name: '昵称', profile_id: 'ID', profile_bio: '个人简介', upload_avatar: '上传头像', upload_background: '上传背景', write_something: '写点什么...', select_notebook: '选择日记本', location_failed: '无法获取地理位置，日记将不包含位置信息。请检查手机定位服务和应用权限。', edit_notebook_name: '编辑日记本名称', change_notebook_cover: '更换封面', enter_cover_url: '请输入封面图片URL', upload_from_local: '本地上传', default_notebook_no_delete: '默认日记本不能删除', my_favorites: '收藏', no_favorites: '还没有收藏任何日记', set_custom_date: '设置发布时间', link_url: '链接地址', enter_link_url: '请输入网址', pin_diary: '置顶日记', unpin_diary: '取消置顶', pinned: '已置顶', show_lunar_calendar: '显示农历', show_holidays: '显示节日', no_holiday_today: '今天没有特别的节日', add_audio: '添加语音', live_record: '实时录音', upload_audio: '上传音频', recording: '录音中...', stop_recording: '停止录音', record_failed: '录音失败，请检查麦克风权限。', set_location: '设置地点', auto_detect: '自动获取', select_on_map: '地图选点', manual_entry: '手动输入', enter_location_name: '请输入地点名称', font_settings: '字体设置', builtin_fonts: '字体选择', web_font_url: '网络字体URL', local_font_file: '本地字体文件', local_font_warning: '警告：上传本地字体文件可能会占用大量存储空间并导致应用卡顿。', reset_to_default: '重置为默认字体', apply: '应用', manage_presets: '管理预设', save_as_preset: '保存为新预设', delete_preset: '删除预设', enter_preset_name: '请输入预设名称', preset_name: '预设名称', no_presets_to_delete: '没有可删除的预设', my_presets: '我的预设', built_in_group: '内置字体', anniversaries: '纪念日', accounting: '记账本', snippets: '言语集', add_anniversary: '添加纪念日', anniversary_name: '名称', anniversary_date: '日期', anniversary_type: '类型', anniversary: '纪念日', target_day: '目标日', passed: '已过', remaining: '还有', days_unit: '天', add_transaction: '添加账单', transaction_type: '类型', income: '收入', expense: '支出', amount: '金额', description: '描述', total_income: '总收入', total_expense: '总支出', balance: '结余', add_snippet_collection: '新建言语集', collection_name: '言语集名称', add_snippet: '发表言语', snippet_content: '言语内容', no_items_yet: '还没有任何记录，点击右上角“+”添加吧！', edit_anniversary: '编辑纪念日', edit_transaction: '编辑账单', edit_snippet: '编辑言语', pin: '置顶', unpin: '取消置顶', change_background: '更换背景', view_day: '日', view_month: '月', view_year: '年', confirm_selection: '在此选定', search_location: '搜索地点...', word_count_unit: '字', manage_snippets: '管理言语', delete_selected: '删除所选', games: '小游戏', copy: '复制', export_image: '导出为图片', difficulty: '难度', easy: '简单', medium: '中等', hard: '困难', new_game: '新游戏', start_game: '开始游戏', copied_success: '复制成功！', export_diary_success: '日记图片已保存到下载！', game_tetris: '俄罗斯方块', game_tictactoe: '井字棋', game_sudoku: '数独', game_blackjack: '21点', game_planetdefender: '星球保卫战', game_lightsout: '点灯游戏', game_doodlejump: '是人就下100层', game_tetris_next: '下一个', game_sudoku_check: '检查', game_sudoku_hint: '提示' },
+            'zh-TW': { nav_diary: '日記', date: '日期', notebooks: '日記本', my: '我的', diaries: '日記', days: '記錄天數', recent_diaries: '近期日記', new: '新建', map: '地圖', theme: '主題', language: '語言', dark_mode: '黑夜模式', export_data: '匯出資料', import_data: '匯入資料', select_language: '選擇語言', cancel: '取消', reset: '重置', upload: '上傳', global_theme: '全域主題', bg_color: '背景顏色', bg_image: '背景圖片', diary_theme: '日記主題', primary_text_color: '主文字顏色', secondary_text_color: '次要文字顏色', theme_settings: '主題設定', delete: '刪除', no_diaries: '還沒有日記', add_comment: '评论', year: '年', month: '月', edit: '編輯', save: '儲存', new_diary: '寫新日記', edit_diary: '編輯日記', content: '內容', mood: '心情', weather: '天氣', location: '位置', images: '圖片', notebook: '日記本', default_notebook: '預設日記本', all_diaries: '全部', new_notebook: '新建日記本', notebook_name: '日記本名稱', confirm_delete: '確認刪除嗎？此操作不可撤銷。', delete_success: '刪除成功', import_confirm: '導入數據將覆蓋當前所有數據，確定嗎？此操作会清除包括紀念日、記賬本等所有數據。', import_success: '導入成功！', export_success: '導出成功！', no_recent_diaries: '最近沒有寫日記哦', accent_color_theme: '一鍵主題色', accent_color: '強調色', edit_profile: '編輯資料', profile_name: '暱稱', profile_id: 'ID', profile_bio: '個人簡介', upload_avatar: '上傳頭像', upload_background: '上傳背景', write_something: '寫點什麼...', select_notebook: '選擇日記本', location_failed: '無法獲取地理位置，日記將不包含位置信息。請檢查手機定位服務和應用權限。', edit_notebook_name: '編輯日記本名稱', change_notebook_cover: '更換封面', enter_cover_url: '請輸入封面圖片URL', upload_from_local: '本地上傳', default_notebook_no_delete: '預設日記本不能刪除', my_favorites: '收藏', no_favorites: '還沒有收藏任何日記', set_custom_date: '設定發佈時間', link_url: '連結網址', enter_link_url: '請輸入網址', pin_diary: '置頂日記', unpin_diary: '取消置頂', pinned: '已置頂', show_lunar_calendar: '顯示農曆', show_holidays: '顯示節日', no_holiday_today: '今天沒有特別的節日', add_audio: '添加語音', live_record: '即時錄音', upload_audio: '上傳音訊', recording: '錄音中...', stop_recording: '停止錄音', record_failed: '錄音失敗，請檢查麥克風權限。', set_location: '設定地點', auto_detect: '自動獲取', select_on_map: '地圖選點', manual_entry: '手動輸入', enter_location_name: '請輸入地點名稱', font_settings: '字體設定', builtin_fonts: '字體選擇', web_font_url: '網路字體URL', local_font_file: '本機字體檔案', local_font_warning: '警告：上傳本機字體檔案可能會佔用大量儲存空間並導致應用程式卡頓。', reset_to_default: '重設為預設字體', apply: '套用', manage_presets: '管理預設', save_as_preset: '另存為預設', delete_preset: '刪除預設', enter_preset_name: '請輸入預設名稱', preset_name: '預設名稱', no_presets_to_delete: '沒有可刪除的預設', my_presets: '我的預設', built_in_group: '內建字體', anniversaries: '紀念日', accounting: '記帳本', snippets: '言語集', add_anniversary: '新增紀念日', anniversary_name: '名稱', anniversary_date: '日期', anniversary_type: '類型', anniversary: '紀念日', target_day: '目標日', passed: '已過', remaining: '還有', days_unit: '天', add_transaction: '新增帳單', transaction_type: '類型', income: '收入', expense: '支出', amount: '金額', description: '描述', total_income: '總收入', total_expense: '總支出', balance: '結餘', add_snippet_collection: '新建言語集', collection_name: '言語集名稱', add_snippet: '發表言語', snippet_content: '言語內容', no_items_yet: '還沒有任何記錄，點擊右上角“+”新增吧！', edit_anniversary: '編輯紀念日', edit_transaction: '編輯帳單', edit_snippet: '編輯言語', pin: '置頂', unpin: '取消置頂', change_background: '更換背景', view_day: '日', view_month: '月', view_year: '年', confirm_selection: '在此選定', search_location: '搜尋地點...', word_count_unit: '字', manage_snippets: '管理言語', delete_selected: '刪除所選', games: '小遊戲', copy: '複製', export_image: '匯出為圖片', difficulty: '難度', easy: '簡單', medium: '中等', hard: '困難', new_game: '新遊戲', start_game: '開始遊戲', copied_success: '複製成功！', export_diary_success: '日記圖片已儲存到下載！', game_tetris: '俄羅斯方塊', game_tictactoe: '井字棋', game_sudoku: '數獨', game_blackjack: '21點', game_planetdefender: '星球保衛戰', game_lightsout: '點燈遊戲', game_doodlejump: '是男人就下100層', game_tetris_next: '下一個', game_sudoku_check: '檢查', game_sudoku_hint: '提示' },
+            'ja': { nav_diary: '日記', date: '日付', notebooks: '日記帳', my: '私', diaries: '日記', days: '記録日数', recent_diaries: '最近の日記', new: '新規', map: '地図', theme: 'テーマ', language: '言語', dark_mode: 'ダークモード', export_data: 'データエクスポート', import_data: 'データインポート', select_language: '言語を選択', cancel: 'キャンセル', reset: 'リセット', upload: 'アップロード', global_theme: '全体テーマ', bg_color: '背景色', bg_image: '背景画像', diary_theme: '日記テーマ', primary_text_color: 'メインテキスト色', secondary_text_color: 'サブテキスト色', theme_settings: 'テーマ設定', delete: '削除', no_diaries: '日記がありません', add_comment: 'コメント', year: '年', month: '月', edit: '編集', save: '保存', new_diary: '新しい日記', edit_diary: '日記を編集', content: '内容', mood: '気分', weather: '天気', location: '場所', images: '写真', notebook: '日記帳', default_notebook: 'デフォルト', all_diaries: 'すべて', new_notebook: '新しい日記帳', notebook_name: '日記帳の名前', confirm_delete: '本当に削除しますか？', delete_success: '削除しました', import_confirm: 'インポートすると現在のデータが上書きされます。よろしいですか？この操作は記念日や会計帳などのデータもすべて消去します。', import_success: 'インポート成功！', export_success: 'エクスポート成功！', no_recent_diaries: '最近の日記はありません', accent_color_theme: 'アクセントカラー', accent_color: 'アクセントカラー', edit_profile: 'プロフィール編集', profile_name: 'ニックネーム', profile_id: 'ID', profile_bio: '自己紹介', upload_avatar: 'アバターをアップロード', upload_background: '背景をアップロード', write_something: '何か書く...', select_notebook: '日記帳を選択', location_failed: '位置情報を取得できませんでした。日記に位置情報は含まれません。端末の位置情報サービスとアプリの権限を確認してください。', edit_notebook_name: '日記帳名を編集', change_notebook_cover: 'カバーを変更', enter_cover_url: 'カバー画像のURLを入力', upload_from_local: 'ローカルからアップロード', default_notebook_no_delete: 'デフォルトの日記帳は削除できません', my_favorites: 'お気に入り', no_favorites: 'お気に入りの日記はありません', set_custom_date: '投稿日時を設定', link_url: 'リンクURL', enter_link_url: 'URLを入力してください', pin_diary: '日記をピン留め', unpin_diary: 'ピン留めを解除', pinned: 'ピン留め済み', show_lunar_calendar: '旧暦を表示', show_holidays: '祝日を表示', no_holiday_today: '今日は特別な祝日はありません', add_audio: '音声を追加', live_record: 'ライブ録音', upload_audio: '音声をアップロード', recording: '録音中...', stop_recording: '録音停止', record_failed: '録音に失敗しました。マイクの権限を確認してください。', set_location: '場所を設定', auto_detect: '自動検出', select_on_map: '地図で選択', manual_entry: '手動入力', enter_location_name: '場所の名前を入力', font_settings: 'フォント設定', builtin_fonts: 'フォント選択', web_font_url: 'WebフォントURL', local_font_file: 'ローカルフォントファイル', local_font_warning: '警告：ローカルフォントファイルをアップロードすると、ストレージを大量に消費し、アプリの動作が遅くなる可能性があります。', reset_to_default: 'デフォルトにリセット', apply: '適用', manage_presets: 'プリセット管理', save_as_preset: 'プリセットとして保存', delete_preset: 'プリセットを削除', enter_preset_name: 'プリセット名を入力', preset_name: 'プリセット名', no_presets_to_delete: '削除できるプリセットがありません', my_presets: 'マイプリセット', built_in_group: '内蔵フォント', anniversaries: '記念日', accounting: '会計帳', snippets: '言葉集', add_anniversary: '記念日を追加', anniversary_name: '名前', anniversary_date: '日付', anniversary_type: 'タイプ', anniversary: '記念日', target_day: '目標日', passed: '経過', remaining: '残り', days_unit: '日', add_transaction: '取引を追加', transaction_type: 'タイプ', income: '収入', expense: '支出', amount: '金額', description: '説明', total_income: '総収入', total_expense: '総支出', balance: '残高', add_snippet_collection: '新しい言葉集を作成', collection_name: '言葉集の名前', add_snippet: '言葉を追加', snippet_content: '内容', no_items_yet: 'まだ記録がありません。右上の「+」をクリックして追加してください。', edit_anniversary: '記念日を編集', edit_transaction: '取引を編集', edit_snippet: '言葉を編集', pin: 'ピン留め', unpin: 'ピン留め解除', change_background: '背景を変更', view_day: '日', view_month: '月', view_year: '年', confirm_selection: 'ここで選択', search_location: '場所を検索...', word_count_unit: '字', manage_snippets: '言葉を管理', delete_selected: '選択項目を削除', games: 'ミニゲーム', copy: 'コピー', export_image: '画像としてエクスポート', difficulty: '難易度', easy: '簡単', medium: '普通', hard: '難しい', new_game: '新しいゲーム', start_game: 'ゲーム開始', copied_success: 'コピーしました！', export_diary_success: '日記画像をダウンロードに保存しました！', game_tetris: 'テトリス', game_tictactoe: '三目並べ', game_sudoku: '数独', game_blackjack: 'ブラックジャック', game_planetdefender: '惑星防衛', game_lightsout: 'ライトアウト', game_doodlejump: '100階ダイブ', game_tetris_next: '次', game_sudoku_check: 'チェック', game_sudoku_hint: 'ヒント' },
+            'en': { nav_diary: 'Diary', date: 'Date', notebooks: 'Notebooks', my: 'My', diaries: 'Diaries', days: 'Days', recent_diaries: 'Recent Diaries', new: 'New', map: 'Map', theme: 'Theme', language: 'Language', dark_mode: 'Dark Mode', export_data: 'Export Data', import_data: 'Import Data', select_language: 'Select Language', cancel: 'Cancel', reset: 'Reset', upload: 'Upload', global_theme: 'Global Theme', bg_color: 'Background Color', bg_image: 'Background Image', diary_theme: 'Diary Theme', primary_text_color: 'Primary Text Color', secondary_text_color: 'Secondary Text Color', theme_settings: 'Theme Settings', delete: 'Delete', no_diaries: 'No diaries yet', add_comment: 'Comment', year: 'Year', month: 'Month', edit: 'Edit', save: 'Save', new_diary: 'New Diary', edit_diary: 'Edit Diary', content: 'Content', mood: 'Mood', weather: 'Weather', location: 'Location', images: 'Images', notebook: 'Notebook', default_notebook: 'Default Notebook', all_diaries: 'All', new_notebook: 'New Notebook', notebook_name: 'Notebook Name', confirm_delete: 'Are you sure you want to delete this? This action cannot be undone.', delete_success: 'Deleted successfully', import_confirm: 'Importing will overwrite all current data. Are you sure? This action will also clear all data including anniversaries, transactions, etc.', import_success: 'Import successful!', export_success: 'Export successful!', no_recent_diaries: 'No recent diaries', accent_color_theme: 'Accent Color Theme', accent_color: 'Accent Color', edit_profile: 'Edit Profile', profile_name: 'Name', profile_id: 'ID', profile_bio: 'Bio', upload_avatar: 'Upload Avatar', upload_background: 'Upload Background', write_something: 'Write something...', select_notebook: 'Select Notebook', location_failed: 'Could not get location. The diary will not include location data. Please check your device\'s location services and app permissions.', edit_notebook_name: 'Edit Notebook Name', change_notebook_cover: 'Change Cover', enter_cover_url: 'Enter cover image URL', upload_from_local: 'Upload from Local', default_notebook_no_delete: 'The default notebook cannot be deleted', my_favorites: 'Favorite', no_favorites: 'No favorite diaries yet', set_custom_date: 'Set Post Time', link_url: 'Link URL', enter_link_url: 'Please enter a URL', pin_diary: 'Pin Diary', unpin_diary: 'Unpin Diary', pinned: 'Pinned', show_lunar_calendar: 'Show Lunar', show_holidays: 'Show Holidays', no_holiday_today: 'No special holiday today', add_audio: 'Add Audio', live_record: 'Live Record', upload_audio: 'Upload Audio', recording: 'Recording...', stop_recording: 'Stop Recording', record_failed: 'Recording failed. Please check microphone permissions.', set_location: 'Set Location', auto_detect: 'Auto-detect', select_on_map: 'Select on Map', manual_entry: 'Manual Entry', enter_location_name: 'Enter location name', font_settings: 'Font Settings', builtin_fonts: 'Font Selection', web_font_url: 'Web Font URL', local_font_file: 'Local Font File', local_font_warning: 'Warning: Uploading local font files may consume significant storage and cause performance issues.', reset_to_default: 'Reset to Default', apply: 'Apply', manage_presets: 'Manage Presets', save_as_preset: 'Save as Preset', delete_preset: 'Delete Preset', enter_preset_name: 'Enter preset name', preset_name: 'Preset Name', no_presets_to_delete: 'No presets to delete', my_presets: 'My Presets', built_in_group: 'Built-in', anniversaries: 'Anniversaries', accounting: 'Accounting', snippets: 'Snippets', add_anniversary: 'Add Anniversary', anniversary_name: 'Name', anniversary_date: 'Date', anniversary_type: 'Type', anniversary: 'Anniversary', target_day: 'Target Day', passed: 'passed', remaining: 'remaining', days_unit: 'days', add_transaction: 'Add Transaction', transaction_type: 'Type', income: 'Income', expense: 'Expense', amount: 'Amount', description: 'Description', total_income: 'Total Income', total_expense: 'Total Expense', balance: 'Balance', add_snippet_collection: 'New Collection', collection_name: 'Collection Name', add_snippet: 'Add Snippet', snippet_content: 'Snippet Content', no_items_yet: 'No items yet. Click the "+" icon in the top right to add one!', edit_anniversary: 'Edit Anniversary', edit_transaction: 'Edit Transaction', edit_snippet: 'Edit Snippet', pin: 'Pin', unpin: 'Unpin', change_background: 'Change Background', view_day: 'Day', view_month: 'Month', view_year: 'Year', confirm_selection: 'Confirm Selection', search_location: 'Search location...', word_count_unit: 'words', manage_snippets: 'Manage Snippets', delete_selected: 'Delete Selected', games: 'Games', copy: 'Copy', export_image: 'Export as Image', difficulty: 'Difficulty', easy: 'Easy', medium: 'Medium', hard: 'Hard', new_game: 'New Game', start_game: 'Start Game', copied_success: 'Copied successfully!', export_diary_success: 'Diary image saved to Downloads!', game_tetris: 'Tetris', game_tictactoe: 'Tic-Tac-Toe', game_sudoku: 'Sudoku', game_blackjack: 'Blackjack', game_planetdefender: 'Planet Defender', game_lightsout: 'Lights Out', game_doodlejump: 'Doodle Jump', game_tetris_next: 'Next', game_sudoku_check: 'Check', game_sudoku_hint: 'Hint' },
+            'ko': { nav_diary: '일기', date: '날짜', notebooks: '일기장', my: '내 정보', diaries: '일기', days: '기록한 날', recent_diaries: '최근 일기', new: '새로 만들기', map: '지도', theme: '테마', language: '언어', dark_mode: '다크 모드', export_data: '데이터 내보내기', import_data: '데이터 가져오기', select_language: '언어 선택', cancel: '취소', reset: '초기화', upload: '업로드', global_theme: '전체 테마', bg_color: '배경색', bg_image: '배경 이미지', diary_theme: '일기 테마', primary_text_color: '기본 텍스트 색상', secondary_text_color: '보조 텍스트 색상', theme_settings: '테마 설정', delete: '삭제', no_diaries: '일기가 없습니다', add_comment: '댓글', year: '년', month: '월', edit: '수정', save: '저장', new_diary: '새 일기', edit_diary: '일기 수정', content: '내용', mood: '기분', weather: '날씨', location: '위치', images: '사진', notebook: '일기장', default_notebook: '기본 일기장', all_diaries: '전체', new_notebook: '새 일기장', notebook_name: '일기장 이름', confirm_delete: '정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.', delete_success: '삭제 성공', import_confirm: '가져오기를 하면 현재 모든 데이터가 덮어쓰여집니다. 계속하시겠습니까? 이 작업은 기념일, 가계부 등 모든 데이터도 삭제합니다.', import_success: '가져오기 성공!', export_success: '내보내기 성공!', no_recent_diaries: '최근 일기가 없습니다', accent_color_theme: '악센트 컬러 테마', accent_color: '악센트 컬러', edit_profile: '프로필 편집', profile_name: '이름', profile_id: 'ID', profile_bio: '소개', upload_avatar: '아바타 업로드', upload_background: '배경 업로드', write_something: '무엇인가 쓰기...', select_notebook: '일기장 선택', location_failed: '위치 정보를 가져올 수 없습니다. 일기에는 위치 데이터가 포함되지 않습니다. 기기의 위치 서비스 및 앱 권한을 확인하십시오.', edit_notebook_name: '일기장 이름 편집', change_notebook_cover: '표지 변경', enter_cover_url: '표지 이미지 URL 입력', upload_from_local: '로컬에서 업로드', default_notebook_no_delete: '기본 일기장은 삭제할 수 없습니다', my_favorites: '즐겨찾기', no_favorites: '즐겨찾기한 일기가 없습니다', set_custom_date: '게시 시간 설정', link_url: '링크 URL', enter_link_url: 'URL을 입력하세요', pin_diary: '일기 고정', unpin_diary: '고정 해제', pinned: '고정됨', show_lunar_calendar: '음력 표시', show_holidays: '공휴일 표시', no_holiday_today: '오늘은 특별한 휴일이 없습니다', add_audio: '오디오 추가', live_record: '실시간 녹음', upload_audio: '오디오 업로드', recording: '녹음 중...', stop_recording: '녹음 중지', record_failed: '녹음에 실패했습니다. 마이크 권한을 확인하십시오.', set_location: '위치 설정', auto_detect: '자동 감지', select_on_map: '지도에서 선택', manual_entry: '수동 입력', enter_location_name: '위치 이름 입력', font_settings: '글꼴 설정', builtin_fonts: '글꼴 선택', web_font_url: '웹 글꼴 URL', local_font_file: '로컬 글꼴 파일', local_font_warning: '경고: 로컬 글꼴 파일을 업로드하면 상당한 저장 공간을 차지하고 성능 문제가 발생할 수 있습니다.', reset_to_default: '기본값으로 재설정', apply: '적용', manage_presets: '프리셋 관리', save_as_preset: '프리셋으로 저장', delete_preset: '프리셋 삭제', enter_preset_name: '프리셋 이름 입력', preset_name: '프리셋 이름', no_presets_to_delete: '삭제할 프리셋이 없습니다', my_presets: '내 프리셋', built_in_group: '내장 글꼴', anniversaries: '기념일', accounting: '가계부', snippets: '스니펫', add_anniversary: '기념일 추가', anniversary_name: '이름', anniversary_date: '날짜', anniversary_type: '유형', anniversary: '기념일', target_day: '목표일', passed: '지남', remaining: '남음', days_unit: '일', add_transaction: '거래 추가', transaction_type: '유형', income: '수입', expense: '지출', amount: '금액', description: '설명', total_income: '총 수입', total_expense: '총 지출', balance: '잔액', add_snippet_collection: '새 컬렉션', collection_name: '컬렉션 이름', add_snippet: '스니펫 추가', snippet_content: '스니펫 내용', no_items_yet: '아직 항목이 없습니다. 오른쪽 상단의 "+" 아이콘을 클릭하여 추가하세요!', edit_anniversary: '기념일 편집', edit_transaction: '거래 편집', edit_snippet: '스니펫 편집', pin: '고정', unpin: '고정 해제', change_background: '배경 변경', view_day: '일', view_month: '월', view_year: '년', confirm_selection: '여기서 선택', search_location: '위치 검색...', word_count_unit: '자', manage_snippets: '스니펫 관리', delete_selected: '선택 삭제', games: '미니 게임', copy: '복사', export_image: '이미지로 내보내기', difficulty: '난이도', easy: '쉬움', medium: '중간', hard: '어려움', new_game: '새 게임', start_game: '게임 시작', copied_success: '복사 성공!', export_diary_success: '일기 이미지가 다운로드에 저장되었습니다!', game_tetris: '테트리스', game_tictactoe: '틱택토', game_sudoku: '스도쿠', game_blackjack: '블랙잭', game_planetdefender: '행성 방어', game_lightsout: '라이트 아웃', game_doodlejump: '두들 점프', game_tetris_next: '다음', game_sudoku_check: '확인', game_sudoku_hint: '힌트' }
         };
 
         // 中文注释：一个辅助函数，用来根据当前设置的语言获取对应的文本。
@@ -1154,9 +1541,15 @@
             // 中文注释：遍历所有带 `data-lang-key` 标记的元素，把它们的文本替换成当前语言的文本。
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const translation = getLangText(el.dataset.langKey);
-                if (el.placeholder) el.placeholder = translation;
-                else if (el.title) el.title = translation;
-                else el.textContent = translation;
+                if (el.tagName === 'OPTION') { // Special handling for option elements
+                    el.textContent = translation;
+                } else if (el.placeholder) {
+                    el.placeholder = translation;
+                } else if (el.title) {
+                    el.title = translation;
+                } else {
+                    el.textContent = translation;
+                }
             });
             renderWeekdays();
             renderFontSelection();
@@ -1214,7 +1607,7 @@
 
         // 中文注释：从数据库加载所有数据到内存中。
         async function loadDataFromDB() {
-            const [profile, diaries, notebooks, darkMode, language, theme, font, showLunarCalendar, showHolidays, fontPresets, anniversaries, transactions, snippets, snippetCollections] = await Promise.all([
+            const [profile, diaries, notebooks, darkMode, language, theme, font, showLunarCalendar, showHolidays, fontPresets, anniversaries, transactions, snippets, snippetCollections, customCss] = await Promise.all([
                 dbActions.get('profile', 'userProfile'), 
                 dbActions.getAll('diaries'), 
                 dbActions.getAll('notebooks'),
@@ -1228,7 +1621,8 @@
                 dbActions.getAll('anniversaries'),
                 dbActions.getAll('transactions'),
                 dbActions.getAll('snippets'),
-                dbActions.getAll('snippetCollections')
+                dbActions.getAll('snippetCollections'),
+                dbActions.get('settings', 'customCss')
             ]);
             
             appData = {
@@ -1240,7 +1634,8 @@
                     font: font || null,
                     showLunarCalendar: showLunarCalendar || false,
                     showHolidays: showHolidays || false,
-                    fontPresets: fontPresets || []
+                    fontPresets: fontPresets || [],
+                    customCss: customCss || ''
                 },
                 anniversaries: anniversaries || [],
                 transactions: transactions || [],
@@ -1251,7 +1646,7 @@
         
         // 中文注释：应用用户的个性化设置，比如黑夜模式、主题颜色、字体等。
         async function applySettings() {
-            const { theme, darkMode, font, showLunarCalendar, showHolidays } = appData.settings;
+            const { theme, darkMode, font, showLunarCalendar, showHolidays, customCss } = appData.settings;
             
             body.classList.toggle('dark-mode', darkMode);
             darkModeToggle.checked = darkMode;
@@ -1271,7 +1666,22 @@
 
             lunarCalendarToggle.checked = showLunarCalendar;
             holidayCalendarToggle.checked = showHolidays;
-            await applyFont(font);
+            
+            applyCustomCss(customCss);
+            document.getElementById('custom-css-input').value = customCss;
+
+            await applyFont(font, false); // Just apply, don't re-render selections yet
+        }
+
+        // 新增：应用自定义CSS
+        function applyCustomCss(css) {
+            let styleEl = document.getElementById('custom-css-style');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'custom-css-style';
+                document.head.appendChild(styleEl);
+            }
+            styleEl.textContent = css;
         }
 
         // 中文注释：更新所有显示个人信息的地方，比如头像、昵称。
@@ -1527,9 +1937,16 @@
 
         // =======================================================================
         // 6. 交互逻辑 (页面切换、弹窗等)
-        // 中文注释：这部分代码处理用户的各种操作，比如点击按钮、切换页面等。
         // =======================================================================
         
+        function cleanupActiveGame() {
+            if (activeGame.instance && typeof activeGame.instance.cleanup === 'function') {
+                activeGame.instance.cleanup();
+            }
+            activeGame.instance = null;
+            activeGame.name = null;
+        }
+
         // 中文注释：切换显示不同页面的函数。
         function showPage(pageId, options = {}) {
             pages.forEach(page => page.classList.remove('active'));
@@ -1538,7 +1955,7 @@
             
             navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
             
-            const pagesWithHeaders = ['favorites-page', 'font-settings-page', 'theme-settings-page', 'anniversary-page', 'accounting-page', 'snippets-page'];
+            const pagesWithHeaders = ['favorites-page', 'font-settings-page', 'theme-settings-page', 'anniversary-page', 'accounting-page', 'snippets-page', 'games-page'];
             body.className = body.classList.contains('dark-mode') ? 'dark-mode' : '';
             if (appData.settings.theme.globalBgImage) body.classList.add('has-global-bg-image');
             if (pageId === 'my-page') body.classList.add('my-page-active');
@@ -1563,6 +1980,7 @@
                 case 'anniversary-page':
                 case 'accounting-page':
                 case 'snippets-page':
+                case 'games-page': 
                     topBarTitle.textContent = '';
                     break;
             }
@@ -1573,10 +1991,8 @@
                 displayDiaries();
             }
 
-            // 中文注释：【修复问题2】切换到地图页面时的特殊处理。
             if (pageId === 'map-page') {
-                initMap(); // 初始化地图
-                // 中文注释：延迟一小段时间后，强制地图重新计算尺寸，这是解决地图显示不全的常见技巧。
+                initMap(); 
                 setTimeout(() => {
                     if (map) map.invalidateSize();
                 }, 10);
@@ -1584,9 +2000,9 @@
                 isMapInSelectionMode = options.selectionMode || false;
                 mapSelectionBar.style.display = 'none';
                 if (isMapInSelectionMode) {
-                    map.on('click', onMapClickForSelection); // 如果是选点模式，就监听地图点击事件
+                    map.on('click', onMapClickForSelection); 
                 } else {
-                    map.off('click', onMapClickForSelection); // 否则就取消监听
+                    map.off('click', onMapClickForSelection); 
                     if(tempMapMarker) map.removeLayer(tempMapMarker);
                     tempMapMarker = null;
                 }
@@ -1594,8 +2010,13 @@
                 isMapInSelectionMode = false;
                 map.off('click', onMapClickForSelection);
             }
+            
+            // 如果切换到其他页面，则停止所有正在运行的游戏
+            if (pageId !== 'games-page') {
+                cleanupActiveGame();
+            }
 
-            // 中文注释：根据切换到的页面，调用对应的渲染函数。
+            // 根据切换到的页面，调用对应的渲染函数。
             if (pageId === 'my-page') renderMyPageContents();
             if (pageId === 'calendar-page') renderCalendar();
             if (pageId === 'favorites-page') renderFavoritesPage();
@@ -1645,9 +2066,7 @@
         }
 
         /*
-         * 中文注释：【修复#1】卡顿和滑动问题
-         * 这是一个给元素添加长按事件监听的函数。
-         * 修复方案：在手指移动（滚动）时，清除长按计时器，这样就不会错误地触发长按事件，保证了页面的正常滚动。
+         * 中文注释：这是一个给元素添加长按事件监听的函数。
          */
         function addLongPressListener(element, callback) {
             let timer;
@@ -1670,13 +2089,21 @@
         function formatRichText(text) {
             if (!text) return '';
             return text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                .replace(/\*\*(.*?)\*\*/g, '<b>\\$1</b>')
-                .replace(/\*(.*?)\*/g, '<i>\\$1</i>')
-                .replace(/__(.*?)__/g, '<u>\\$1</u>')
-                .replace(/~~(.*?)~~/g, '<del>\\$1</del>')
-                .replace(/$$(.*?)$$$(.*?)$/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                .replace(/__(.*?)__/g, '<u>$1</u>')
+                .replace(/~~(.*?)~~/g, '<del>$1</del>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
                 .replace(/\n/g, '<br>');
         }
+        // 中文注释：将富文本HTML转为纯文本，用于复制
+        function stripHtml(html) {
+            let tmp = document.createElement("DIV");
+            // 将 <br> 转换回换行符
+            tmp.innerHTML = html.replace(/<br\s*[\/]?>/gi, "\n");
+            return tmp.textContent || tmp.innerText || "";
+        }
+
 
         // 中文注释：根据一个日记的数据，创建对应的HTML卡片元素。
         function createDiaryCard(diary) {
@@ -1697,7 +2124,7 @@
             
             const pinnedIconHTML = diary.isPinned ? `<i class="fas fa-thumbtack pinned-icon" title="${getLangText('pinned')}"></i>` : '';
             const locationText = diary.location ? `<i class="fas fa-map-marker-alt"></i> ${diary.location.name || '未知地点'}` : '';
-            const wordCount = (diary.content || '').replace(/\s/g, '').length;
+            const wordCount = stripHtml(diary.content || '').length;
 
             card.innerHTML = `
                 ${pinnedIconHTML}
@@ -1736,6 +2163,11 @@
                 </div>
             `;
             addLongPressListener(card, () => openDiaryMenu(diary));
+            
+            // 为评论添加长按监听
+            card.querySelectorAll('.comment').forEach(commentEl => {
+                addLongPressListener(commentEl, () => openCommentMenu(commentEl));
+            });
             return card;
         }
 
@@ -1747,7 +2179,7 @@
                 html += `<a class="view-more-comments" data-action="view-all-comments">查看全部 ${comments.length} 条评论</a>`;
             }
             commentsToShow.reverse().forEach(c => { // 让最新的评论在最上面
-                html += `<div class="comment"><img src="${appData.profile.avatar || 'https://via.placeholder.com/100'}" class="comment-avatar"><div class="comment-body"><div class="comment-header"><span class="id">@${c.authorId}</span> · <span>${new Date(c.timestamp).toLocaleString()}</span></div><div class="comment-content">${formatRichText(c.content)}</div></div></div>`;
+                html += `<div class="comment" data-comment-content="${c.content}"><img src="${appData.profile.avatar || 'https://via.placeholder.com/100'}" class="comment-avatar"><div class="comment-body"><div class="comment-header"><span class="id">@${c.authorId}</span> · <span>${new Date(c.timestamp).toLocaleString()}</span></div><div class="comment-content">${formatRichText(c.content)}</div></div></div>`;
             });
             return html;
         }
@@ -1765,6 +2197,7 @@
                 const id = actionTarget.dataset.id;
                 const key = actionTarget.dataset.key;
                 const page = actionTarget.dataset.page;
+                const game = actionTarget.dataset.game; 
 
                 // 中文注释：使用一个switch语句来判断用户点击的是哪个带有`data-action`的按钮，并执行相应的操作。
                 switch (action) {
@@ -1774,25 +2207,7 @@
                     case 'add-audio': openAudioMenu(); break;
                     case 'set-custom-date': openCustomDateModal(); break;
                     case 'set-location': openLocationMenu(); break;
-                    case 'auto-detect-location':
-                        closeModal();
-                        quickDiaryData.location = { type: 'auto' };
-                        alert('已设为自动获取位置');
-                        break;
-                    case 'select-location-on-map':
-                        closeModal();
-                        showPage('map-page', { selectionMode: true });
-                        break;
-                    // 中文注释：【修复问题3】修复手动输入地点功能。
-                    case 'manual-location-entry':
-                        closeModal();
-                        showPromptModal(getLangText('manual_entry'), getLangText('enter_location_name'), (name) => {
-                            if (name) {
-                                quickDiaryData.location = { type: 'manual', name: name };
-                                alert(`地点已设为: ${name}`);
-                            }
-                        });
-                        break;
+                    // 【修复】地点相关的action已移至 openLocationMenu 函数内部处理
                     case 'confirm-map-selection':
                         if (tempMapMarker) {
                             const latlng = tempMapMarker.getLatLng();
@@ -1856,22 +2271,13 @@
                             alert("请先选择一个字体！");
                             return;
                         }
-                        const selectedOption = fontSelect.options[fontSelect.selectedIndex];
-                        const fontType = selectedOption.dataset.fontType;
                         
-                        let fontSetting = null;
-                        if (fontType === 'builtin') {
-                            fontSetting = { type: 'google', name: selectedValue };
-                        } else if (fontType === 'preset') {
-                            fontSetting = appData.settings.fontPresets.find(p => p.name === selectedValue);
-                        }
+                        let fontSetting = { type: 'google', name: selectedValue };
                         
-                        if (fontSetting) {
-                            await dbActions.set('settings', 'font', fontSetting);
-                            appData.settings.font = fontSetting;
-                            await applyFont(fontSetting);
-                            alert('字体应用成功！');
-                        }
+                        await dbActions.set('settings', 'font', fontSetting);
+                        appData.settings.font = fontSetting;
+                        await applyFont(fontSetting, true);
+                        alert('字体应用成功！');
                         break;
                     }
                     case 'manage-font-preset': openFontPresetMenu(); break;
@@ -1885,7 +2291,7 @@
                     case 'reset-font': {
                         await dbActions.delete('settings', 'font');
                         appData.settings.font = null;
-                        await applyFont(null);
+                        await applyFont(null, true);
                         renderFontSelection();
                         break;
                     }
@@ -1899,7 +2305,12 @@
                             if (!diary.comments) diary.comments = [];
                             diary.comments.push({ id: Date.now(), authorId: appData.profile.id, content: input.value.trim(), timestamp: Date.now() });
                             await dbActions.put('diaries', diary);
-                            card.querySelector('.comment-section').innerHTML = renderCommentsHTML(diaryId, diary.comments);
+                            const commentSection = card.querySelector('.comment-section');
+                            commentSection.innerHTML = renderCommentsHTML(diaryId, diary.comments);
+                            // 为新渲染的评论添加监听
+                            commentSection.querySelectorAll('.comment').forEach(commentEl => {
+                                addLongPressListener(commentEl, () => openCommentMenu(commentEl));
+                            });
                             input.value = '';
                         }
                         break;
@@ -1976,6 +2387,23 @@
                         });
                         break;
                     }
+                    case 'apply-custom-css': {
+                        const css = document.getElementById('custom-css-input').value;
+                        appData.settings.customCss = css;
+                        await dbActions.set('settings', 'customCss', css);
+                        applyCustomCss(css);
+                        alert('自定义样式已应用！');
+                        break;
+                    }
+                    case 'reset-custom-css': {
+                        showConfirmModal('确认重置', '确定要清除所有自定义CSS吗？', async () => {
+                            appData.settings.customCss = '';
+                            await dbActions.delete('settings', 'customCss');
+                            applyCustomCss('');
+                            document.getElementById('custom-css-input').value = '';
+                        });
+                        break;
+                    }
                     case 'edit-diary': {
                         closeModal();
                         const diary = appData.diaries.find(d => d.id == id);
@@ -1988,6 +2416,44 @@
                             await dbActions.delete('diaries', Number(id));
                             await refreshAllDataAndRender();
                         });
+                        break;
+                    }
+                     case 'copy-diary-content': {
+                        closeModal();
+                        const diary = appData.diaries.find(d => d.id == id);
+                        if(diary && diary.content) {
+                            const plainText = stripHtml(diary.content);
+                            navigator.clipboard.writeText(plainText).then(() => {
+                                alert(getLangText('copied_success'));
+                            }).catch(err => console.error('复制失败: ', err));
+                        }
+                        break;
+                    }
+                    case 'export-diary-image': {
+                        closeModal();
+                        const cardToExport = document.querySelector(`.diary-card[data-diary-id="${id}"]`);
+                        if (cardToExport && typeof html2canvas !== 'undefined') {
+                            html2canvas(cardToExport, {
+                                useCORS: true, // 允许加载跨域图片
+                                backgroundColor: getComputedStyle(document.body).getPropertyValue('--card-bg'),
+                            }).then(canvas => {
+                                const link = document.createElement('a');
+                                link.download = `diary-${id}.png`;
+                                link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                                link.click();
+                                alert(getLangText('export_diary_success'));
+                            });
+                        }
+                        break;
+                    }
+                    case 'copy-comment-content': {
+                        closeModal();
+                        const content = actionTarget.dataset.value;
+                        if(content) {
+                            navigator.clipboard.writeText(content).then(() => {
+                                alert(getLangText('copied_success'));
+                            }).catch(err => console.error('复制失败: ', err));
+                        }
                         break;
                     }
                     case 'add-anniversary': openAddAnniversaryModal(); break;
@@ -2055,26 +2521,17 @@
                         if (collectionEl) collectionEl.classList.add('manage-mode');
                         break;
                     }
-                    // 中文注释：【修复问题1】新增删除言语集（你说的“言语条”）的功能。
                     case 'delete-snippet-collection': {
                         closeModal();
                         const collectionId = Number(id);
-                        // 弹出确认删除的对话框
                         showConfirmModal('确认删除言语集', `确定要删除这个言语集以及它下面的所有言语吗？${getLangText('confirm_delete')}`, async () => {
-                            // 1. 从数据库删除这个言语集本身
                             await dbActions.delete('snippetCollections', collectionId);
-                            
-                            // 2. 找到这个言语集下面的所有言语
                             const snippetsToDelete = appData.snippets.filter(s => s.collectionId === collectionId);
-                            
-                            // 3. 遍历并删除这些言语
                             for (const snippet of snippetsToDelete) {
                                 await dbActions.delete('snippets', snippet.id);
                             }
-                            
-                            // 4. 重新加载数据并刷新页面
                             await refreshAllDataAndRender();
-                            renderSnippetsPage(); // 重新渲染言语集页面
+                            renderSnippetsPage();
                         });
                         break;
                     }
@@ -2098,7 +2555,6 @@
                             }
                             await refreshAllDataAndRender();
                             renderSnippetsPage();
-                            // 保持展开状态
                             setTimeout(() => {
                                 const refreshedCollectionEl = snippetCollectionContainer.querySelector(`.snippet-collection[data-collection-id="${collectionId}"]`);
                                 if (refreshedCollectionEl) refreshedCollectionEl.classList.add('expanded');
@@ -2106,6 +2562,38 @@
                         });
                         break;
                     }
+                    // 中文注释：游戏相关操作
+                    case 'select-game': {
+                        document.querySelectorAll('.game-container').forEach(c => c.classList.remove('active'));
+                        document.getElementById(`${game}-container`).classList.add('active');
+                        
+                        cleanupActiveGame(); // 清理上一个游戏
+                        
+                        activeGame.name = game;
+                        // 初始化并开始新游戏
+                        const gameClasses = {
+                            gobang: Gobang, minesweeper: Minesweeper, snake: Snake, game2048: Game2048,
+                            tetris: Tetris, tictactoe: TicTacToe, sudoku: Sudoku, blackjack: Blackjack,
+                            planetdefender: PlanetDefender, lightsout: LightsOut, doodlejump: DoodleJump
+                        };
+                        if (gameClasses[game]) {
+                            activeGame.instance = new gameClasses[game]();
+                        }
+                        break;
+                    }
+                    case 'start-gobang': if(activeGame.name === 'gobang') activeGame.instance.start(); break;
+                    case 'start-minesweeper': if(activeGame.name === 'minesweeper') activeGame.instance.start(); break;
+                    case 'start-snake': if(activeGame.name === 'snake') activeGame.instance.start(); break;
+                    case 'start-game2048': if(activeGame.name === 'game2048') activeGame.instance.start(); break;
+                    case 'start-tetris': if(activeGame.name === 'tetris') activeGame.instance.start(); break;
+                    case 'start-tictactoe': if(activeGame.name === 'tictactoe') activeGame.instance.start(); break;
+                    case 'start-blackjack': if(activeGame.name === 'blackjack') activeGame.instance.start(); break;
+                    case 'start-sudoku': if(activeGame.name === 'sudoku') activeGame.instance.start(); break;
+                    case 'check-sudoku': if(activeGame.name === 'sudoku') activeGame.instance.check(); break;
+                    case 'hint-sudoku': if(activeGame.name === 'sudoku') activeGame.instance.hint(); break;
+                    case 'start-planetdefender': if(activeGame.name === 'planetdefender') activeGame.instance.start(); break;
+                    case 'start-lightsout': if(activeGame.name === 'lightsout') activeGame.instance.start(); break;
+                    case 'start-doodlejump': if(activeGame.name === 'doodlejump') activeGame.instance.start(); break;
                 }
                 return;
             }
@@ -2124,6 +2612,19 @@
                 mediaViewerImage.src = '';
                 mediaViewerVideo.src = '';
                 mediaViewerVideo.pause();
+            }
+            // 处理游戏方向键点击
+            else if (target.closest('.dpad-btn')) {
+                const dir = target.closest('.dpad-btn').dataset.dir;
+                if (activeGame.instance && typeof activeGame.instance.handleInput === 'function') {
+                    activeGame.instance.handleInput(dir);
+                }
+            }
+             else if (target.closest('.button-layout-container')) {
+                const dir = target.closest('.dpad-btn')?.dataset.dir;
+                if(dir && activeGame.instance && typeof activeGame.instance.handleInput === 'function') {
+                    activeGame.instance.handleInput(dir);
+                }
             }
             else {
                 if (!target.closest('#notebook-popup') && !target.closest('#notebook-icon')) {
@@ -2173,7 +2674,6 @@
 
         // =======================================================================
         // 8. 功能函数 (弹窗、数据处理等)
-        // 中文注释：这里是一些通用的功能函数，比如显示各种弹窗、处理数据等。
         // =======================================================================
 
         // 中文注释：显示一个通用的模态框（弹窗）。
@@ -2333,10 +2833,20 @@
             const pinActionText = diary.isPinned ? getLangText('unpin_diary') : getLangText('pin_diary');
             showActionMenuModal('操作', [
                 { text: pinActionText, action: 'toggle-pin', id: diary.id },
+                { text: getLangText('copy'), action: 'copy-diary-content', id: diary.id },
+                { text: getLangText('export_image'), action: 'export-diary-image', id: diary.id },
                 { text: getLangText('edit'), action: 'edit-diary', id: diary.id },
                 { text: getLangText('delete'), action: 'delete-diary', id: diary.id }
             ]);
         }
+
+        function openCommentMenu(commentEl) {
+            const content = commentEl.dataset.commentContent;
+            showActionMenuModal('评论操作', [
+                { text: getLangText('copy'), action: 'copy-comment-content', value: content }
+            ]);
+        }
+
 
         function openDiaryEditModal(diaryToEdit) {
             const notebookOptions = appData.notebooks.map(nb => 
@@ -2441,97 +2951,154 @@
             }
         }
 
-        // 中文注释：【修复问题3】打开设置地点的菜单。
+        // 【修复】将地点菜单的逻辑独立出来，避免全局事件监听的冲突
         function openLocationMenu() {
             showActionMenuModal(getLangText('set_location'), [
                 { text: getLangText('auto_detect'), action: 'auto-detect-location' },
                 { text: getLangText('select_on_map'), action: 'select-location-on-map' },
-                { text: getLangText('manual_entry'), action: 'manual-location-entry' } // 这里的action名称已修正
+                { text: getLangText('manual_entry'), action: 'manual-entry' }
             ]);
+
+            // 添加独立的事件监听器
+            modalContainer.querySelector('.modal-body').addEventListener('click', (e) => {
+                const item = e.target.closest('.menu-item[data-action]');
+                if (!item) return;
+
+                const action = item.dataset.action;
+                closeModal(); // 先关闭当前菜单
+
+                switch (action) {
+                    case 'auto-detect-location':
+                        quickDiaryData.location = { type: 'auto' };
+                        alert('已设为自动获取位置');
+                        break;
+                    case 'select-location-on-map':
+                        showPage('map-page', { selectionMode: true });
+                        break;
+                    case 'manual-entry':
+                        showPromptModal(getLangText('manual_entry'), getLangText('enter_location_name'), (name) => {
+                            if (name) {
+                                quickDiaryData.location = { type: 'manual', name: name };
+                                alert(`地点已设为: ${name}`);
+                            }
+                        });
+                        break;
+                }
+            });
         }
 
-        // 中文注释：在地图上点击以选择地点的处理函数。
+
         function onMapClickForSelection(e) {
             if (tempMapMarker) map.removeLayer(tempMapMarker);
             tempMapMarker = L.marker(e.latlng).addTo(map);
             mapSelectionBar.style.display = 'block';
         }
 
-        const builtInFonts = {
-            'Default': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            '思源宋体': '"Noto Serif SC", serif',
-            '站酷快乐体': '"ZCOOL KuaiLe", cursive',
-            '马善政毛笔': '"Ma Shan Zheng", cursive',
-            '龙藏体': '"Long Cang", cursive',
-            '植芒星手写': '"Zhi Mang Xing", cursive',
-            '得意黑': '"Smiley Sans", sans-serif',
+        // =======================================================================
+        // 7. 【字体库优化】
+        // =======================================================================
+        const googleFonts = {
+            "默认": { "Default": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" },
+            "中文 / CJK": {
+                "得意黑": "'Smiley Sans', sans-serif",
+                "思源宋体": "'Noto Serif SC', serif",
+                "思源黑体": "'Noto Sans SC', sans-serif",
+                "霞鹜文楷": "'LXGW WenKai', serif",
+                "站酷快乐体": "'ZCOOL KuaiLe', cursive",
+                "站酷酷黑": "'ZCOOL KuHei', sans-serif",
+                "站酷小薇": "'ZCOOL XiaoWei', serif",
+                "马善政毛笔": "'Ma Shan Zheng', cursive",
+                "龙藏体": "'Long Cang', cursive",
+                "植芒星手写": "'Zhi Mang Xing', cursive",
+                "鸿雷板书": "'Honk', system-ui",
+                "像素字体": "'Pixelify Sans', sans-serif",
+                "圆体": "'M PLUS Rounded 1c', sans-serif",
+                "台湾正黑体": "'Noto Sans TC', sans-serif",
+                "日文黑体": "'Noto Sans JP', sans-serif",
+                "韩文黑体": "'Noto Sans KR', sans-serif",
+            },
+            "英文衬线 / Serif": {
+                "Merriweather": "'Merriweather', serif",
+                "Playfair Display": "'Playfair Display', serif",
+                "Lora": "'Lora', serif",
+                "EB Garamond": "'EB Garamond', serif",
+                "Roboto Slab": "'Roboto Slab', serif",
+                "Cormorant": "'Cormorant', serif",
+                "Bitter": "'Bitter', serif"
+            },
+            "英文无衬线 / Sans-serif": {
+                "Roboto": "'Roboto', sans-serif",
+                "Lato": "'Lato', sans-serif",
+                "Montserrat": "'Montserrat', sans-serif",
+                "Open Sans": "'Open Sans', sans-serif",
+                "Nunito": "'Nunito', sans-serif",
+                "Poppins": "'Poppins', sans-serif",
+                "Raleway": "'Raleway', sans-serif",
+                "Oswald": "'Oswald', sans-serif",
+                "Bebas Neue": "'Bebas Neue', sans-serif",
+                "Anton": "'Anton', sans-serif",
+                "Varela Round": "'Varela Round', sans-serif", // 圆体
+                "Kosugi Maru": "'Kosugi Maru', sans-serif" // 日式圆体
+            },
+            "手写 / Cursive": {
+                "Dancing Script": "'Dancing Script', cursive",
+                "Pacifico": "'Pacifico', cursive",
+                "Caveat": "'Caveat', cursive",
+                "Lobster": "'Lobster', cursive",
+                "Indie Flower": "'Indie Flower', cursive",
+                "Permanent Marker": "'Permanent Marker', cursive",
+                "Shadows Into Light": "'Shadows Into Light', cursive",
+                "Patrick Hand": "'Patrick Hand', cursive",
+                "Gochi Hand": "'Gochi Hand', cursive",
+                "Kalam": "'Kalam', cursive",
+                "Zeyada": "'Zeyada', cursive",
+                "Baloo 2": "'Baloo 2', cursive" // 可爱圆润
+            },
+            "等宽 / Monospace": {
+                "Roboto Mono": "'Roboto Mono', monospace",
+                "Source Code Pro": "'Source Code Pro', monospace",
+                "Inconsolata": "'Inconsolata', monospace",
+                "Space Mono": "'Space Mono', monospace"
+            }
         };
+
 
         function renderFontSelection() {
             fontSelect.innerHTML = '';
-
-            const builtInGroup = document.createElement('optgroup');
-            builtInGroup.label = getLangText('built_in_group');
-            for (const name in builtInFonts) {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                option.dataset.fontType = 'builtin';
-                if (appData.settings.font?.type === 'google' && appData.settings.font?.name === name) {
-                    option.selected = true;
-                }
-                builtInGroup.appendChild(option);
-            }
-            fontSelect.appendChild(builtInGroup);
-
-            if (appData.settings.fontPresets.length > 0) {
-                const presetGroup = document.createElement('optgroup');
-                presetGroup.label = getLangText('my_presets');
-                appData.settings.fontPresets.forEach(preset => {
+            for (const groupName in googleFonts) {
+                const group = document.createElement('optgroup');
+                group.label = groupName;
+                for (const fontName in googleFonts[groupName]) {
                     const option = document.createElement('option');
-                    option.value = preset.name;
-                    option.textContent = preset.name;
-                    option.dataset.fontType = 'preset';
-                    if (appData.settings.font?.name === preset.name) {
+                    option.value = fontName;
+                    option.textContent = fontName;
+                    option.style.fontFamily = googleFonts[groupName][fontName];
+                    if (appData.settings.font?.name === fontName) {
                         option.selected = true;
                     }
-                    presetGroup.appendChild(option);
-                });
-                fontSelect.appendChild(presetGroup);
+                    group.appendChild(option);
+                }
+                fontSelect.appendChild(group);
             }
-            
-            fontUrlInput.value = '';
-            tempFont = { type: null, data: null, name: null };
         }
-
-        async function applyFont(fontSetting) {
+        
+        // 【优化】简化字体应用逻辑，因为字体已在<head>中预加载
+        async function applyFont(fontSetting, shouldSave) {
             const root = document.documentElement;
-            const styleId = 'custom-font-style';
-            let styleElement = document.getElementById(styleId);
-            if (styleElement) styleElement.remove();
-
-            if (!fontSetting) {
-                root.style.setProperty('--global-font-family', builtInFonts['Default']);
+            if (!fontSetting || !fontSetting.name || fontSetting.name === "Default") {
+                root.style.setProperty('--global-font-family', googleFonts["默认"]["Default"]);
+                if (shouldSave) {
+                    await dbActions.delete('settings', 'font');
+                    appData.settings.font = null;
+                }
                 return;
             }
 
-            styleElement = document.createElement('style');
-            styleElement.id = styleId;
-            document.head.appendChild(styleElement);
-
-            let finalCssFontFamily = '';
-
-            if (fontSetting.type === 'google') {
-                finalCssFontFamily = builtInFonts[fontSetting.name];
-            } else if (fontSetting.type === 'url' || fontSetting.type === 'local') {
-                const fontFamilyName = fontSetting.name;
-                const src = fontSetting.type === 'url' ? `url("${fontSetting.url}")` : `url("${fontSetting.data}")`;
-                styleElement.innerHTML = `@font-face { font-family: "${fontFamilyName}"; src: ${src}; }`;
-                finalCssFontFamily = `"${fontFamilyName}", ${builtInFonts['Default']}`;
-            }
-            
-            if (finalCssFontFamily) {
-                root.style.setProperty('--global-font-family', finalCssFontFamily);
+            for (const group in googleFonts) {
+                if (googleFonts[group][fontSetting.name]) {
+                    root.style.setProperty('--global-font-family', googleFonts[group][fontSetting.name]);
+                    break;
+                }
             }
         }
 
@@ -2588,16 +3155,7 @@
         }
 
         async function exportData() {
-            const dataToExport = { 
-                profile: appData.profile, 
-                diaries: appData.diaries, 
-                notebooks: appData.notebooks, 
-                settings: appData.settings,
-                anniversaries: appData.anniversaries,
-                transactions: appData.transactions,
-                snippets: appData.snippets,
-                snippetCollections: appData.snippetCollections
-            };
+            const dataToExport = { ...appData };
             const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -2956,7 +3514,8 @@
             
             const saveHandler = async () => {
                 const name = document.getElementById('anniversary-name-input').value;
-                const date = document.getElementById('anniversary-date-input').value;
+                const date = document.getElementById('anniversary-date-input').value
+                
                 const type = document.getElementById('anniversary-type-select').value;
                 if (!name || !date) {
                     alert('名称和日期不能为空！');
@@ -3188,7 +3747,7 @@
                             <button class="button button-primary" onclick="this.parentElement.innerHTML = document.getElementById('add-snippet-form-template').innerHTML.replace('__COLLECTION_ID__', ${collection.id})" style="width: 100%; margin: 0;">${getLangText('add_snippet')}</button>
                         </div>
                     </div>
-                `;
+                    `;
                 
                 addLongPressListener(collectionEl.querySelector('.snippet-collection-header'), () => openSnippetCollectionMenu(collection));
 
@@ -3274,15 +3833,8 @@
             const item = items.find(i => i.id === id);
             if (!item) return;
             
-            const isCurrentlyPinned = item.isPinned;
-            items.forEach(i => i.isPinned = false);
-            if (!isCurrentlyPinned) {
-                item.isPinned = true;
-            }
-            
-            for (const i of items) {
-                await dbActions.put(storeName, i);
-            }
+            item.isPinned = !item.isPinned;
+            await dbActions.put(storeName, item);
             
             await refreshAllDataAndRender();
             if (renderFunc) renderFunc();
@@ -3300,44 +3852,1849 @@
                 if (renderFunc) renderFunc();
             });
         }
+        
+        // =======================================================================
+        // 10. 小游戏逻辑
+        // =======================================================================
 
-        // =======================================================================
-        // 10. 初始化
-        // 中文注释：这是应用的入口，当页面加载完成后，这个函数会被调用，开始执行整个应用的逻辑。
-        // =======================================================================
-        async function initializeApp() {
-            try {
-                document.querySelector('.send-btn').addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    sendQuickDiary();
-                });
+        class Gobang {
+            constructor() {
+                this.boardEl = document.getElementById('gobang-board');
+                this.statusEl = document.getElementById('gobang-status');
+                this.difficultySelect = document.getElementById('gobang-difficulty');
+                this.size = 15;
+                // 定义棋型和对应的分数
+                this.patterns = {
+                    five: { pattern: '11111', score: 100000 }, // 连五
+                    live_four: { pattern: '011110', score: 10000 }, // 活四
+                    rush_four_1: { pattern: '011112', score: 1000 }, // 冲四
+                    rush_four_2: { pattern: '211110', score: 1000 }, // 冲四
+                    rush_four_3: { pattern: '10111', score: 1000 }, // 冲四
+                    rush_four_4: { pattern: '11011', score: 1000 }, // 冲四
+                    live_three: { pattern: '01110', score: 1000 }, // 活三
+                    sleep_three_1: { pattern: '001112', score: 100 }, // 眠三
+                    sleep_three_2: { pattern: '211100', score: 100 }, // 眠三
+                    sleep_three_3: { pattern: '010110', score: 100 }, // 眠三
+                    live_two: { pattern: '001100', score: 100 }, // 活二
+                    live_two_2: { pattern: '01010', score: 100 }, // 活二
+                    sleep_two: { pattern: '000112', score: 10 }, // 眠二
+                    live_one: { pattern: '00100', score: 10 }, // 活一
+                };
+                this.start();
+            }
+
+            cleanup() {} // For compatibility with other games
+
+            start() {
+                this.difficulty = this.difficultySelect.value;
+                this.board = Array(this.size).fill(0).map(() => Array(this.size).fill(0));
+                this.currentPlayer = 1; // 1 for black (player), 2 for white (AI)
+                this.gameOver = false;
+                this.statusEl.textContent = '执黑先行';
+                this.renderBoard();
+            }
+
+            renderBoard() {
+                this.boardEl.innerHTML = ''; // 清空棋盘和棋子
+                for (let i = 0; i < this.size * this.size; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'gobang-cell';
+                    const x = i % this.size;
+                    const y = Math.floor(i / this.size);
+                    cell.addEventListener('click', () => this.placePiece(x, y));
+                    this.boardEl.appendChild(cell);
+                }
+            }
+
+            placePiece(x, y) {
+                if (this.gameOver || this.board[y][x] !== 0) {
+                    return;
+                }
+                this.board[y][x] = this.currentPlayer;
+                this.renderPiece(x, y, this.currentPlayer);
+
+                if (this.checkWin(x, y, this.currentPlayer)) {
+                    this.gameOver = true;
+                    this.statusEl.textContent = `${this.currentPlayer === 1 ? '黑棋' : '白棋'}胜利!`;
+                    return;
+                }
+
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.statusEl.textContent = `${this.currentPlayer === 1 ? '黑棋' : '白棋'}回合`;
+
+                if (this.currentPlayer === 2 && !this.gameOver) {
+                    this.boardEl.style.pointerEvents = 'none'; // AI思考时禁止玩家点击
+                    setTimeout(() => {
+                        this.aiMove();
+                        this.boardEl.style.pointerEvents = 'auto';
+                    }, 200);
+                }
+            }
+            
+            renderPiece(x, y, player) {
+                const piece = document.createElement('div');
+                piece.className = `gobang-piece ${player === 1 ? 'black' : 'white'}`;
+                const cellWidth = this.boardEl.firstChild.offsetWidth;
+                const pieceSize = cellWidth * 0.8;
+                piece.style.width = `${pieceSize}px`;
+                piece.style.height = `${pieceSize}px`;
+                piece.style.left = `${(x + 0.5) * cellWidth}px`;
+                piece.style.top = `${(y + 0.5) * cellWidth}px`;
+                this.boardEl.appendChild(piece);
+            }
+
+            checkWin(x, y, player) {
+                const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+                for (const [dx, dy] of directions) {
+                    let count = 1;
+                    for(let i = 1; i < 5; i++) { if(this.getPiece(x + i*dx, y + i*dy) === player) count++; else break; }
+                    for(let i = 1; i < 5; i++) { if(this.getPiece(x - i*dx, y - i*dy) === player) count++; else break; }
+                    if (count >= 5) return true;
+                }
+                return false;
+            }
+            
+            getPiece(x, y) {
+                if (x < 0 || x >= this.size || y < 0 || y >= this.size) return -1; // -1 is border
+                return this.board[y][x];
+            }
+
+            aiMove() {
+                if (this.gameOver) return;
                 
-                // 中文注释：检查是否是第一次使用，如果是，就创建一些默认数据。
-                const profile = await dbActions.get('profile', 'userProfile');
-                if (!profile) {
-                    await dbActions.set('profile', 'userProfile', { name: '新用户', id: 'yun000812', bio: '这个人很懒...', avatar: '', background: '' });
-                    await dbActions.set('settings', 'language', 'zh-CN');
-                    await dbActions.set('settings', 'darkMode', false);
-                    await dbActions.set('settings', 'theme', {});
-                    await dbActions.set('settings', 'font', null);
-                    await dbActions.set('settings', 'showLunarCalendar', false);
-                    await dbActions.set('settings', 'showHolidays', false);
-                    await dbActions.set('settings', 'fontPresets', []);
-                }
-                const defaultNotebook = await dbActions.get('notebooks', 1);
-                if (!defaultNotebook) {
-                    await dbActions.put('notebooks', { id: 1, name: '默认日记本', cover: '' });
-                }
+                let bestMove = { x: -1, y: -1, score: -Infinity };
 
-                await refreshAllDataAndRender();
-                showPage('diary-page');
-            } catch (error) {
-                console.error("初始化失败:", error);
-                document.body.innerHTML = `<h1>应用初始化失败</h1><p>请尝试清除浏览器缓存后重试。</p><pre>${error.stack}</pre>`;
+                for (let y = 0; y < this.size; y++) {
+                    for (let x = 0; x < this.size; x++) {
+                        if (this.board[y][x] === 0) {
+                            // 只考虑附近有棋子的点，优化性能
+                            if (!this.hasNeighbor(x, y, 2)) continue;
+
+                            let score = this.calculateScore(x, y, 2) + this.calculateScore(x, y, 1);
+                            
+                            if (score > bestMove.score) {
+                                bestMove = { x, y, score };
+                            } else if (score === bestMove.score && Math.random() > 0.5) {
+                                bestMove = { x, y, score };
+                            }
+                        }
+                    }
+                }
+                if (bestMove.x !== -1) {
+                    this.placePiece(bestMove.x, bestMove.y);
+                } else { // 如果没有好棋，随机下在棋盘中央区域
+                    let emptyCells = [];
+                    for(let y=4; y<11; y++) for(let x=4; x<11; x++) if(this.board[y][x]===0) emptyCells.push({x,y});
+                    if(emptyCells.length > 0) {
+                        const move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                        this.placePiece(move.x, move.y);
+                    }
+                }
+            }
+
+            hasNeighbor(x, y, distance) {
+                for(let i = -distance; i <= distance; i++) {
+                    for(let j = -distance; j <= distance; j++) {
+                        if (i === 0 && j === 0) continue;
+                        if(this.getPiece(x+i, y+j) !== 0 && this.getPiece(x+i, y+j) !== -1) return true;
+                    }
+                }
+                return false;
+            }
+
+            calculateScore(x, y, player) {
+                let totalScore = 0;
+                const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+                
+                this.board[y][x] = player; // Temporarily place piece
+
+                for (const [dx, dy] of directions) {
+                    let line = '';
+                    for (let i = -5; i <= 5; i++) {
+                        const piece = this.getPiece(x + i * dx, y + i * dy);
+                        line += piece === -1 ? '2' : piece; // Treat border as opponent
+                    }
+                    
+                    for (const key in this.patterns) {
+                        const p = this.patterns[key];
+                        const opponent = player === 1 ? '2' : '1';
+                        // Check original pattern
+                        if (line.includes(p.pattern.replace(/1/g, player.toString()).replace(/2/g, opponent))) {
+                            totalScore += p.score;
+                        }
+                        // Check reversed pattern
+                        const reversedPattern = p.pattern.split('').reverse().join('');
+                        if (line.includes(reversedPattern.replace(/1/g, player.toString()).replace(/2/g, opponent))) {
+                            totalScore += p.score;
+                        }
+                    }
+                }
+                
+                this.board[y][x] = 0; // Remove piece
+
+                // 根据难度调整AI的进攻和防守倾向
+                if (this.difficulty === 'hard') {
+                    // 防守分权重更高
+                    return player === 1 ? totalScore * 1.2 : totalScore;
+                }
+                if (this.difficulty === 'medium') {
+                    return player === 1 ? totalScore * 1.1 : totalScore;
+                }
+                return totalScore; // Easy
             }
         }
 
+        class Minesweeper {
+            constructor() {
+                this.gridEl = document.getElementById('minesweeper-grid');
+                this.statusEl = document.getElementById('minesweeper-status');
+                this.difficultySelect = document.getElementById('minesweeper-difficulty');
+                this.configs = {
+                    easy: { rows: 9, cols: 9, mines: 10 },
+                    medium: { rows: 16, cols: 16, mines: 40 },
+                    hard: { rows: 16, cols: 30, mines: 99 },
+                };
+                this.start();
+            }
+            cleanup() {}
+
+            start() {
+                const difficulty = this.difficultySelect.value;
+                this.config = this.configs[difficulty];
+                this.gameOver = false;
+                this.firstClick = true;
+                this.cellsToReveal = this.config.rows * this.config.cols - this.config.mines;
+                this.flags = 0;
+                this.statusEl.textContent = `雷数: ${this.config.mines}`;
+                this.board = Array(this.config.rows).fill(null).map(() => Array(this.config.cols).fill(null).map(() => ({ isMine: false, isRevealed: false, isFlagged: false, adjacentMines: 0 })));
+                this.renderBoard();
+            }
+            
+            createBoard(safeRow, safeCol) {
+                let minesPlaced = 0;
+                while (minesPlaced < this.config.mines) {
+                    const row = Math.floor(Math.random() * this.config.rows);
+                    const col = Math.floor(Math.random() * this.config.cols);
+                    if (!this.board[row][col].isMine && (row !== safeRow || col !== safeCol)) {
+                        this.board[row][col].isMine = true;
+                        minesPlaced++;
+                    }
+                }
+                
+                for (let r = 0; r < this.config.rows; r++) {
+                    for (let c = 0; c < this.config.cols; c++) {
+                        if (this.board[r][c].isMine) continue;
+                        this.board[r][c].adjacentMines = this.countAdjacentMines(r, c);
+                    }
+                }
+            }
+
+            renderBoard() {
+                this.gridEl.innerHTML = '';
+                const cellSize = Math.min(25, (this.gridEl.parentElement.offsetWidth - 20) / this.config.cols);
+                this.gridEl.style.gridTemplateColumns = `repeat(${this.config.cols}, ${cellSize}px)`;
+                this.gridEl.style.gridTemplateRows = `repeat(${this.config.rows}, ${cellSize}px)`;
+                for (let r = 0; r < this.config.rows; r++) {
+                    for (let c = 0; c < this.config.cols; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'minesweeper-cell';
+                        cell.dataset.row = r;
+                        cell.dataset.col = c;
+                        cell.addEventListener('click', () => this.revealCell(r, c));
+                        cell.addEventListener('contextmenu', (e) => {
+                            e.preventDefault();
+                            this.toggleFlag(r, c);
+                        });
+                        this.gridEl.appendChild(cell);
+                    }
+                }
+            }
+
+            revealCell(row, col) {
+                if (this.firstClick) {
+                    this.createBoard(row, col);
+                    this.firstClick = false;
+                }
+                
+                if (this.gameOver || this.board[row][col].isRevealed || this.board[row][col].isFlagged) return;
+
+                this.board[row][col].isRevealed = true;
+                const cellEl = this.gridEl.querySelector(`[data-row='${row}'][data-col='${col}']`);
+                cellEl.classList.add('revealed');
+
+                if (this.board[row][col].isMine) {
+                    cellEl.innerHTML = '<i class="fas fa-bomb"></i>';
+                    cellEl.classList.add('mine');
+                    this.endGame(false);
+                    return;
+                }
+
+                this.cellsToReveal--;
+                const adjacentMines = this.board[row][col].adjacentMines;
+                if (adjacentMines > 0) {
+                    cellEl.textContent = adjacentMines;
+                    cellEl.dataset.mines = adjacentMines;
+                } else {
+                    this.getNeighbors(row, col).forEach(([nr, nc]) => this.revealCell(nr, nc));
+                }
+
+                if (this.cellsToReveal === 0) {
+                    this.endGame(true);
+                }
+            }
+
+            toggleFlag(row, col) {
+                if (this.gameOver || this.board[row][col].isRevealed) return;
+                const cell = this.board[row][col];
+                cell.isFlagged = !cell.isFlagged;
+                const cellEl = this.gridEl.querySelector(`[data-row='${row}'][data-col='${col}']`);
+                cellEl.innerHTML = cell.isFlagged ? '<i class="fas fa-flag"></i>' : '';
+            }
+            
+            endGame(isWin) {
+                this.gameOver = true;
+                this.statusEl.textContent = isWin ? 'You Win!' : 'Game Over!';
+                for (let r = 0; r < this.config.rows; r++) {
+                    for (let c = 0; c < this.config.cols; c++) {
+                        if (this.board[r][c].isMine) {
+                             const cellEl = this.gridEl.querySelector(`[data-row='${r}'][data-col='${c}']`);
+                             cellEl.innerHTML = '<i class="fas fa-bomb"></i>';
+                             cellEl.classList.add('mine');
+                        }
+                    }
+                }
+            }
+            
+            countAdjacentMines(row, col) {
+                return this.getNeighbors(row, col).filter(([r,c]) => this.board[r][c].isMine).length;
+            }
+
+            getNeighbors(row, col) {
+                const neighbors = [];
+                for (let r = -1; r <= 1; r++) {
+                    for (let c = -1; c <= 1; c++) {
+                        if (r === 0 && c === 0) continue;
+                        const nr = row + r;
+                        const nc = col + c;
+                        if (nr >= 0 && nr < this.config.rows && nc >= 0 && nc < this.config.cols) {
+                            neighbors.push([nr, nc]);
+                        }
+                    }
+                }
+                return neighbors;
+            }
+        }
+
+        class Snake {
+            constructor() {
+                this.canvas = document.getElementById('snake-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.statusEl = document.getElementById('snake-status');
+                this.difficultySelect = document.getElementById('snake-difficulty');
+                this.speeds = { easy: 200, medium: 120, hard: 70 }; // 修复：调整速度值
+                this.gridSize = 20;
+                this.tileCount = this.canvas.width / this.gridSize;
+                
+                this.animationFrameId = null;
+                this.lastTime = 0;
+                this.dropCounter = 0;
+                
+                this.handleKeyDown = this.handleKeyDown.bind(this);
+            }
+
+            start() {
+                this.cleanup();
+                document.addEventListener('keydown', this.handleKeyDown);
+
+                this.snake = [{ x: 10, y: 10 }];
+                this.food = this.generateFood();
+                this.direction = { x: 0, y: 0 };
+                this.nextDirection = { x: 0, y: 0 }; // 修复：缓冲下一个方向，避免快速按键导致180度掉头
+                this.score = 0;
+                this.gameOver = false;
+                this.statusEl.textContent = '得分: 0';
+                this.dropInterval = this.speeds[this.difficultySelect.value];
+                
+                this.lastTime = 0;
+                this.gameLoop();
+            }
+
+            cleanup() {
+                if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+                document.removeEventListener('keydown', this.handleKeyDown);
+            }
+
+            gameLoop(time = 0) {
+                if (this.gameOver) return;
+
+                this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
+                
+                const deltaTime = time - this.lastTime;
+                this.lastTime = time;
+                this.dropCounter += deltaTime;
+                
+                if (this.dropCounter > this.dropInterval) {
+                    this.update();
+                    this.dropCounter = 0;
+                }
+                
+                this.draw();
+            }
+
+            update() {
+                // Apply buffered direction
+                if (this.snake.length === 1 || !(this.direction.x === -this.nextDirection.x && this.direction.y === -this.nextDirection.y)) {
+                    this.direction = this.nextDirection;
+                }
+
+                if (this.direction.x === 0 && this.direction.y === 0) return; // Don't move if no direction is set
+
+                const head = { x: this.snake[0].x + this.direction.x, y: this.snake[0].y + this.direction.y };
+                
+                if (head.x < 0 || head.x >= this.tileCount || head.y < 0 || head.y >= this.tileCount) {
+                    this.endGame(); return;
+                }
+                
+                for (let i = 1; i < this.snake.length; i++) {
+                    if (head.x === this.snake[i].x && head.y === this.snake[i].y) {
+                        this.endGame(); return;
+                    }
+                }
+
+                this.snake.unshift(head);
+                
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.score++;
+                    this.statusEl.textContent = `得分: ${this.score}`;
+                    this.food = this.generateFood();
+                } else {
+                    this.snake.pop();
+                }
+            }
+
+            draw() {
+                this.ctx.fillStyle = getComputedStyle(this.canvas).backgroundColor;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Snake body
+                this.ctx.fillStyle = '#4CAF50';
+                for(let i = 1; i < this.snake.length; i++) {
+                    const part = this.snake[i];
+                    this.ctx.fillRect(part.x * this.gridSize, part.y * this.gridSize, this.gridSize - 1, this.gridSize - 1);
+                }
+                // Snake head
+                this.ctx.fillStyle = '#2E7D32';
+                const head = this.snake[0];
+                this.ctx.fillRect(head.x * this.gridSize, head.y * this.gridSize, this.gridSize - 1, this.gridSize - 1);
+
+                // Food
+                this.ctx.fillStyle = '#f44336';
+                this.ctx.fillRect(this.food.x * this.gridSize, this.food.y * this.gridSize, this.gridSize - 1, this.gridSize - 1);
+            }
+            
+            generateFood() {
+                while (true) {
+                    const food = { x: Math.floor(Math.random() * this.tileCount), y: Math.floor(Math.random() * this.tileCount) };
+                    if (!this.snake.some(part => part.x === food.x && part.y === food.y)) return food;
+                }
+            }
+            
+            handleKeyDown(e) {
+                if (!document.getElementById('games-page').classList.contains('active')) return;
+                e.preventDefault();
+                const keyMap = { 37: {x: -1, y: 0}, 38: {x: 0, y: -1}, 39: {x: 1, y: 0}, 40: {x: 0, y: 1} };
+                const newDir = keyMap[e.keyCode];
+                if (newDir) {
+                    // Prevent reversing direction immediately
+                    if (this.snake.length > 1 && this.direction.x === -newDir.x && this.direction.y === -newDir.y) {
+                        return;
+                    }
+                    this.nextDirection = newDir;
+                }
+            }
+            
+            handleInput(dir) {
+                const dirMap = { left: {x: -1, y: 0}, up: {x: 0, y: -1}, right: {x: 1, y: 0}, down: {x: 0, y: 1} };
+                const newDir = dirMap[dir];
+                 if (newDir) {
+                    if (this.snake.length > 1 && this.direction.x === -newDir.x && this.direction.y === -newDir.y) {
+                        return;
+                    }
+                    this.nextDirection = newDir;
+                }
+            }
+
+            endGame() {
+                this.gameOver = true;
+                this.cleanup();
+                this.statusEl.textContent = `游戏结束! 最终得分: ${this.score}`;
+            }
+        }
+
+        class Game2048 {
+            constructor() {
+                this.boardEl = document.getElementById('game2048-board');
+                this.statusEl = document.getElementById('game2048-status');
+                this.size = 4;
+                this.board = [];
+                this.score = 0;
+                this.gameOver = false;
+                this.handleKeyDown = this.handleKeyDown.bind(this);
+                this.handleTouchStart = this.handleTouchStart.bind(this);
+                this.handleTouchEnd = this.handleTouchEnd.bind(this);
+                this.touchStartX = 0;
+                this.touchStartY = 0;
+                this.start();
+            }
+
+            start() {
+                this.board = Array(this.size).fill(0).map(() => Array(this.size).fill(0));
+                this.score = 0;
+                this.gameOver = false;
+                this.addRandomTile();
+                this.addRandomTile();
+                this.updateBoard();
+                this.addEventListeners();
+            }
+            
+            cleanup() {
+                this.removeEventListeners();
+            }
+
+            addEventListeners() {
+                document.addEventListener('keydown', this.handleKeyDown);
+                this.boardEl.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+                this.boardEl.addEventListener('touchend', this.handleTouchEnd, { passive: false });
+            }
+            
+            removeEventListeners() {
+                document.removeEventListener('keydown', this.handleKeyDown);
+                this.boardEl.removeEventListener('touchstart', this.handleTouchStart);
+                this.boardEl.removeEventListener('touchend', this.handleTouchEnd);
+            }
+
+            handleKeyDown(e) {
+                if (this.gameOver || !document.getElementById('games-page').classList.contains('active')) return;
+                let moved = false;
+                switch (e.keyCode) {
+                    case 37: moved = this.move('left'); break;
+                    case 38: moved = this.move('up'); break;  
+                    case 39: moved = this.move('right'); break;
+                    case 40: moved = this.move('down'); break;
+                }
+                if (moved) this.nextTurn();
+            }
+            
+            handleTouchStart(e) {
+                e.preventDefault();
+                this.touchStartX = e.touches[0].clientX;
+                this.touchStartY = e.touches[0].clientY;
+            }
+
+            handleTouchEnd(e) {
+                e.preventDefault();
+                if (this.gameOver) return;
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                const dx = touchEndX - this.touchStartX;
+                const dy = touchEndY - this.touchStartY;
+                const swipeThreshold = 30;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (Math.abs(dx) > swipeThreshold) {
+                        if (this.move(dx > 0 ? 'right' : 'left')) this.nextTurn();
+                    }
+                } else {
+                    if (Math.abs(dy) > swipeThreshold) {
+                        if (this.move(dy > 0 ? 'down' : 'up')) this.nextTurn();
+                    }
+                }
+            }
+
+            nextTurn() {
+                this.addRandomTile();
+                this.updateBoard();
+                if (this.isGameOver()) {
+                    this.gameOver = true;
+                    this.statusEl.textContent = `游戏结束! 分数: ${this.score}`;
+                }
+            }
+
+            updateBoard() {
+                this.boardEl.innerHTML = '';
+                const tileSize = (this.boardEl.offsetWidth - 10 * (this.size + 1)) / this.size;
+                const fontSize = tileSize * 0.4;
+                
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'game2048-cell';
+                        this.boardEl.appendChild(cell);
+
+                        if (this.board[r][c] !== 0) {
+                            const tile = document.createElement('div');
+                            tile.className = 'game2048-tile';
+                            tile.dataset.value = this.board[r][c];
+                            tile.textContent = this.board[r][c];
+                            tile.style.width = `${tileSize}px`;
+                            tile.style.height = `${tileSize}px`;
+                            tile.style.top = `${r * (tileSize + 10) + 10}px`;
+                            tile.style.left = `${c * (tileSize + 10) + 10}px`;
+                            tile.style.fontSize = `${fontSize}px`;
+                            if(this.board[r][c] > 1000) tile.style.fontSize = `${fontSize * 0.8}px`;
+                            this.boardEl.appendChild(tile);
+                        }
+                    }
+                }
+                this.statusEl.textContent = `分数: ${this.score}`;
+            }
+
+            getEmptyCells() {
+                const cells = [];
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        if (this.board[r][c] === 0) cells.push({ r, c });
+                    }
+                }
+                return cells;
+            }
+
+            addRandomTile() {
+                const emptyCells = this.getEmptyCells();
+                if (emptyCells.length > 0) {
+                    const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    this.board[r][c] = Math.random() > 0.9 ? 4 : 2;
+                }
+            }
+            
+            move(direction) {
+                const initialBoard = JSON.stringify(this.board);
+                let rotatedBoard = this.rotateBoard(this.board, direction);
+                
+                for (let r = 0; r < this.size; r++) {
+                    let row = rotatedBoard[r].filter(val => val !== 0);
+                    for (let c = 0; c < row.length - 1; c++) {
+                        if (row[c] === row[c + 1]) {
+                            row[c] *= 2;
+                            this.score += row[c];
+                            row.splice(c + 1, 1);
+                        }
+                    }
+                    while (row.length < this.size) row.push(0);
+                    rotatedBoard[r] = row;
+                }
+                
+                this.board = this.rotateBoard(rotatedBoard, direction, true);
+                return initialBoard !== JSON.stringify(this.board);
+            }
+            
+            rotateBoard(board, direction, reverse = false) {
+                const rotations = { 'up': reverse ? 3 : 1, 'right': reverse ? 2 : 2, 'down': reverse ? 1 : 3, 'left': 0 };
+                let newBoard = board;
+                for (let i = 0; i < rotations[direction]; i++) {
+                    newBoard = this.rotateLeft(newBoard);
+                }
+                return newBoard;
+            }
+
+            rotateLeft(board) {
+                const newBoard = Array(this.size).fill(0).map(() => Array(this.size).fill(0));
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        newBoard[r][c] = board[c][this.size - 1 - r];
+                    }
+                }
+                return newBoard;
+            }
+
+            isGameOver() {
+                if (this.getEmptyCells().length > 0) return false;
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        if (c < this.size - 1 && this.board[r][c] === this.board[r][c + 1]) return false;
+                        if (r < this.size - 1 && this.board[r][c] === this.board[r + 1][c]) return false;
+                    }
+                }
+                return true;
+            }
+        }
+        
+        class TicTacToe {
+             constructor() {
+                this.boardEl = document.getElementById('tictactoe-board');
+                this.statusEl = document.getElementById('tictactoe-status');
+                this.difficultySelect = document.getElementById('tictactoe-difficulty');
+                this.start();
+            }
+            cleanup() {}
+
+            start() {
+                this.board = Array(9).fill(null);
+                this.isPlayerTurn = true;
+                this.gameOver = false;
+                this.statusEl.textContent = '你的回合';
+                this.render();
+            }
+
+            render() {
+                this.boardEl.innerHTML = '';
+                this.board.forEach((val, i) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'tictactoe-cell';
+                    cell.textContent = val;
+                    cell.addEventListener('click', () => this.playerMove(i));
+                    this.boardEl.appendChild(cell);
+                });
+            }
+
+            playerMove(i) {
+                if (this.gameOver || this.board[i] || !this.isPlayerTurn) return;
+                this.board[i] = 'X';
+                this.isPlayerTurn = false;
+                this.render();
+                if (this.checkWinner('X')) {
+                    this.statusEl.textContent = '你赢了!';
+                    this.gameOver = true;
+                } else if (!this.board.includes(null)) {
+                    this.statusEl.textContent = '平局!';
+                    this.gameOver = true;
+                } else {
+                    this.statusEl.textContent = 'AI 思考中...';
+                    setTimeout(() => this.aiMove(), 500);
+                }
+            }
+
+            aiMove() {
+                let move;
+                const difficulty = this.difficultySelect.value;
+                if (difficulty === 'hard') {
+                    move = this.minimax(this.board, 'O').index;
+                } else if (difficulty === 'medium') {
+                    // 50% chance of perfect move
+                    move = Math.random() > 0.5 ? this.minimax(this.board, 'O').index : this.getRandomMove();
+                } else { // Easy
+                    move = this.getRandomMove();
+                }
+                
+                this.board[move] = 'O';
+                this.isPlayerTurn = true;
+                this.render();
+
+                if (this.checkWinner('O')) {
+                    this.statusEl.textContent = 'AI 赢了!';
+                    this.gameOver = true;
+                } else if (!this.board.includes(null)) {
+                    this.statusEl.textContent = '平局!';
+                    this.gameOver = true;
+                } else {
+                    this.statusEl.textContent = '你的回合';
+                }
+            }
+            
+            getRandomMove() {
+                const emptyCells = this.board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+                return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            }
+
+            checkWinner(player) {
+                const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                return lines.some(line => line.every(i => this.board[i] === player));
+            }
+
+            minimax(newBoard, player) {
+                const emptyCells = newBoard.map((v, i) => v === null ? i : null).filter(v => v !== null);
+
+                if (this.checkWinner('X')) return { score: -10 };
+                if (this.checkWinner('O')) return { score: 10 };
+                if (emptyCells.length === 0) return { score: 0 };
+                
+                const moves = [];
+                for (const i of emptyCells) {
+                    const move = {};
+                    move.index = i;
+                    newBoard[i] = player;
+                    
+                    if (player === 'O') {
+                        move.score = this.minimax(newBoard, 'X').score;
+                    } else {
+                        move.score = this.minimax(newBoard, 'O').score;
+                    }
+                    newBoard[i] = null;
+                    moves.push(move);
+                }
+
+                let bestMove;
+                if (player === 'O') {
+                    bestMove = moves.reduce((best, move) => move.score > best.score ? move : best, { score: -Infinity });
+                } else {
+                    bestMove = moves.reduce((best, move) => move.score < best.score ? move : best, { score: Infinity });
+                }
+                return bestMove;
+            }
+        }
+        
+        class Tetris {
+            // Simplified Tetris logic
+            constructor() {
+                this.canvas = document.getElementById('tetris-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.nextCanvas = document.getElementById('tetris-next-canvas');
+                this.nextCtx = this.nextCanvas.getContext('2d');
+                this.statusEl = document.getElementById('tetris-status');
+                this.difficultySelect = document.getElementById('tetris-difficulty');
+                this.speeds = { easy: 800, medium: 500, hard: 300 };
+                
+                this.gridSize = 20;
+                this.rows = 20;
+                this.cols = 10;
+                this.board = Array(this.rows).fill(0).map(() => Array(this.cols).fill(0));
+                
+                this.shapes = {
+                    'I': [[1,1,1,1]],
+                    'J': [[1,0,0], [1,1,1]],
+                    'L': [[0,0,1], [1,1,1]],
+                    'O': [[1,1],[1,1]],
+                    'S': [[0,1,1],[1,1,0]],
+                    'T': [[0,1,0],[1,1,1]],
+                    'Z': [[1,1,0],[0,1,1]]
+                };
+                this.colors = { 'I': 'cyan', 'J': 'blue', 'L': 'orange', 'O': 'yellow', 'S': 'green', 'T': 'purple', 'Z': 'red' };
+                this.handleKeyDown = this.handleKeyDown.bind(this);
+            }
+
+            start() {
+                this.cleanup();
+                document.addEventListener('keydown', this.handleKeyDown);
+                this.board.forEach(row => row.fill(0));
+                this.score = 0;
+                this.gameOver = false;
+                this.dropCounter = 0;
+                this.dropInterval = this.speeds[this.difficultySelect.value];
+                this.lastTime = 0;
+                this.playerReset();
+                this.updateScore();
+                this.gameLoop();
+            }
+            
+            cleanup() {
+                if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+                document.removeEventListener('keydown', this.handleKeyDown);
+            }
+
+            playerReset() {
+                const pieces = 'IJLOSTZ';
+                if (!this.nextPiece) {
+                    this.player = this.createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
+                } else {
+                    this.player = this.nextPiece;
+                }
+                this.nextPiece = this.createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
+                
+                this.player.pos.x = Math.floor(this.cols / 2) - Math.floor(this.player.matrix[0].length / 2);
+                this.player.pos.y = 0;
+
+                if (this.collide()) {
+                    this.gameOver = true;
+                    this.statusEl.textContent = `游戏结束! 分数: ${this.score}`;
+                }
+                this.drawNextPiece();
+            }
+
+            createPiece(type) {
+                return {
+                    pos: { x: 0, y: 0 },
+                    matrix: this.shapes[type],
+                    type: type,
+                };
+            }
+
+            draw() {
+                this.ctx.fillStyle = getComputedStyle(this.canvas).backgroundColor;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawMatrix(this.board, { x: 0, y: 0 });
+                this.drawMatrix(this.player.matrix, this.player.pos);
+            }
+
+            drawMatrix(matrix, offset) {
+                matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value !== 0) {
+                            this.ctx.fillStyle = this.colors[value] || this.colors[this.player.type];
+                            this.ctx.fillRect((offset.x + x) * this.gridSize, (offset.y + y) * this.gridSize, this.gridSize - 1, this.gridSize - 1);
+                        }
+                    });
+                });
+            }
+
+            drawNextPiece() {
+                this.nextCtx.fillStyle = '#1a1a1a';
+                this.nextCtx.fillRect(0,0, this.nextCanvas.width, this.nextCanvas.height);
+                const matrix = this.nextPiece.matrix;
+                const scale = this.gridSize * 0.8;
+                const offsetX = (this.nextCanvas.width - matrix[0].length * scale) / 2;
+                const offsetY = (this.nextCanvas.height - matrix.length * scale) / 2;
+                this.nextCtx.fillStyle = this.colors[this.nextPiece.type];
+                matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value) {
+                            this.nextCtx.fillRect(offsetX + x * scale, offsetY + y * scale, scale - 1, scale - 1);
+                        }
+                    });
+                });
+            }
+
+            gameLoop(time = 0) {
+                if (this.gameOver) return;
+                const deltaTime = time - this.lastTime;
+                this.lastTime = time;
+                this.dropCounter += deltaTime;
+                if (this.dropCounter > this.dropInterval) {
+                    this.playerDrop();
+                }
+                this.draw();
+                this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
+            }
+            
+            playerDrop() {
+                this.player.pos.y++;
+                if (this.collide()) {
+                    this.player.pos.y--;
+                    this.merge();
+                    this.playerReset();
+                    this.sweep();
+                }
+                this.dropCounter = 0;
+            }
+
+            collide() {
+                const [m, o] = [this.player.matrix, this.player.pos];
+                for (let y = 0; y < m.length; ++y) {
+                    for (let x = 0; x < m[y].length; ++x) {
+                        if (m[y][x] !== 0 && (this.board[y + o.y] && this.board[y + o.y][x + o.x]) !== 0) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            merge() {
+                this.player.matrix.forEach((row, y) => {
+                    row.forEach((value, x) => {
+                        if (value !== 0) {
+                            this.board[y + this.player.pos.y][x + this.player.pos.x] = this.player.type;
+                        }
+                    });
+                });
+            }
+
+            sweep() {
+                outer: for (let y = this.board.length - 1; y > 0; --y) {
+                    for (let x = 0; x < this.board[y].length; ++x) {
+                        if (this.board[y][x] === 0) continue outer;
+                    }
+                    const row = this.board.splice(y, 1)[0].fill(0);
+                    this.board.unshift(row);
+                    ++y;
+                    this.score += 10;
+                }
+                this.updateScore();
+            }
+
+            rotate() {
+                const matrix = this.player.matrix;
+                const newMatrix = matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]).reverse());
+                const pos = this.player.pos.x;
+                let offset = 1;
+                this.player.matrix = newMatrix;
+                while (this.collide()) {
+                    this.player.pos.x += offset;
+                    offset = -(offset + (offset > 0 ? 1 : -1));
+                    if (offset > newMatrix[0].length) {
+                        this.rotate(); // Rotate back
+                        this.player.pos.x = pos;
+                        return;
+                    }
+                }
+            }
+
+            updateScore() { this.statusEl.textContent = `分数: ${this.score}`; }
+
+            handleInput(dir) {
+                if (dir === 'left') this.player.pos.x--;
+                else if (dir === 'right') this.player.pos.x++;
+                else if (dir === 'down') this.playerDrop();
+                else if (dir === 'up') this.rotate();
+                
+                if (this.collide()) {
+                    if (dir === 'left') this.player.pos.x++;
+                    else if (dir === 'right') this.player.pos.x--;
+                }
+            }
+
+            handleKeyDown(e) {
+                if (!document.getElementById('games-page').classList.contains('active')) return;
+                const keyMap = { 37: 'left', 39: 'right', 40: 'down', 38: 'up' };
+                if (keyMap[e.keyCode]) {
+                    e.preventDefault();
+                    this.handleInput(keyMap[e.keyCode]);
+                }
+            }
+        }
+        
+        class Blackjack {
+            // Simplified Blackjack
+            constructor() {
+                this.statusEl = document.getElementById('blackjack-status');
+                this.dealerHandEl = document.getElementById('blackjack-dealer-hand');
+                this.playerHandEl = document.getElementById('blackjack-player-hand');
+                this.dealerScoreEl = document.getElementById('blackjack-dealer-score');
+                this.playerScoreEl = document.getElementById('blackjack-player-score');
+                this.actionsEl = document.getElementById('blackjack-actions');
+                this.difficultySelect = document.getElementById('blackjack-difficulty');
+                this.deckCounts = { easy: 1, medium: 4, hard: 8 };
+                this.start();
+            }
+            cleanup() {}
+
+            start() {
+                this.deck = this.createDeck();
+                this.playerHand = [];
+                this.dealerHand = [];
+                this.gameOver = false;
+                
+                this.deal();
+                this.updateUI();
+                
+                if (this.getHandValue(this.playerHand) === 21) {
+                    setTimeout(() => this.stand(), 500);
+                }
+            }
+            
+            createDeck() {
+                const suits = ['♥', '♦', '♣', '♠'];
+                const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+                const deckCount = this.deckCounts[this.difficultySelect.value];
+                let deck = [];
+                for(let i=0; i<deckCount; i++) {
+                    for (const suit of suits) {
+                        for (const rank of ranks) {
+                            deck.push({ suit, rank });
+                        }
+                    }
+                }
+                // Shuffle
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+                return deck;
+            }
+            
+            deal() {
+                this.playerHand.push(this.deck.pop());
+                this.dealerHand.push(this.deck.pop());
+                this.playerHand.push(this.deck.pop());
+                this.dealerHand.push(this.deck.pop());
+            }
+
+            hit() {
+                if (this.gameOver) return;
+                this.playerHand.push(this.deck.pop());
+                this.updateUI();
+                if (this.getHandValue(this.playerHand) > 21) {
+                    this.endGame('你爆牌了, 庄家赢!');
+                }
+            }
+            
+            stand() {
+                if(this.gameOver) return;
+                this.gameOver = true;
+                this.actionsEl.innerHTML = '';
+                
+                const dealerTurn = () => {
+                    this.updateUI(true); // reveal dealer's card
+                    const dealerValue = this.getHandValue(this.dealerHand);
+                    if (dealerValue > 21) {
+                        this.endGame('庄家爆牌了, 你赢了!');
+                    } else if (dealerValue < 17) {
+                        this.dealerHand.push(this.deck.pop());
+                        setTimeout(dealerTurn, 1000);
+                    } else {
+                        const playerValue = this.getHandValue(this.playerHand);
+                        if (dealerValue > playerValue) this.endGame('庄家赢!');
+                        else if (dealerValue < playerValue) this.endGame('你赢了!');
+                        else this.endGame('平局!');
+                    }
+                };
+                setTimeout(dealerTurn, 500);
+            }
+
+            updateUI(reveal = false) {
+                this.playerHandEl.innerHTML = this.playerHand.map(c => this.createCardEl(c)).join('');
+                this.dealerHandEl.innerHTML = this.dealerHand.map((c, i) => this.createCardEl(c, i === 0 && !reveal)).join('');
+
+                this.playerScoreEl.textContent = this.getHandValue(this.playerHand);
+                this.dealerScoreEl.textContent = reveal ? this.getHandValue(this.dealerHand) : this.getHandValue([this.dealerHand[1]]);
+                
+                if (!this.gameOver) {
+                    this.actionsEl.innerHTML = `<button class="button button-primary" id="bj-hit">要牌</button><button class="button button-secondary" id="bj-stand">停牌</button>`;
+                    document.getElementById('bj-hit').onclick = () => this.hit();
+                    document.getElementById('bj-stand').onclick = () => this.stand();
+                } else {
+                     this.actionsEl.innerHTML = '';
+                }
+            }
+            
+            createCardEl(card, isHidden = false) {
+                if (isHidden) return '<div class="blackjack-card hidden"></div>';
+                const color = ['♥', '♦'].includes(card.suit) ? 'red' : 'black';
+                return `<div class="blackjack-card ${color}"><span class="rank">${card.rank}</span><span class="suit">${card.suit}</span></div>`;
+            }
+
+            getHandValue(hand) {
+                let value = 0;
+                let aces = 0;
+                for (const card of hand) {
+                    if (['J', 'Q', 'K'].includes(card.rank)) value += 10;
+                    else if (card.rank === 'A') { value += 11; aces++; }
+                    else value += parseInt(card.rank);
+                }
+                while (value > 21 && aces > 0) { value -= 10; aces--; }
+                return value;
+            }
+            
+            endGame(message) {
+                this.gameOver = true;
+                this.statusEl.textContent = message;
+                this.updateUI(true);
+            }
+        }
+        
+        class Sudoku {
+            // Simplified Sudoku
+            constructor() {
+                this.boardEl = document.getElementById('sudoku-board');
+                this.numpadEl = document.getElementById('sudoku-numpad');
+                this.statusEl = document.getElementById('sudoku-status');
+                this.difficultySelect = document.getElementById('sudoku-difficulty');
+                this.difficulties = { easy: 40, medium: 30, hard: 22 };
+                this.start();
+            }
+            cleanup() {}
+
+            start() {
+                this.statusEl.textContent = '生成谜题中...';
+                this.selectedCell = null;
+                // Using timeout to prevent UI freeze during generation
+                setTimeout(() => {
+                    const { puzzle, solution } = this.generate();
+                    this.puzzle = puzzle;
+                    this.solution = solution;
+                    this.board = puzzle.map(row => [...row]);
+                    this.render();
+                    this.statusEl.textContent = '';
+                }, 10);
+            }
+            
+            render() {
+                this.boardEl.innerHTML = '';
+                for(let r=0; r<9; r++) {
+                    const rowEl = document.createElement('div');
+                    rowEl.className = 'sudoku-row';
+                    for(let c=0; c<9; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'sudoku-cell';
+                        if(this.puzzle[r][c] !== 0) cell.classList.add('given');
+                        cell.textContent = this.board[r][c] === 0 ? '' : this.board[r][c];
+                        cell.dataset.row = r;
+                        cell.dataset.col = c;
+                        cell.addEventListener('click', () => this.selectCell(cell, r, c));
+                        rowEl.appendChild(cell);
+                    }
+                    this.boardEl.appendChild(rowEl);
+                }
+                this.numpadEl.innerHTML = '';
+                for(let i=1; i<=9; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'button button-secondary';
+                    btn.textContent = i;
+                    btn.onclick = () => this.placeNumber(i);
+                    this.numpadEl.appendChild(btn);
+                }
+            }
+            
+            selectCell(cellEl, r, c) {
+                if (this.puzzle[r][c] !== 0) return;
+                if(this.selectedCell) this.selectedCell.classList.remove('selected');
+                this.selectedCell = cellEl;
+                this.selectedCell.classList.add('selected');
+            }
+
+            placeNumber(num) {
+                if (!this.selectedCell) return;
+                const r = this.selectedCell.dataset.row;
+                const c = this.selectedCell.dataset.col;
+                this.board[r][c] = num;
+                this.selectedCell.textContent = num;
+                this.check();
+            }
+
+            check() {
+                let errors = 0;
+                let completed = true;
+                for(let r=0; r<9; r++) {
+                    for(let c=0; c<9; c++) {
+                        const cell = this.boardEl.querySelector(`[data-row='${r}'][data-col='${c}']`);
+                        cell.classList.remove('error');
+                        if (this.board[r][c] === 0) {
+                            completed = false;
+                        } else if (this.board[r][c] !== this.solution[r][c]) {
+                            cell.classList.add('error');
+                            errors++;
+                        }
+                    }
+                }
+                if (completed && errors === 0) {
+                    this.statusEl.textContent = '恭喜！你完成了！';
+                }
+                return errors;
+            }
+
+            hint() {
+                const emptyCells = [];
+                for(let r=0; r<9; r++) for(let c=0; c<9; c++) if(this.board[r][c] === 0) emptyCells.push({r,c});
+                
+                if (emptyCells.length > 0) {
+                    const {r,c} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    this.board[r][c] = this.solution[r][c];
+                    this.render();
+                    this.check();
+                }
+            }
+
+            // --- Sudoku Generation ---
+            generate() {
+                let board = Array(9).fill(0).map(() => Array(9).fill(0));
+                this.solve(board);
+                const solution = board.map(row => [...row]);
+                
+                let puzzle = solution.map(row => [...row]);
+                let cells = [];
+                for(let i=0; i<81; i++) cells.push(i);
+                this.shuffle(cells);
+
+                let attempts = 81 - this.difficulties[this.difficultySelect.value];
+                while(attempts > 0) {
+                    const cellIndex = cells.pop();
+                    const r = Math.floor(cellIndex / 9);
+                    const c = cellIndex % 9;
+                    const temp = puzzle[r][c];
+                    puzzle[r][c] = 0;
+                    
+                    let tempPuzzle = puzzle.map(row => [...row]);
+                    if (!this.hasUniqueSolution(tempPuzzle)) {
+                        puzzle[r][c] = temp;
+                    } else {
+                        attempts--;
+                    }
+                }
+                return { puzzle, solution };
+            }
+            
+            hasUniqueSolution(board) {
+                let solutions = 0;
+                const solveCounter = (b) => {
+                    for (let r = 0; r < 9; r++) {
+                        for (let c = 0; c < 9; c++) {
+                            if (b[r][c] === 0) {
+                                for (let num = 1; num <= 9; num++) {
+                                    if (this.isValid(b, r, c, num)) {
+                                        b[r][c] = num;
+                                        solveCounter(b);
+                                        b[r][c] = 0;
+                                        if (solutions > 1) return;
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                    }
+                    solutions++;
+                };
+                solveCounter(board);
+                return solutions === 1;
+            }
+            
+            solve(board) {
+                 for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        if (board[r][c] === 0) {
+                            const nums = [1,2,3,4,5,6,7,8,9];
+                            this.shuffle(nums);
+                            for (const num of nums) {
+                                if (this.isValid(board, r, c, num)) {
+                                    board[r][c] = num;
+                                    if (this.solve(board)) return true;
+                                    board[r][c] = 0;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            isValid(board, row, col, num) {
+                for(let i=0; i<9; i++) if (board[row][i] === num || board[i][col] === num) return false;
+                const startRow = row - row % 3, startCol = col - col % 3;
+                for(let i=0; i<3; i++) for(let j=0; j<3; j++) if(board[i + startRow][j + startCol] === num) return false;
+                return true;
+            }
+
+            shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+        }
+        
+        class PlanetDefender {
+            constructor() {
+                this.canvas = document.getElementById('planetdefender-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.statusEl = document.getElementById('planetdefender-status');
+                this.difficultySelect = document.getElementById('planetdefender-difficulty');
+                
+                this.difficulties = {
+                    easy: { enemySpeed: 1, spawnRate: 1500, rotateSpeed: 0.05 },
+                    medium: { enemySpeed: 1.5, spawnRate: 1000, rotateSpeed: 0.07 },
+                    hard: { enemySpeed: 2, spawnRate: 600, rotateSpeed: 0.1 },
+                };
+                
+                this.handleKeyDown = this.handleKeyDown.bind(this);
+                this.handleKeyUp = this.handleKeyUp.bind(this);
+                // 修复：使用 mousedown 和 mouseup 模拟持续按压效果，更适合电脑端
+                this.handleButtonDown = (e) => this.handleButtonInput(e, true);
+                this.handleButtonUp = (e) => this.handleButtonInput(e, false);
+            }
+
+            start() {
+                this.cleanup();
+                this.config = this.difficulties[this.difficultySelect.value];
+                
+                this.canvas.width = this.canvas.parentElement.offsetWidth;
+                this.canvas.height = this.canvas.parentElement.offsetHeight;
+                this.center = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+                
+                this.planetRadius = 40;
+                this.player = { angle: 0, length: 60, rotation: 0 }; // rotation: -1, 0, 1
+                this.bullets = [];
+                this.enemies = [];
+                this.score = 0;
+                this.lives = 3;
+                this.gameOver = false;
+                
+                this.lastSpawn = 0;
+                this.lastShot = 0;
+                
+                this.keys = {};
+                document.addEventListener('keydown', this.handleKeyDown);
+                document.addEventListener('keyup', this.handleKeyUp);
+                const btnContainer = document.querySelector('#planetdefender-container .button-layout-container');
+                btnContainer.addEventListener('touchstart', this.handleButtonDown);
+                btnContainer.addEventListener('touchend', this.handleButtonUp);
+                btnContainer.addEventListener('mousedown', this.handleButtonDown);
+                btnContainer.addEventListener('mouseup', this.handleButtonUp);
+                btnContainer.addEventListener('mouseleave', this.handleButtonUp); // 当鼠标移出按钮时也停止旋转
+
+
+                this.gameLoop();
+            }
+
+            cleanup() {
+                if(this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+                document.removeEventListener('keydown', this.handleKeyDown);
+                document.removeEventListener('keyup', this.handleKeyUp);
+                const btnContainer = document.querySelector('#planetdefender-container .button-layout-container');
+                if(btnContainer) {
+                    btnContainer.removeEventListener('touchstart', this.handleButtonDown);
+                    btnContainer.removeEventListener('touchend', this.handleButtonUp);
+                    btnContainer.removeEventListener('mousedown', this.handleButtonDown);
+                    btnContainer.removeEventListener('mouseup', this.handleButtonUp);
+                    btnContainer.removeEventListener('mouseleave', this.handleButtonUp);
+                }
+            }
+
+            handleButtonInput(e, isPressed) {
+                e.preventDefault();
+                const btn = e.target.closest('.dpad-btn');
+                if(!btn) return;
+                const dir = btn.dataset.dir;
+                
+                if (dir === 'left') {
+                    this.keys['left'] = isPressed;
+                }
+                if (dir === 'right') {
+                    this.keys['right'] = isPressed;
+                }
+                if (dir === 'fire' && isPressed) {
+                    this.shoot();
+                }
+            }
+
+            handleKeyDown(e) {
+                if (!document.getElementById('games-page').classList.contains('active')) return;
+                if (e.keyCode === 37) this.keys['left'] = true;
+                if (e.keyCode === 39) this.keys['right'] = true;
+                if (e.keyCode === 32) {
+                    e.preventDefault();
+                    this.shoot();
+                }
+            }
+            handleKeyUp(e) {
+                if (e.keyCode === 37) this.keys['left'] = false;
+                if (e.keyCode === 39) this.keys['right'] = false;
+            }
+
+            update() {
+                // Player movement
+                if (this.keys['left']) this.player.rotation = -1;
+                else if (this.keys['right']) this.player.rotation = 1;
+                else this.player.rotation = 0;
+
+                this.player.angle += this.player.rotation * this.config.rotateSpeed;
+                
+                // Update bullets
+                this.bullets.forEach((b, i) => {
+                    b.x += b.vx;
+                    b.y += b.vy;
+                    if (b.x < 0 || b.x > this.canvas.width || b.y < 0 || b.y > this.canvas.height) {
+                        this.bullets.splice(i, 1);
+                    }
+                });
+                
+                // Update enemies
+                this.enemies.forEach((e, i) => {
+                    e.x += e.vx;
+                    e.y += e.vy;
+                    const dist = Math.hypot(e.x - this.center.x, e.y - this.center.y);
+                    if (dist < this.planetRadius + e.radius) {
+                        this.enemies.splice(i, 1);
+                        this.lives--;
+                        if (this.lives <= 0) this.gameOver = true;
+                    }
+                });
+
+                // Spawn enemies
+                if (Date.now() - this.lastSpawn > this.config.spawnRate) {
+                    this.spawnEnemy();
+                    this.lastSpawn = Date.now();
+                }
+
+                // Collision detection
+                for (let bi = this.bullets.length - 1; bi >= 0; bi--) {
+                    for (let ei = this.enemies.length - 1; ei >= 0; ei--) {
+                        if (Math.hypot(this.bullets[bi].x - this.enemies[ei].x, this.bullets[bi].y - this.enemies[ei].y) < this.bullets[bi].radius + this.enemies[ei].radius) {
+                            this.bullets.splice(bi, 1);
+                            this.enemies.splice(ei, 1);
+                            this.score += 10;
+                            break; 
+                        }
+                    }
+                }
+            }
+
+            draw() {
+                // Background
+                this.ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#000' : '#f0f2f5';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Planet
+                this.ctx.fillStyle = 'blue';
+                this.ctx.beginPath();
+                this.ctx.arc(this.center.x, this.center.y, this.planetRadius, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Player
+                this.ctx.save();
+                this.ctx.translate(this.center.x, this.center.y);
+                this.ctx.rotate(this.player.angle);
+                this.ctx.fillStyle = 'white';
+                this.ctx.fillRect(this.planetRadius - 5, -5, this.player.length, 10);
+                this.ctx.restore();
+
+                // Bullets
+                this.ctx.fillStyle = 'yellow';
+                this.bullets.forEach(b => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                
+                // Enemies
+                this.ctx.fillStyle = 'red';
+                this.enemies.forEach(e => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                
+                // UI
+                this.statusEl.textContent = `Score: ${this.score} | Lives: ${this.lives}`;
+                
+                if (this.gameOver) {
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = '40px sans-serif';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('Game Over', this.center.x, this.center.y);
+                }
+            }
+            
+            shoot() {
+                if (Date.now() - this.lastShot < 200) return;
+                const speed = 5;
+                const angle = this.player.angle;
+                this.bullets.push({
+                    x: this.center.x + (this.planetRadius + this.player.length) * Math.cos(angle),
+                    y: this.center.y + (this.planetRadius + this.player.length) * Math.sin(angle),
+                    vx: speed * Math.cos(angle),
+                    vy: speed * Math.sin(angle),
+                    radius: 3,
+                });
+                this.lastShot = Date.now();
+            }
+
+            spawnEnemy() {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.hypot(this.canvas.width, this.canvas.height) / 2;
+                const x = this.center.x + dist * Math.cos(angle);
+                const y = this.center.y + dist * Math.sin(angle);
+                
+                const angleToCenter = Math.atan2(this.center.y - y, this.center.x - x);
+                
+                this.enemies.push({
+                    x, y,
+                    vx: this.config.enemySpeed * Math.cos(angleToCenter),
+                    vy: this.config.enemySpeed * Math.sin(angleToCenter),
+                    radius: 10 + Math.random() * 10
+                });
+            }
+
+            gameLoop() {
+                if (this.gameOver) {
+                    this.draw(); // Draw final frame
+                    return;
+                }
+                this.update();
+                this.draw();
+                this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
+            }
+        }
+        
+        class DoodleJump {
+             constructor() {
+                this.canvas = document.getElementById('doodlejump-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.statusEl = document.getElementById('doodlejump-status');
+                this.difficultySelect = document.getElementById('doodlejump-difficulty');
+                // 【修复】调整难度参数，增加平台下落速度
+                this.difficulties = {
+                    easy: { gravity: 0.2, jump: -8, speed: 3, platformSpeed: 0.5 },
+                    medium: { gravity: 0.3, jump: -9, speed: 4, platformSpeed: 1 },
+                    hard: { gravity: 0.4, jump: -10, speed: 5, platformSpeed: 1.5 },
+                };
+                this.handleKeyDown = this.handleKeyDown.bind(this);
+                this.handleKeyUp = this.handleKeyUp.bind(this);
+                this.handleButtonDown = (e) => this.handleButtonInput(e, true);
+                this.handleButtonUp = (e) => this.handleButtonInput(e, false);
+            }
+
+            start() {
+                this.cleanup();
+                this.config = this.difficulties[this.difficultySelect.value];
+                
+                this.canvas.width = this.canvas.parentElement.offsetWidth;
+                this.canvas.height = this.canvas.parentElement.offsetHeight;
+                
+                // 【修复】玩家从中间平台开始
+                this.platforms = [];
+                this.platforms.push({ x: this.canvas.width / 2 - 30, y: this.canvas.height - 50, width: 60, height: 10, type: 'normal' });
+
+                for (let i = 1; i < 10; i++) {
+                    this.platforms.push({
+                        x: Math.random() * (this.canvas.width - 60),
+                        y: this.platforms[i-1].y - (60 + Math.random() * 20),
+                        width: 60, height: 10,
+                        type: Math.random() > 0.8 ? 'fragile' : 'normal' // 20%的概率是脆弱平台
+                    });
+                }
+                
+                this.player = { x: this.platforms[0].x + 15, y: this.platforms[0].y - 30, width: 30, height: 30, vx: 0, vy: 0 };
+
+                this.score = 0;
+                this.highestY = this.player.y;
+                this.gameOver = false;
+                this.keys = {};
+                
+                document.addEventListener('keydown', this.handleKeyDown);
+                document.addEventListener('keyup', this.handleKeyUp);
+                const btnContainer = document.querySelector('#doodlejump-container .button-layout-container');
+                btnContainer.addEventListener('touchstart', this.handleButtonDown, { passive: false });
+                btnContainer.addEventListener('touchend', this.handleButtonUp, { passive: false });
+                btnContainer.addEventListener('mousedown', this.handleButtonDown);
+                btnContainer.addEventListener('mouseup', this.handleButtonUp);
+
+                this.gameLoop();
+            }
+            cleanup() {
+                if(this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+                document.removeEventListener('keydown', this.handleKeyDown);
+                document.removeEventListener('keyup', this.handleKeyUp);
+                const btnContainer = document.querySelector('#doodlejump-container .button-layout-container');
+                if (btnContainer) {
+                    btnContainer.removeEventListener('touchstart', this.handleButtonDown);
+                    btnContainer.removeEventListener('touchend', this.handleButtonUp);
+                    btnContainer.removeEventListener('mousedown', this.handleButtonDown);
+                    btnContainer.removeEventListener('mouseup', this.handleButtonUp);
+                }
+            }
+            handleKeyDown(e) { this.keys[e.keyCode] = true; }
+            handleKeyUp(e) { this.keys[e.keyCode] = false; }
+            handleButtonInput(e, isPressed) {
+                e.preventDefault();
+                const btn = e.target.closest('.dpad-btn');
+                if(!btn) return;
+                const dir = btn.dataset.dir;
+                if (dir === 'left') this.keys['left'] = isPressed;
+                if (dir === 'right') this.keys['right'] = isPressed;
+            }
+
+            update() {
+                // Player horizontal movement
+                if (this.keys[37] || this.keys['left']) this.player.vx = -this.config.speed; // Left
+                else if (this.keys[39] || this.keys['right']) this.player.vx = this.config.speed; // Right
+                else this.player.vx = 0;
+                
+                this.player.x += this.player.vx;
+
+                // Wall wrap
+                if (this.player.x > this.canvas.width) this.player.x = -this.player.width;
+                else if (this.player.x < -this.player.width) this.player.x = this.canvas.width;
+
+                // Player vertical movement (gravity)
+                this.player.vy += this.config.gravity;
+                this.player.y += this.player.vy;
+                
+                // 【修复】核心逻辑：向上移动相机
+                if (this.player.y < this.canvas.height / 2) {
+                    let displacement = -this.player.vy;
+                    this.platforms.forEach(p => {
+                        p.y += displacement;
+                    });
+                    this.player.y += displacement;
+                    this.highestY += displacement;
+                }
+                
+                // Collision with platforms
+                this.platforms.forEach((p, index) => {
+                    // 只在下落时检测碰撞
+                    if (this.player.vy > 0 && 
+                        this.player.x < p.x + p.width && 
+                        this.player.x + this.player.width > p.x &&
+                        this.player.y + this.player.height > p.y &&
+                        this.player.y + this.player.height < p.y + p.height + 10) 
+                    {
+                        if (p.type === 'fragile') {
+                            p.isBroken = true; // 标记为踩碎
+                            setTimeout(() => {
+                                const pIndex = this.platforms.indexOf(p);
+                                if (pIndex > -1) this.platforms.splice(pIndex, 1);
+                            }, 300);
+                        }
+                        this.player.vy = this.config.jump;
+                    }
+                });
+                
+                 // 更新分数
+                if (this.player.y < this.highestY) {
+                    this.score += Math.floor(this.highestY - this.player.y);
+                    this.highestY = this.player.y;
+                }
+
+                // Game over
+                if (this.player.y > this.canvas.height) {
+                    this.gameOver = true;
+                }
+
+                // 移除屏幕下方的平台并生成新平台
+                while (this.platforms.length > 0 && this.platforms[0].y > this.canvas.height) {
+                    this.platforms.shift();
+                }
+
+                while (this.platforms[this.platforms.length - 1].y > -this.canvas.height) {
+                    this.platforms.push({
+                         x: Math.random() * (this.canvas.width - 60),
+                         y: this.platforms[this.platforms.length - 1].y - (60 + Math.random() * 30),
+                         width: 60, height: 10,
+                         type: Math.random() > 0.8 ? 'fragile' : 'normal'
+                    });
+                }
+            }
+
+            draw() {
+                this.ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#1c1c1e' : '#f0f2f5';
+                this.ctx.fillRect(0,0,this.canvas.width, this.canvas.height);
+
+                // Platforms
+                this.platforms.forEach(p => {
+                    if (p.type === 'fragile') {
+                        this.ctx.fillStyle = p.isBroken ? 'rgba(139, 69, 19, 0.3)' : '#8B4513';
+                    } else {
+                        this.ctx.fillStyle = 'green';
+                    }
+                    this.ctx.fillRect(p.x, p.y, p.width, p.height);
+                });
+
+                // Player
+                this.ctx.fillStyle = 'purple';
+                this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+
+                // Score
+                this.statusEl.textContent = `Score: ${this.score}`;
+                
+                if(this.gameOver) {
+                    this.ctx.fillStyle = document.body.classList.contains('dark-mode') ? 'white' : 'black';
+                    this.ctx.font = '40px sans-serif';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('Game Over', this.canvas.width/2, this.canvas.height/2);
+                    this.ctx.font = '20px sans-serif';
+                    this.ctx.fillText(`Final Score: ${this.score}`, this.canvas.width/2, this.canvas.height/2 + 40);
+                }
+            }
+            
+            gameLoop() {
+                if (this.gameOver) {
+                    this.draw();
+                    return;
+                }
+                this.update();
+                this.draw();
+                this.animationFrameId = requestAnimationFrame(this.gameLoop.bind(this));
+            }
+        }
+
+        class LightsOut {
+            constructor() {
+                this.gridEl = document.getElementById('lightsout-grid');
+                this.statusEl = document.getElementById('lightsout-status');
+                this.difficultySelect = document.getElementById('lightsout-difficulty');
+                this.sizes = { easy: 3, medium: 4, hard: 5 };
+                this.start();
+            }
+            cleanup() {}
+
+            start() {
+                this.size = this.sizes[this.difficultySelect.value];
+                this.steps = 0;
+                this.gameOver = false;
+                this.board = Array(this.size).fill(0).map(() => Array(this.size).fill(false));
+                this.generatePuzzle();
+                this.render();
+                this.statusEl.textContent = `步数: 0`;
+            }
+
+            generatePuzzle() {
+                // Ensure the puzzle is solvable by starting from a solved state and clicking random cells
+                for (let i = 0; i < this.size * this.size; i++) {
+                    if (Math.random() > 0.5) {
+                        this.toggleLights(Math.floor(i / this.size), i % this.size);
+                    }
+                }
+                 // If it's accidentally solved, click one more time
+                if (this.board.flat().every(light => !light)) {
+                    this.toggleLights(0, 0);
+                }
+            }
+
+            render() {
+                this.gridEl.innerHTML = '';
+                this.gridEl.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
+                const cellSize = Math.min(60, (this.gridEl.parentElement.offsetWidth - 40) / this.size);
+                this.gridEl.style.width = `${this.size * (cellSize + 5)}px`;
+
+                for(let r=0; r<this.size; r++) {
+                    for(let c=0; c<this.size; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'lightsout-cell';
+                        cell.classList.add(this.board[r][c] ? 'on' : 'off');
+                        cell.style.width = `${cellSize}px`;
+                        cell.addEventListener('click', () => this.handleClick(r,c));
+                        this.gridEl.appendChild(cell);
+                    }
+                }
+            }
+
+            handleClick(r, c) {
+                if (this.gameOver) return;
+                this.steps++;
+                this.toggleLights(r, c);
+                this.render();
+                this.statusEl.textContent = `步数: ${this.steps}`;
+                if (this.board.flat().every(light => !light)) { // 目标是关掉所有灯
+                    this.gameOver = true;
+                    this.statusEl.textContent += ` - 恭喜通关！`;
+                }
+            }
+
+            toggleLights(r, c) {
+                const positions = [[0,0], [0,1], [0,-1], [1,0], [-1,0]];
+                positions.forEach(([dr, dc]) => {
+                    const nr = r + dr;
+                    const nc = c + dc;
+                    if (nr >= 0 && nr < this.size && nc >= 0 && nc < this.size) {
+                        this.board[nr][nc] = !this.board[nr][nc];
+                    }
+                });
+            }
+        }
+        
+        
+        
+        // =======================================================================
+        // 11. 初始化
+        // =======================================================================
+        async function initializeApp() {
+            document.querySelector('.send-btn').addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                sendQuickDiary();
+            });
+            
+            // 中文注释：检查是否是第一次使用，如果是，就创建一些默认数据。
+            const profile = await dbActions.get('profile', 'userProfile');
+            if (!profile) {
+                await dbActions.set('profile', 'userProfile', { name: '新用户', id: 'yun000812', bio: '这个人很懒...', avatar: '', background: '' });
+                await dbActions.set('settings', 'language', 'zh-CN');
+                await dbActions.set('settings', 'darkMode', false);
+                await dbActions.set('settings', 'theme', {});
+                await dbActions.set('settings', 'font', null);
+                await dbActions.set('settings', 'showLunarCalendar', false);
+                await dbActions.set('settings', 'showHolidays', false);
+                await dbActions.set('settings', 'fontPresets', []);
+                await dbActions.set('settings', 'customCss', '');
+            }
+            const defaultNotebook = await dbActions.get('notebooks', 1);
+            if (!defaultNotebook) {
+                await dbActions.put('notebooks', { id: 1, name: '默认日记本', cover: '' });
+            }
+
+            await refreshAllDataAndRender();
+            showPage('diary-page');
+        }
+
         initializeApp();
-    });
+    }
 </script>
 </html>
