@@ -1047,21 +1047,45 @@
 
         /* === 修复后的言语列表样式 (纯圆润风) === */
         /* 3. 新版言语条目：横向排列 */
+        /* 1. 列表条目：强制移除横线 */
         .snippet-item {
             display: flex;
             align-items: center; /* 垂直居中 */
-            margin-bottom: 12px;
+            margin-bottom: 15px; /* 增加一点间距 */
             width: 100%;
-            padding: 0 5px; /* 左右留点缝隙 */
+            padding: 0 5px;
             position: relative;
+            border: none !important; /* 【关键】强制去掉所有边框/横线 */
         }
 
-        /* 左侧的心形图标 */
+        /* 2. 爱心图标：圆形包裹 + 颜色适配 */
         .snippet-heart-icon {
-            font-size: 18px;
-            color: #ff3b30; /* 红色爱心 */
-            margin-right: 12px; /* 和文字条的距离 */
-            flex-shrink: 0;
+            /* 固定大小形成正圆 */
+            width: 44px; 
+            height: 44px;
+            border-radius: 50%; /* 圆形 */
+            
+            /* 让图标在圆里居中 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            margin-right: 8px; /* 与右边气泡的间距 */
+            flex-shrink: 0; /* 防止被挤扁 */
+            
+            /* 样式设置 */
+            font-size: 18px; /* 爱心大小 */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* 淡淡的阴影，和气泡一致 */
+            
+            /* 【白天模式】 */
+            background-color: var(--card-bg); /* 背景色：跟随气泡（卡片背景） */
+            color: black; /* 爱心颜色：黑色 */
+        }
+
+        /* 【黑夜模式适配】 */
+        .dark-mode .snippet-heart-icon {
+            background-color: rgba(44, 44, 46, 0.8); /* 背景色：跟随黑夜气泡 */
+            color: white; /* 爱心颜色：白色 */
         }
 
         /* 长条胶囊背景 */
