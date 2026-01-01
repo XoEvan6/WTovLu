@@ -329,6 +329,15 @@
         /* 中文注释：评论区UI */
         .comment-section { padding: 10px 15px; display: none; border-top: 1px solid var(--border-color); }
         .comment-section.active { display: block; }
+        /* 新增：评论列表的滚动容器 */
+        .comment-list-scroll-area {
+            max-height: 350px; /* 超过这个高度（约4-5条评论）就会出现滚动条 */
+            overflow-y: auto;  /* 允许上下滑动 */
+            margin-top: 10px;
+            -webkit-overflow-scrolling: touch; /* 手机滑动更丝滑 */
+            padding-right: 5px; /* 避免滚动条挡住内容 */
+        }
+        
         .comment-input-area { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
         .comment-input-area input { flex-grow: 1; margin-bottom: 0; }
         .comment-input-area .send-comment-btn {
@@ -352,6 +361,41 @@
         .comment-header { font-size: 12px; color: var(--secondary-text); margin-bottom: 4px; }
         .comment-header .id { font-weight: bold; color: var(--primary-text); }
         .comment-content { font-size: 14px; word-break: break-word; color: var(--primary-text); }
+        
+        /* 新增：评论区图片缩略图 */
+        .comment-img-thumbnail {
+            width: 80px; 
+            height: 80px; 
+            object-fit: cover; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            display: block; 
+            margin-top: 5px;
+            border: 1px solid var(--border-color);
+        }
+        /* 新增：评论发送区的图片按钮 */
+        .add-comment-img-btn {
+            flex-shrink: 0;
+            background-color: transparent;
+            color: var(--secondary-text);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px; /* 和输入框的间距 */
+        }
+        /* 置顶评论的特殊样式（可选） */
+        .comment.pinned {
+            background-color: rgba(0, 122, 255, 0.05); /* 淡淡的蓝色背景 */
+            border-radius: 8px;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
 
         /* 中文注释：模态框/弹窗的通用样式 */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
@@ -1129,6 +1173,204 @@
         }
         .snippet-item.select-mode .snippet-select-checkbox { display: block; }
         
+        /* === 言语集美化系统样式 === */
+       
+
+        /* 2. 新增：预览区域样式 */
+        .style-preview-container {
+            padding: 20px;
+            background-color: var(--card-bg);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        /* 预览用的假气泡 */
+        .preview-bubble-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .preview-heart {
+            font-size: 18px; color: #ff3b30; margin-right: 12px; flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            background-color: var(--global-bg); 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .preview-bubble {
+            background-color: var(--global-bg);
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            min-height: 48px;
+            transition: all 0.3s ease; /* 让变化有动画 */
+        }
+        
+        /* 1. 修复美化页面无法滑动的问题 */
+        #snippet-style-page .page-content {
+            flex: 1;
+            overflow-y: auto; /* 允许垂直滚动 */
+            padding-bottom: 50px;
+            background-color: var(--global-bg);
+        }
+
+        /* 2. 装饰设置区域样式 */
+        .decoration-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .deco-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .deco-item.selected {
+            border-color: var(--accent-color);
+            background-color: rgba(0, 122, 255, 0.1);
+        }
+        .deco-item img {
+            width: 80%; height: 80%; object-fit: contain;
+        }
+        .deco-item svg {
+            width: 24px; height: 24px; fill: currentColor;
+        }
+
+        /* 自定义装饰管理样式 */
+        .custom-deco-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+        }
+        .deco-delete-checkbox {
+            position: absolute; top: -5px; right: -5px;
+            width: 18px; height: 18px;
+            display: none; /* 默认隐藏 */
+            z-index: 2;
+        }
+        .deco-manage-mode .deco-delete-checkbox { display: block; }
+        .deco-manage-mode .deco-item { opacity: 0.8; }
+        
+        /* 预览区域的图标调整 */
+        .preview-deco {
+            margin-right: 12px; flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .preview-deco img { width: 60%; height: 60%; object-fit: contain; }
+        .preview-deco svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        /* 修复重叠的关键：文字内容包裹层 */
+        .snippet-text-wrapper {
+            display: flex;
+            flex-direction: column; /* 默认垂直排列（为了适应时间戳在外） */
+            position: relative;     /* 为了时间戳绝对定位 */
+            max-width: 85%;         /* 防止太宽 */
+        }
+        
+        /* 确保装饰图标始终保持圆形且不被挤压 */
+        .snippet-heart-icon {
+            flex-shrink: 0;
+            width: 44px; height: 44px; /* 强制固定大小 */
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            margin-right: 8px; /* 保持间距 */
+        }
+        
+        /* 时间戳绝对定位的基础样式 */
+        .snippet-time-tag.absolute-pos {
+            position: absolute;
+            font-size: 10px;
+            color: var(--secondary-text);
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        /* 1. 气泡形状变体 */
+        .snippet-bubble.style-bookmark {
+            border-radius: 4px; /* 小圆角方形 */
+            border-left: 4px solid var(--accent-color); /* 左侧加一条线像书签 */
+        }
+        .snippet-bubble.style-minimal {
+            background-color: transparent !important; /* 透明背景 */
+            box-shadow: none;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
+            border-radius: 0;
+            padding-left: 0;
+        }
+        .dark-mode .snippet-bubble.style-minimal { border-bottom: 1px dashed rgba(255,255,255,0.1); }
+
+        /* 2. 时间戳位置布局控制 */
+        
+        /* 默认：气泡内-右侧 (Flex布局，垂直居中) */
+        .snippet-bubble.time-in-right {
+            flex-direction: row;
+            align-items: center;
+        }
+        .snippet-bubble.time-in-right .snippet-time-tag { margin-left: 10px; }
+
+        /* 气泡内-右下角 (由JS控制结构，或者使用相对定位) */
+        .snippet-bubble.time-in-bottom-right {
+            flex-direction: column;
+            align-items: flex-end; /* 靠右对齐 */
+        }
+        .snippet-bubble.time-in-bottom-right .snippet-content-text {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 4px;
+        }
+
+        /* 气泡外的情况 */
+        .snippet-item.layout-vertical {
+            flex-direction: column;
+            align-items: flex-start; /* 整体靠左 */
+            margin-left: 45px; /* 让出爱心图标的位置 */
+            width: auto;
+        }
+        /* 当时间在外面时，爱心图标需要绝对定位或者特殊处理 */
+        .snippet-item.layout-vertical .snippet-heart-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .snippet-item.layout-vertical .snippet-bubble {
+            width: 100%;
+        }
+        
+        /* 气泡外-右下角 */
+        .snippet-time-outside-right {
+            align-self: flex-end;
+            font-size: 10px; 
+            color: var(--secondary-text);
+            margin-top: 2px;
+            margin-right: 5px;
+        }
+        
+        /* 气泡外-底部居中 */
+        .snippet-time-outside-center {
+            align-self: center;
+            font-size: 10px;
+            color: var(--secondary-text);
+            margin-top: 2px;
+            opacity: 0.6;
+        }
+        
 
         /* 批量管理时的样式 */
         .snippet-item.select-mode {
@@ -1348,6 +1590,27 @@
             border-radius: 15px;
             background-color: var(--global-bg);
             margin: 0;
+        }
+        
+        /* === 强制修复：美化设置页面层级 === */
+        #snippet-style-page {
+            display: none; 
+            position: fixed !important; /* 强制固定定位 */
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            background-color: var(--global-bg); 
+            z-index: 5000 !important; /* 强制最高层级，确保盖住一切 */
+            flex-direction: column;
+        }
+        #snippet-style-page.active {
+            display: flex !important; /* 激活时强制显示 */
+        }
+        
+        /* 确保内容能滚动 */
+        #snippet-style-page .page-content {
+            flex: 1;
+            overflow-y: auto !important;
+            padding-bottom: 50px;
         }
 
     </style>
@@ -1674,20 +1937,227 @@
                     <span id="snippet-detail-title" style="font-weight: bold; font-size: 18px;"></span>
                     <i class="fas fa-ellipsis-h" style="font-size: 20px; cursor: pointer;" id="snippet-detail-menu-btn"></i>
                 </div>
+                
+                
                 <div class="snippet-detail-body" id="snippet-detail-list">
                     <!-- 言语列表会显示在这里 -->
                 </div>
-                <!-- 底部输入栏 -->
-                <div class="snippet-input-bar" id="snippet-input-bar">
+                <!-- 底部输入栏 (布局优化：输入框在左，按钮组在右) -->
+                <div class="snippet-input-bar" id="snippet-input-bar" style="padding-right: 5px;">
                     <input type="text" id="snippet-quick-input" placeholder="写点什么...">
-                    <button class="send-btn" id="snippet-quick-send"><i class="fas fa-paper-plane"></i></button>
+                    <!-- 右侧按钮组 -->
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
+                        <!-- 相册按钮 (新SVG，强调色背景) -->
+                        <button class="send-btn" id="snippet-add-image-btn" style="background-color: var(--accent-color);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        </button>
+                        <!-- 发送按钮 -->
+                        <button class="send-btn" id="snippet-quick-send"><i class="fas fa-paper-plane"></i></button>
+                    </div>
                 </div>
+                
                 <!-- 批量管理栏 (默认隐藏) -->
                 <div class="snippet-input-bar" id="snippet-manage-bar" style="display: none; justify-content: space-between;">
                     <span id="snippet-selected-count">已选 0 项</span>
                     <button class="button button-danger" id="snippet-batch-delete-btn" style="margin:0; padding: 5px 15px;">删除</button>
                 </div>
             </div>
+            
+            <!-- 新增：言语集美化设置页面 (完整修复版) -->
+        <div id="snippet-style-page" class="page">
+            <div class="page-header">
+                <!-- 这里的 onclick 直接调用关闭函数 -->
+                <i class="fas fa-arrow-left back-btn" onclick="closeSnippetStyleSettings()"></i>
+                <h2 class="title">美化预览</h2>
+                <div class="actions">
+                    <!-- 这里的 onclick 直接调用保存函数 -->
+                    <i class="fas fa-check action-btn" onclick="saveSnippetStyles()"></i>
+                </div>
+            </div>
+            
+            <!-- 实时预览区域 -->
+            <div class="style-preview-container">
+                <div class="preview-bubble-wrapper" id="preview-wrapper">
+                    <!-- 关键 ID，之前可能缺失 -->
+                    <div id="preview-deco-container" class="preview-deco"></div>
+                    <div class="preview-bubble" id="preview-bubble">
+                        <div id="preview-text">预览文字 Preview</div>
+                        <div id="preview-time">12:30</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content" style="padding-top: 0;">
+            
+               <!-- 1. 基础样式 (已修改：增加内边距设置) -->
+                <div class="theme-section">
+                    <h3>基础样式</h3>
+                    <div class="theme-card-group">
+                        <div class="theme-setting-item">
+                            <label>气泡形状</label>
+                            <select id="style-bubble-shape">
+                                <option value="capsule">圆润胶囊 (默认)</option>
+                                <option value="bookmark">书签方块</option>
+                                <option value="minimal">极简无框</option>
+                            </select>
+                        </div>
+                        <div class="theme-setting-item">
+                            <label>字体颜色</label>
+                            <div class="controls">
+                                <input type="color" id="style-font-color">
+                            </div>
+                        </div>
+                        <div class="theme-setting-item" style="flex-direction: column; align-items: flex-start;">
+                            <label style="margin-bottom: 10px; display:flex; justify-content:space-between; width:100%;">
+                                字体大小 <span id="style-font-size-val" style="color:var(--secondary-text)">15px</span>
+                            </label>
+                            <input type="range" id="style-font-size" min="12" max="30" step="1" style="width: 100%; margin:0;">
+                        </div>
+                        <!-- 新增：气泡内边距设置 -->
+                        <div class="theme-setting-item" style="flex-direction: column; align-items: flex-start;">
+                            <label style="margin-bottom:10px;">气泡内边距 (单位: px)</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">上</span><input type="number" id="pad-top" placeholder="12"></div>
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">下</span><input type="number" id="pad-bottom" placeholder="12"></div>
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">左</span><input type="number" id="pad-left" placeholder="20"></div>
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">右</span><input type="number" id="pad-right" placeholder="20"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 2. 装饰图标设置 -->
+                <div class="theme-section">
+                    <h3>装饰图标</h3>
+                    <div class="theme-card-group">
+                        <div class="theme-setting-item">
+                            <label>显示图标</label>
+                            <input type="checkbox" id="style-show-deco" checked>
+                        </div>
+                        
+                        <!-- 装饰背景设置 -->
+                        <div class="theme-setting-item">
+                            <label>开启图标背景</label>
+                            <input type="checkbox" id="style-deco-bg-show">
+                        </div>
+                        <!-- 这个 div 必须有 id="deco-bg-settings" -->
+                        <!-- 修改后的：装饰背景设置 (不包含大小位置) -->
+                        <div class="theme-setting-item" id="deco-bg-settings" style="display:none; flex-direction:column; gap:10px; align-items:flex-start;">
+                            <div style="display:flex; justify-content:space-between; width:100%;">
+                                <label>背景颜色</label>
+                                <input type="color" id="style-deco-bg-color" value="#ffffff">
+                            </div>
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <label>透明度 <span id="deco-bg-opacity-val" style="font-size:12px;color:#888;">50%</span></label>
+                                <input type="range" id="style-deco-bg-opacity" min="0" max="100" value="50" style="width:50%;">
+                            </div>
+                            <div style="display:flex; justify-content:space-between; width:100%;">
+                                <label>形状</label>
+                                <select id="style-deco-bg-shape" style="width:50%;">
+                                    <option value="50%">圆形</option>
+                                    <option value="8px">圆角方形</option>
+                                    <option value="0px">方形</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 移出来了：装饰大小与位置 (现在总是可见) -->
+                        <div class="theme-setting-item" style="flex-direction:column; gap:10px; align-items:flex-start; padding-top:0;">
+                            <div style="width:100%; height:1px; background:#eee; margin:5px 0;"></div>
+                            <div style="display:flex; justify-content:space-between; width:100%;">
+                                <label>图标大小 (px)</label>
+                                <input type="number" id="style-deco-size" placeholder="24" style="width:50%;">
+                            </div>
+                            <div style="display:flex; flex-direction:column; width:100%; margin-top:10px;">
+                                <label style="margin-bottom:5px;">图标位置微调 (px)</label>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div style="display:flex;align-items:center;"><span style="width:20px;font-size:12px;color:#888">上</span><input type="number" id="deco-top" placeholder="0"></div>
+                                    <div style="display:flex;align-items:center;"><span style="width:20px;font-size:12px;color:#888">下</span><input type="number" id="deco-bottom" placeholder="0"></div>
+                                    <div style="display:flex;align-items:center;"><span style="width:20px;font-size:12px;color:#888">左</span><input type="number" id="deco-left" placeholder="0"></div>
+                                    <div style="display:flex;align-items:center;"><span style="width:20px;font-size:12px;color:#888">右</span><input type="number" id="deco-right" placeholder="0"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 装饰类型切换 -->
+                        <div class="theme-setting-item" id="deco-type-selector" style="justify-content: flex-start; gap: 10px;">
+                            <button class="button button-primary" onclick="switchDecoTab('svg')" id="tab-svg" style="margin:0; padding:5px 10px; font-size:12px;">内置SVG</button>
+                            <button class="button button-secondary" onclick="switchDecoTab('emoji')" id="tab-emoji" style="margin:0; padding:5px 10px; font-size:12px;">Emoji</button>
+                            <button class="button button-secondary" onclick="switchDecoTab('custom')" id="tab-custom" style="margin:0; padding:5px 10px; font-size:12px;">自定义</button>
+                        </div>
+
+                        <!-- SVG 选择区 -->
+                        <div id="deco-panel-svg" style="padding: 10px;">
+                            <div class="decoration-grid" id="svg-grid"></div>
+                        </div>
+
+                        <!-- Emoji 输入区 -->
+                        <div id="deco-panel-emoji" style="padding: 15px; display: none;">
+                            <input type="text" id="style-deco-emoji" placeholder="在此输入一个 Emoji (如 🤍)" maxlength="2" style="text-align:center; font-size: 24px;">
+                        </div>
+
+                        <!-- 自定义图片区 -->
+                        <div id="deco-panel-custom" style="padding: 10px; display: none;">
+                            <div class="custom-deco-header" id="custom-deco-header">
+                                <span style="font-size:12px; color:#888;">我的图标</span>
+                                <div>
+                                    <button class="button button-secondary" onclick="toggleDecoDeleteMode()" style="margin:0; font-size:12px; padding: 4px 8px;">批量删除</button>
+                                    <button class="button button-primary" onclick="uploadCustomDeco()" style="margin:0; font-size:12px; padding: 4px 8px;">上传</button>
+                                </div>
+                            </div>
+                            <div class="custom-deco-header" id="custom-deco-delete-header" style="display:none;">
+                                <span style="font-size:12px; color:var(--danger-color);">选择要删除的图标</span>
+                                <div>
+                                    <button class="button button-secondary" onclick="exitDecoDeleteMode()" style="margin:0; font-size:12px; padding: 4px 8px;">取消</button>
+                                    <button class="button button-danger" onclick="confirmDeleteDecos()" style="margin:0; font-size:12px; padding: 4px 8px;">删除</button>
+                                </div>
+                            </div>
+                            <div class="decoration-grid" id="custom-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 时间戳设置 -->
+                <div class="theme-section">
+                    <h3>时间戳设置</h3>
+                    <div class="theme-card-group">
+                        <div class="theme-setting-item">
+                            <label>基准位置</label>
+                            <select id="style-time-base">
+                                <option value="inside">气泡内</option>
+                                <option value="outside">气泡外</option>
+                                <option value="none">不显示</option>
+                            </select>
+                        </div>
+                        <!-- 这个 div 必须有 id="time-offset-settings" -->
+                        <div class="theme-setting-item" id="time-offset-settings" style="flex-direction: column; align-items: flex-start;">
+                            <label style="margin-bottom:10px;">位置微调 (单位: px)</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">上</span><input type="number" id="time-top" placeholder="Top"></div>
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">下</span><input type="number" id="time-bottom" placeholder="Bottom"></div>
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">左</span><input type="number" id="time-left" placeholder="Left"></div>
+                                <div style="display:flex; align-items:center;"><span style="width:30px; font-size:12px;">右</span><input type="number" id="time-right" placeholder="Right"></div>
+                            </div>
+                            <div style="font-size: 10px; color: var(--secondary-text); margin-top:5px;">注：正数向中心移动，负数向外移动。留空则为默认。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 高级自定义 CSS -->
+                <div class="theme-section">
+                    <h3>高级自定义 CSS</h3>
+                    <div class="theme-card-group">
+                        <div style="padding: 15px;">
+                            <div style="margin-bottom: 10px; font-size: 12px; color: var(--accent-color); cursor: pointer;" onclick="insertCssTemplate()">
+                                <i class="fas fa-magic"></i> 插入透明玻璃特效模板
+                            </div>
+                            <textarea id="style-custom-css" placeholder="在此输入CSS，仅对当前言语集生效..." style="border:none; background:var(--global-bg); width:100%; height:150px; border-radius:8px; padding:10px; font-family: monospace;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
             <!-- ======================================================================= -->
             <!-- 中文注释：小游戏页面 -->
@@ -2069,6 +2539,20 @@
         let accountingState = { view: 'month', date: new Date() };
         // 中文注释：游戏相关的状态变量
         let activeGame = { name: null, instance: null };
+        // 内置 SVG 图标库 (必须大于10个)
+        const builtInSvgs = [
+            '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>', // 爱心
+            '<path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/>', // 钻石
+            '<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>', // 星星
+            '<path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>', // 礼物
+            '<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>', // 云朵
+            '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>', // 感叹号
+            '<path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2s-1.05.22-1.41.59l-9 9c-.78.78-.78 2.05 0 2.83L2.41 16c.78.78 2.05.78 2.83 0l.59-.59V20c0 .55.45 1 1 1h4v-5h4v5h4c.55 0 1-.45 1-1v-4.59l.59.59c.78.78 2.05.78 2.83 0l1.83-1.59c.78-.78.78-2.05 0-2.83z"/>', // 房子
+            '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>', // 地球
+            '<path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>', // 灯泡
+            '<path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.01 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>', // 五角星空心
+            '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' // 占位
+        ];
 
 
         // =======================================================================
@@ -2159,9 +2643,15 @@
             }
         }
 
-        // 中文注释：从数据库加载所有数据到内存中。
+        // 中文注释：从数据库加载所有数据到内存中 (修复版：加载自定义图标)
         async function loadDataFromDB() {
-            const [profile, diaries, notebooks, darkMode, language, theme, font, showLunarCalendar, showHolidays, fontPresets, anniversaries, transactions, snippets, snippetCollections, customCss] = await Promise.all([
+            const [
+                profile, diaries, notebooks, 
+                darkMode, language, theme, font, 
+                showLunarCalendar, showHolidays, 
+                fontPresets, customCss, customDecos, // 这里加了 customDecos
+                anniversaries, transactions, snippets, snippetCollections
+            ] = await Promise.all([
                 dbActions.get('profile', 'userProfile'), 
                 dbActions.getAll('diaries'), 
                 dbActions.getAll('notebooks'),
@@ -2172,11 +2662,12 @@
                 dbActions.get('settings', 'showLunarCalendar'),
                 dbActions.get('settings', 'showHolidays'),
                 dbActions.get('settings', 'fontPresets'),
+                dbActions.get('settings', 'customCss'),
+                dbActions.get('settings', 'customDecos'), // 这里是新增的加载项
                 dbActions.getAll('anniversaries'),
                 dbActions.getAll('transactions'),
                 dbActions.getAll('snippets'),
-                dbActions.getAll('snippetCollections'),
-                dbActions.get('settings', 'customCss')
+                dbActions.getAll('snippetCollections')
             ]);
             
             appData = {
@@ -2189,7 +2680,8 @@
                     showLunarCalendar: showLunarCalendar || false,
                     showHolidays: showHolidays || false,
                     fontPresets: fontPresets || [],
-                    customCss: customCss || ''
+                    customCss: customCss || '',
+                    customDecos: customDecos || [] // 这里保存到内存
                 },
                 anniversaries: anniversaries || [],
                 transactions: transactions || [],
@@ -2745,16 +3237,54 @@
             return card;
         }
 
-        // 中文注释：渲染评论区。
+        // 中文注释：渲染评论区 (最终修复版：无数量限制 + 滚动显示)
         function renderCommentsHTML(diaryId, comments) {
-            let html = `<div class="comment-input-area"><input type="text" placeholder="${getLangText('add_comment')}..."><button class="send-comment-btn" data-action="send-comment"><i class="fas fa-paper-plane"></i></button></div>`;
-            const commentsToShow = comments.slice(-3);
-            if (comments.length > 3) {
-                html += `<a class="view-more-comments" data-action="view-all-comments">查看全部 ${comments.length} 条评论</a>`;
-            }
-            commentsToShow.reverse().forEach(c => { // 让最新的评论在最上面
-                html += `<div class="comment" data-comment-content="${c.content}"><img src="${appData.profile.avatar || 'https://via.placeholder.com/100'}" class="comment-avatar"><div class="comment-body"><div class="comment-header"><span class="id">@${c.authorId}</span> · <span>${new Date(c.timestamp).toLocaleString()}</span></div><div class="comment-content">${formatRichText(c.content)}</div></div></div>`;
+            // 1. 顶部输入栏
+            let html = `
+                <div class="comment-input-area">
+                    <button class="add-comment-img-btn" data-action="add-comment-image" title="发送图片"><i class="fas fa-image"></i></button>
+                    <input type="text" placeholder="${getLangText('add_comment')}...">
+                    <button class="send-comment-btn" data-action="send-comment"><i class="fas fa-paper-plane"></i></button>
+                </div>`;
+
+            if (!comments || comments.length === 0) return html;
+
+            // 2. 排序：置顶在前，时间倒序
+            const sortedComments = [...comments].sort((a, b) => {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+                return b.timestamp - a.timestamp;
             });
+
+            // 3. 开始包裹滚动层 (这里不再切片限制数量，而是全部显示，并包在滚动盒子里)
+            html += `<div class="comment-list-scroll-area">`;
+
+            // 循环生成所有评论
+            sortedComments.forEach(c => {
+                const isPinnedClass = c.isPinned ? 'pinned' : '';
+                const pinIcon = c.isPinned ? '<i class="fas fa-thumbtack" style="font-size:10px; color:var(--accent-color); margin-right:5px;"></i>' : '';
+                
+                let contentHtml = '';
+                if (c.content && c.content.startsWith('data:image')) {
+                    contentHtml = `<img src="${c.content}" class="comment-img-thumbnail" onclick="viewFullImage(this.src)">`;
+                } else {
+                    contentHtml = `<div class="comment-content">${formatRichText(c.content)}</div>`;
+                }
+
+                html += `
+                    <div class="comment ${isPinnedClass}" id="comment-${c.id}">
+                        <img src="${appData.profile.avatar || 'https://via.placeholder.com/100'}" class="comment-avatar" 
+                             ondblclick="openCommentMenu(${diaryId}, ${c.id})">
+                        <div class="comment-body">
+                            <div class="comment-header">
+                                ${pinIcon}<span class="id">@${c.authorId}</span> · <span>${new Date(c.timestamp).toLocaleString()}</span>
+                            </div>
+                            ${contentHtml}
+                        </div>
+                    </div>`;
+            });
+
+            html += `</div>`; // 结束包裹层
             return html;
         }
         
@@ -2893,6 +3423,33 @@
                         renderFontSelection();
                         break;
                     }
+                    case 'add-comment-image': {
+                        // 发送评论图片
+                        const card = actionTarget.closest('.diary-card');
+                        const diaryId = Number(card.dataset.diaryId);
+                        
+                        triggerFileUpload('image/*', false, 1, async (file) => {
+                            const diary = appData.diaries.find(d => d.id === diaryId);
+                            if (diary) {
+                                if (!diary.comments) diary.comments = [];
+                                // 直接存图片Base64
+                                diary.comments.push({ 
+                                    id: Date.now(), 
+                                    authorId: appData.profile.id, 
+                                    content: file.src, 
+                                    timestamp: Date.now(),
+                                    isPinned: false 
+                                });
+                                await dbActions.put('diaries', diary);
+                                
+                                // 刷新显示
+                                const commentSection = card.querySelector('.comment-section');
+                                commentSection.innerHTML = renderCommentsHTML(diaryId, diary.comments);
+                            }
+                        });
+                        break;
+                    }
+                    
                     case 'send-comment': {
                         const card = actionTarget.closest('.diary-card');
                         const input = card.querySelector('.comment-input-area input');
@@ -4704,6 +5261,7 @@
         // 打开详情页
         function openSnippetDetail(id) {
             currentCollectionId = id;
+            applySnippetCustomCss(''); // 先清空之前的自定义 CSS
             const collection = appData.snippetCollections.find(c => c.id === id);
             if (!collection) return;
 
@@ -4733,6 +5291,23 @@
             
             // 绑定发送按钮
             document.getElementById('snippet-quick-send').onclick = sendSnippetQuick;
+            
+            // 绑定图片按钮 (新增)
+            document.getElementById('snippet-add-image-btn').onclick = () => {
+                triggerFileUpload('image/*', false, 1, async (file) => {
+                    const newItem = { 
+                        collectionId: currentCollectionId, 
+                        content: file.src, // 直接存 Base64
+                        timestamp: Date.now() 
+                    };
+                    const newId = await dbActions.add('snippets', newItem);
+                    newItem.id = newId;
+                    appData.snippets.push(newItem);
+                    renderSnippetDetailList();
+                    document.getElementById('snippet-detail-list').scrollTop = 0;
+                });
+            };
+            
         }
 
         // 关闭详情页
@@ -4743,13 +5318,21 @@
         };
 
         
-        // 渲染言语集详情列表 (修复版)
-       // 渲染言语集详情列表 (新版UI：心形+长条)
+        // 3. 渲染列表 (修复版：图片点击放大)
         function renderSnippetDetailList() {
             const list = document.getElementById('snippet-detail-list');
             list.innerHTML = '';
             
-            // 按时间倒序，最新的在最上面
+            const collection = appData.snippetCollections.find(c => c.id === currentCollectionId);
+            const config = collection?.styleConfig || { 
+                bubbleShape: 'capsule', fontColor: '', fontSize: 15, 
+                padding: { top: 12, bottom: 12, left: 20, right: 20 },
+                timeBase: 'inside', timeOffsets: {},
+                decoration: { show: true, type: 'svg', value: builtInSvgs[0], bgShow:false, decoSize: 24, decoOffsets: {} } 
+            };
+
+            applySnippetCustomCss(config.customCss);
+
             const snippets = appData.snippets
                 .filter(s => s.collectionId === currentCollectionId)
                 .sort((a, b) => b.timestamp - a.timestamp);
@@ -4761,42 +5344,133 @@
 
             snippets.forEach(snippet => {
                 const item = document.createElement('div');
-                // 根据模式判断是否添加 select-mode 类
                 item.className = isSnippetManageMode ? 'snippet-item select-mode' : 'snippet-item';
-                
-                // 格式化时间，只显示 时:分 (或者你可以改回 toLocaleString 显示完整日期)
-                const dateObj = new Date(snippet.timestamp);
-                // 简单的日期格式：月/日 时:分
-                const timeStr = `${dateObj.getMonth()+1}/${dateObj.getDate()} ${dateObj.getHours().toString().padStart(2,'0')}:${dateObj.getMinutes().toString().padStart(2,'0')}`;
+                item.style.display = 'flex';
+                item.style.flexDirection = 'row'; 
+                item.style.alignItems = 'flex-start';
 
-                item.innerHTML = `
-                    <input type="checkbox" class="snippet-select-checkbox" data-id="${snippet.id}">
+                const dateObj = new Date(snippet.timestamp);
+                const timeStr = `${dateObj.getMonth()+1}/${dateObj.getDate()} ${dateObj.getHours().toString().padStart(2,'0')}:${dateObj.getMinutes().toString().padStart(2,'0')}`;
+                
+                // 1. 装饰图标
+                if (config.decoration && config.decoration.show) {
+                    const dSize = config.decoration.decoSize || 24;
+                    let innerContent = '';
                     
-                    <!-- 左侧爱心图标 -->
-                    <i class="fas fa-heart snippet-heart-icon"></i>
+                    const decoDiv = document.createElement('div');
+                    decoDiv.className = 'snippet-heart-icon'; 
+                    decoDiv.style.width = dSize + 'px';
+                    decoDiv.style.height = dSize + 'px';
+
+                    if (config.decoration.type === 'svg') innerContent = `<svg viewBox="0 0 24 24" style="width:100%;height:100%;fill:currentColor;">${config.decoration.value}</svg>`;
+                    else if (config.decoration.type === 'emoji') innerContent = `<span style="font-size:${dSize}px;line-height:1;">${config.decoration.value}</span>`;
+                    else if (config.decoration.type === 'custom') innerContent = `<img src="${config.decoration.value}" style="width:100%;height:100%;object-fit:contain;">`;
                     
-                    <!-- 右侧长条内容 -->
-                    <div class="snippet-bubble">
-                        <div class="snippet-content-text">${formatRichText(snippet.content)}</div>
-                        <div class="snippet-time-tag">${timeStr}</div>
-                    </div>
-                `;
+                    const dOff = config.decoration.decoOffsets || {};
+                    decoDiv.style.position = 'relative';
+                    if(dOff.top) decoDiv.style.top = dOff.top + 'px';
+                    if(dOff.bottom) decoDiv.style.bottom = dOff.bottom + 'px';
+                    if(dOff.left) decoDiv.style.left = dOff.left + 'px';
+                    if(dOff.right) decoDiv.style.right = dOff.right + 'px';
+
+                    if (config.decoration.bgShow) {
+                         const color = config.decoration.bgColor || '#ffffff';
+                         const r = parseInt(color.slice(1, 3), 16);
+                         const g = parseInt(color.slice(3, 5), 16);
+                         const b = parseInt(color.slice(5, 7), 16);
+                         const opacity = (config.decoration.bgOpacity || 50) / 100;
+                         decoDiv.style.backgroundColor = `rgba(${r},${g},${b},${opacity})`;
+                         decoDiv.style.borderRadius = config.decoration.bgShape || '50%';
+                         decoDiv.style.boxShadow = 'none';
+                    } else {
+                         decoDiv.style.backgroundColor = 'transparent';
+                         decoDiv.style.boxShadow = 'none';
+                    }
+                    
+                    decoDiv.innerHTML = innerContent;
+                    item.appendChild(decoDiv);
+                }
+
+                // 2. 内容包裹
+                const textWrapper = document.createElement('div');
+                textWrapper.className = 'snippet-text-wrapper';
+                textWrapper.style.flexGrow = '1'; 
+                textWrapper.style.width = '100%'; 
+                
+                // 3. 气泡
+                const bubble = document.createElement('div');
+                bubble.className = `snippet-bubble style-${config.bubbleShape}`;
+                bubble.style.position = 'relative'; 
+                bubble.style.width = '100%'; 
+                bubble.style.boxSizing = 'border-box';
+                bubble.style.color = config.fontColor;
+                bubble.style.fontSize = config.fontSize + 'px';
+                
+                const pad = config.padding || { top: 12, bottom: 12, left: 20, right: 20 };
+                bubble.style.padding = `${pad.top}px ${pad.right}px ${pad.bottom}px ${pad.left}px`;
+                
+                // 4. 时间戳
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'snippet-time-tag absolute-pos';
+                timeDiv.textContent = timeStr;
+                
+                const offsets = config.timeOffsets || {};
+                if (offsets.top) timeDiv.style.top = offsets.top + 'px';
+                if (offsets.bottom) timeDiv.style.bottom = offsets.bottom + 'px';
+                if (offsets.left) timeDiv.style.left = offsets.left + 'px';
+                if (offsets.right) timeDiv.style.right = offsets.right + 'px';
+                
+                if (!offsets.top && !offsets.bottom && !offsets.left && !offsets.right) {
+                     if (config.timeBase === 'inside') {
+                         timeDiv.style.bottom = '8px';
+                         timeDiv.style.right = '20px';
+                     } else {
+                         timeDiv.style.bottom = '-16px';
+                         timeDiv.style.right = '5px';
+                     }
+                }
+
+                // 内容渲染
+                let contentHTML = '';
+                if (snippet.content && snippet.content.startsWith('data:image')) {
+                    // 图片：增加 onclick 调用 viewFullImage
+                    contentHTML = `<img src="${snippet.content}" style="max-width:100%; border-radius:8px; display:block; cursor:pointer;" onclick="viewFullImage(this.src)">`;
+                } else {
+                    // 文字
+                    contentHTML = `<div>${formatRichText(snippet.content)}</div>`;
+                }
+
+                if (config.timeBase === 'inside') {
+                    bubble.innerHTML = contentHTML;
+                    bubble.appendChild(timeDiv);
+                } else {
+                    bubble.innerHTML = contentHTML;
+                }
+                
+                textWrapper.appendChild(bubble);
+                if (config.timeBase === 'outside') textWrapper.appendChild(timeDiv);
 
                 if (isSnippetManageMode) {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'snippet-select-checkbox';
+                    checkbox.dataset.id = snippet.id;
+                    checkbox.style.marginRight = '10px';
+                    checkbox.style.display = 'block';
+                    item.prepend(checkbox); 
                     item.onclick = (e) => {
-                        if (e.target.type !== 'checkbox') {
-                            const cb = item.querySelector('input');
-                            cb.checked = !cb.checked;
-                        }
+                        if (e.target.type !== 'checkbox') { checkbox.checked = !checkbox.checked; }
                         updateSelectedCount();
                     };
                 } else {
                     addLongPressListener(item, () => openSnippetMenu(snippet));
                 }
-                
+
+                item.appendChild(textWrapper);
                 list.appendChild(item);
             });
-        } 
+        }
+        
 
         // 发送新言语
         // 发送新言语 (修复版：立即显示)
@@ -4828,31 +5502,45 @@
             list.scrollTop = 0;
         }
 
-        // 详情页右上角菜单
+        // 详情页右上角菜单 (新增：恢复默认背景)
         function openSnippetDetailMenu(collection) {
             showActionMenuModal(collection.name, [
+                { text: '美化设置', action: 'open-style-settings' },
                 { text: '批量管理', action: 'manage-snippets-mode' },
                 { text: '更换内部背景', action: 'change-collection-bg' },
-                { text: '更换封面', action: 'change-collection-cover' } // 在这里也能换封面
+                { text: '恢复默认背景', action: 'restore-collection-bg' }, // 新增
+                { text: '更换封面', action: 'change-collection-cover' }
             ]);
-            
-            modalContainer.querySelector('.modal-body').addEventListener('click', async (e) => {
-                const action = e.target.dataset.action;
-                if (!action) return;
+
+            const menuModal = document.querySelector('.action-menu-modal .modal-body');
+            if (!menuModal) return;
+
+            menuModal.onclick = function(e) {
+                const item = e.target.closest('.menu-item');
+                if (!item) return;
+                const action = item.dataset.action;
                 closeModal();
 
-                if (action === 'manage-snippets-mode') {
-                    enterSnippetManageMode();
-                } else if (action === 'change-collection-bg') {
-                    changeItemBackground('snippetCollections', collection.id, () => {
-                         // 刷新背景显示
-                         const c = appData.snippetCollections.find(x => x.id === collection.id);
-                         if(c && c.background) document.getElementById('snippet-detail-page').style.backgroundImage = `url(${c.background})`;
-                    });
-                } else if (action === 'change-collection-cover') {
-                     changeCollectionCover(collection.id);
-                }
-            });
+                setTimeout(async () => { // async 用于数据库操作
+                    if (action === 'open-style-settings') {
+                        openSnippetStyleSettings(collection);
+                    } else if (action === 'manage-snippets-mode') {
+                        enterSnippetManageMode();
+                    } else if (action === 'change-collection-bg') {
+                        changeItemBackground('snippetCollections', collection.id, () => {
+                             const c = appData.snippetCollections.find(x => x.id === collection.id);
+                             if(c && c.background) document.getElementById('snippet-detail-page').style.backgroundImage = `url(${c.background})`;
+                        });
+                    } else if (action === 'restore-collection-bg') { // 新增逻辑
+                        collection.background = null;
+                        await dbActions.put('snippetCollections', collection);
+                        document.getElementById('snippet-detail-page').style.backgroundImage = 'none';
+                        alert("背景已恢复默认");
+                    } else if (action === 'change-collection-cover') {
+                         changeCollectionCover(collection.id);
+                    }
+                }, 100);
+            };
         }
 
        
@@ -6853,6 +7541,563 @@
         }
 
         initializeApp();
+    
+    
+    // === 言语集美化设置逻辑 (完整版) ===
+
+        let currentDecoSettings = {
+            show: true,
+            type: 'svg', // svg, emoji, custom
+            value: builtInSvgs[0] // 默认选中第一个
+        };
+        let customDecoList = []; // 存储自定义图标列表
+        let isDecoDeleteMode = false; // 是否处于删除模式
+
+        // 1. 打开设置页 (修复版：支持装饰大小/位置)
+        async function openSnippetStyleSettings(collection) {
+            try {
+                const config = collection.styleConfig || {
+                    bubbleShape: 'capsule', fontColor: '#000000', fontSize: 15,
+                    padding: { top: 12, bottom: 12, left: 20, right: 20 },
+                    timeBase: 'inside', timeOffsets: {},
+                    customCss: '',
+                    decoration: { 
+                        show: true, type: 'svg', value: builtInSvgs[0],
+                        bgShow: false, bgColor: '#ffffff', bgOpacity: 50, bgShape: '50%',
+                        decoSize: 24, decoOffsets: {} // 新增默认
+                    } 
+                };
+                
+                const setVal = (id, val) => {
+                    const el = document.getElementById(id);
+                    if(el) { if(el.type === 'checkbox') el.checked = val; else el.value = val; }
+                };
+
+                // 基础
+                setVal('style-bubble-shape', config.bubbleShape);
+                setVal('style-font-color', config.fontColor || '#333333');
+                setVal('style-font-size', config.fontSize);
+                document.getElementById('style-font-size-val').textContent = config.fontSize + 'px';
+                setVal('style-custom-css', config.customCss || '');
+                const pad = config.padding || {};
+                setVal('pad-top', pad.top); setVal('pad-bottom', pad.bottom);
+                setVal('pad-left', pad.left); setVal('pad-right', pad.right);
+                
+                // 装饰
+                currentDecoSettings = config.decoration || { show: true, type: 'svg', value: builtInSvgs[0] };
+                setVal('style-show-deco', currentDecoSettings.show);
+                setVal('style-deco-bg-show', currentDecoSettings.bgShow || false);
+                setVal('style-deco-bg-color', currentDecoSettings.bgColor || '#ffffff');
+                setVal('style-deco-bg-opacity', currentDecoSettings.bgOpacity || 50);
+                document.getElementById('deco-bg-opacity-val').textContent = (currentDecoSettings.bgOpacity || 50) + '%';
+                setVal('style-deco-bg-shape', currentDecoSettings.bgShape || '50%');
+                document.getElementById('deco-bg-settings').style.display = document.getElementById('style-deco-bg-show').checked ? 'flex' : 'none';
+                
+                // 装饰大小位置
+                setVal('style-deco-size', currentDecoSettings.decoSize || 24);
+                const dOff = currentDecoSettings.decoOffsets || {};
+                setVal('deco-top', dOff.top); setVal('deco-bottom', dOff.bottom);
+                setVal('deco-left', dOff.left); setVal('deco-right', dOff.right);
+
+                // 时间
+                setVal('style-time-base', config.timeBase || 'inside');
+                const offsets = config.timeOffsets || {};
+                setVal('time-top', offsets.top); setVal('time-bottom', offsets.bottom);
+                setVal('time-left', offsets.left); setVal('time-right', offsets.right);
+
+                customDecoList = appData.settings.customDecos || [];
+                renderSvgGrid(); renderCustomDecoGrid();
+                switchDecoTab(currentDecoSettings.type);
+                if (currentDecoSettings.type === 'emoji') setVal('style-deco-emoji', currentDecoSettings.value);
+
+                const page = document.getElementById('snippet-style-page');
+                page.classList.add('active');
+                page.dataset.collectionId = collection.id;
+
+                updateStylePreview();
+
+                // 绑定事件
+                const bind = (id, evt, fn) => { const el = document.getElementById(id); if(el) el[evt] = fn; };
+                bind('style-show-deco', 'onchange', (e) => { currentDecoSettings.show = e.target.checked; updateStylePreview(); });
+                bind('style-deco-bg-show', 'onchange', (e) => { 
+                    currentDecoSettings.bgShow = e.target.checked; 
+                    document.getElementById('deco-bg-settings').style.display = e.target.checked ? 'flex' : 'none'; 
+                    updateStylePreview(); 
+                });
+                
+                ['style-deco-bg-color', 'style-deco-bg-opacity', 'style-deco-bg-shape'].forEach(id => bind(id, 'oninput', updateStylePreview));
+                bind('style-deco-emoji', 'oninput', (e) => { currentDecoSettings.value = e.target.value; updateStylePreview(); });
+                
+                const inputs = ['style-bubble-shape', 'style-font-color', 'style-font-size', 'style-time-base', 
+                                'time-top', 'time-bottom', 'time-left', 'time-right',
+                                'pad-top', 'pad-bottom', 'pad-left', 'pad-right',
+                                'style-deco-size', 'deco-top', 'deco-bottom', 'deco-left', 'deco-right'];
+                inputs.forEach(id => bind(id, 'oninput', updateStylePreview));
+
+            } catch (err) { alert("打开设置失败: " + err.message); console.error(err); }
+        }
+
+        // 切换装饰Tab
+        function switchDecoTab(type) {
+            currentDecoSettings.type = type;
+            document.querySelectorAll('#deco-type-selector button').forEach(b => {
+                b.className = 'button button-secondary';
+            });
+            document.getElementById(`tab-${type}`).className = 'button button-primary';
+            
+            document.getElementById('deco-panel-svg').style.display = type === 'svg' ? 'block' : 'none';
+            document.getElementById('deco-panel-emoji').style.display = type === 'emoji' ? 'block' : 'none';
+            document.getElementById('deco-panel-custom').style.display = type === 'custom' ? 'block' : 'none';
+            
+            // 切换时如果该类型下没有选中值，默认选一个
+            if (type === 'svg' && !currentDecoSettings.value.startsWith('<path')) {
+                currentDecoSettings.value = builtInSvgs[0];
+            }
+            // 如果是 emoji，值已经绑定在 input 上，不用重置
+            
+            updateStylePreview();
+        }
+
+        // 渲染内置SVG网格
+        function renderSvgGrid() {
+            const grid = document.getElementById('svg-grid');
+            grid.innerHTML = '';
+            builtInSvgs.forEach(svg => {
+                const item = document.createElement('div');
+                item.className = 'deco-item';
+                if (currentDecoSettings.type === 'svg' && currentDecoSettings.value === svg) item.classList.add('selected');
+                item.innerHTML = `<svg viewBox="0 0 24 24">${svg}</svg>`;
+                item.onclick = () => {
+                    currentDecoSettings.type = 'svg';
+                    currentDecoSettings.value = svg;
+                    renderSvgGrid(); // 刷新选中状态
+                    updateStylePreview();
+                };
+                grid.appendChild(item);
+            });
+        }
+
+        // 渲染自定义图片网格
+        function renderCustomDecoGrid() {
+            const grid = document.getElementById('custom-grid');
+            grid.innerHTML = '';
+            
+            if (customDecoList.length === 0) {
+                grid.innerHTML = '<span style="grid-column:span 5; text-align:center; font-size:12px; color:#999;">暂无上传</span>';
+                return;
+            }
+
+            customDecoList.forEach((url, index) => {
+                const item = document.createElement('div');
+                item.className = 'deco-item';
+                // 如果在正常模式且被选中
+                if (!isDecoDeleteMode && currentDecoSettings.type === 'custom' && currentDecoSettings.value === url) {
+                    item.classList.add('selected');
+                }
+                
+                let checkbox = '';
+                if (isDecoDeleteMode) {
+                    checkbox = `<input type="checkbox" class="deco-delete-checkbox" data-index="${index}">`;
+                }
+
+                item.innerHTML = `${checkbox}<img src="${url}">`;
+                
+                item.onclick = (e) => {
+                    if (isDecoDeleteMode) {
+                         if (e.target.type !== 'checkbox') {
+                            const cb = item.querySelector('input');
+                            cb.checked = !cb.checked;
+                        }
+                    } else {
+                        currentDecoSettings.type = 'custom';
+                        currentDecoSettings.value = url;
+                        renderCustomDecoGrid();
+                        updateStylePreview();
+                    }
+                };
+                grid.appendChild(item);
+            });
+        }
+
+        // 上传自定义图标
+        function uploadCustomDeco() {
+            showActionMenuModal('上传图标', [
+                { text: '从相册选择', action: 'deco-local' },
+                { text: '输入图片URL', action: 'deco-url' }
+            ]);
+            modalContainer.querySelector('.modal-body').addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                if (!action) return;
+                closeModal();
+                if (action === 'deco-local') {
+                    triggerFileUpload('image/*', false, 1, (file) => { addCustomDeco(file.src); });
+                } else if (action === 'deco-url') {
+                    showPromptModal('图片URL', '请输入图片的链接', (url) => { if(url) addCustomDeco(url); });
+                }
+            });
+        }
+
+        async function addCustomDeco(url) {
+            customDecoList.push(url);
+            // 保存到全局设置
+            appData.settings.customDecos = customDecoList;
+            await dbActions.set('settings', 'customDecos', customDecoList);
+            renderCustomDecoGrid();
+        }
+
+        // 切换删除模式
+        function toggleDecoDeleteMode() {
+            isDecoDeleteMode = true;
+            document.getElementById('custom-deco-header').style.display = 'none';
+            document.getElementById('custom-deco-delete-header').style.display = 'flex';
+            document.getElementById('custom-grid').classList.add('deco-manage-mode');
+            renderCustomDecoGrid();
+        }
+
+        function exitDecoDeleteMode() {
+            isDecoDeleteMode = false;
+            document.getElementById('custom-deco-header').style.display = 'flex';
+            document.getElementById('custom-deco-delete-header').style.display = 'none';
+            document.getElementById('custom-grid').classList.remove('deco-manage-mode');
+            renderCustomDecoGrid();
+        }
+
+        function confirmDeleteDecos() {
+            const checked = document.querySelectorAll('.deco-delete-checkbox:checked');
+            if (checked.length === 0) return exitDecoDeleteMode();
+
+            // 自定义确认弹窗
+            showConfirmModal('确认删除', `确定要删除这 ${checked.length} 个图标吗？`, async () => {
+                // 倒序删除避免索引错位
+                const indicesToDelete = Array.from(checked).map(cb => Number(cb.dataset.index)).sort((a,b) => b-a);
+                indicesToDelete.forEach(i => customDecoList.splice(i, 1));
+                
+                appData.settings.customDecos = customDecoList;
+                await dbActions.set('settings', 'customDecos', customDecoList);
+                
+                exitDecoDeleteMode();
+            });
+        }
+
+        // 2. 实时更新预览 (修复版：自定义图片大小生效)
+        function updateStylePreview() {
+            const getVal = (id) => document.getElementById(id)?.value;
+            const shape = getVal('style-bubble-shape');
+            const color = getVal('style-font-color');
+            const size = getVal('style-font-size');
+            const showDeco = document.getElementById('style-show-deco').checked;
+            
+            const pTop = getVal('pad-top') || 12; const pRight = getVal('pad-right') || 20;
+            const pBottom = getVal('pad-bottom') || 12; const pLeft = getVal('pad-left') || 20;
+
+            const bgShow = document.getElementById('style-deco-bg-show').checked;
+            const bgColor = getVal('style-deco-bg-color');
+            const bgOpacity = getVal('style-deco-bg-opacity');
+            const bgShape = getVal('style-deco-bg-shape');
+            
+            // 装饰大小位置
+            const dSize = getVal('style-deco-size') || 24; // 获取数值
+            const dTop = getVal('deco-top'); const dBottom = getVal('deco-bottom');
+            const dLeft = getVal('deco-left'); const dRight = getVal('deco-right');
+
+            const timeBase = getVal('style-time-base');
+            const tTop = getVal('time-top'); const tBottom = getVal('time-bottom');
+            const tLeft = getVal('time-left'); const tRight = getVal('time-right');
+
+            document.getElementById('style-font-size-val').textContent = size + 'px';
+            document.getElementById('time-offset-settings').style.display = timeBase === 'none' ? 'none' : 'flex';
+
+            const wrapper = document.getElementById('preview-wrapper');
+            wrapper.innerHTML = '';
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'flex-start';
+            
+            if (showDeco) {
+                const decoDiv = document.createElement('div');
+                decoDiv.className = 'preview-deco'; 
+                
+                // 应用位置
+                decoDiv.style.position = 'relative';
+                if(dTop) decoDiv.style.top = dTop + 'px';
+                if(dBottom) decoDiv.style.bottom = dBottom + 'px';
+                if(dLeft) decoDiv.style.left = dLeft + 'px';
+                if(dRight) decoDiv.style.right = dRight + 'px';
+
+                // 应用大小 (关键修复：盒子大小跟随设置)
+                decoDiv.style.width = dSize + 'px';
+                decoDiv.style.height = dSize + 'px';
+                
+                // 应用背景
+                if (bgShow) {
+                    const r = parseInt(bgColor.slice(1, 3), 16);
+                    const g = parseInt(bgColor.slice(3, 5), 16);
+                    const b = parseInt(bgColor.slice(5, 7), 16);
+                    decoDiv.style.backgroundColor = `rgba(${r},${g},${b}, ${bgOpacity / 100})`;
+                    decoDiv.style.borderRadius = bgShape;
+                    decoDiv.style.boxShadow = 'none';
+                } else {
+                    decoDiv.style.backgroundColor = 'transparent';
+                    decoDiv.style.boxShadow = 'none';
+                }
+                
+                decoDiv.style.display = 'flex';
+                decoDiv.style.alignItems = 'center';
+                decoDiv.style.justifyContent = 'center';
+                decoDiv.style.marginRight = '8px';
+                decoDiv.style.flexShrink = '0'; 
+
+                // 内部内容统一填满盒子 (Emoji除外)
+                if (currentDecoSettings.type === 'svg') decoDiv.innerHTML = `<svg viewBox="0 0 24 24" style="width:100%;height:100%;fill:currentColor;">${currentDecoSettings.value}</svg>`;
+                else if (currentDecoSettings.type === 'emoji') decoDiv.innerHTML = `<span style="font-size:${dSize}px;line-height:1;">${currentDecoSettings.value}</span>`;
+                else if (currentDecoSettings.type === 'custom') decoDiv.innerHTML = `<img src="${currentDecoSettings.value}" style="width:100%;height:100%;object-fit:contain;">`;
+                
+                wrapper.appendChild(decoDiv);
+            }
+
+            const textWrapper = document.createElement('div');
+            textWrapper.style.position = 'relative';
+            textWrapper.style.display = 'flex';
+            textWrapper.style.flexDirection = 'column';
+            textWrapper.style.flexGrow = '1';
+            textWrapper.style.minWidth = '0';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'preview-bubble';
+            bubble.style.width = '100%';
+            bubble.style.boxSizing = 'border-box'; 
+            bubble.style.color = color;
+            bubble.style.fontSize = size + 'px';
+            bubble.style.padding = `${pTop}px ${pRight}px ${pBottom}px ${pLeft}px`;
+            
+            if (shape === 'bookmark') {
+                bubble.style.borderRadius = '4px';
+                bubble.style.borderLeft = '4px solid var(--accent-color)';
+            } else if (shape === 'minimal') {
+                bubble.style.backgroundColor = 'transparent';
+                bubble.style.boxShadow = 'none';
+                bubble.style.borderBottom = '1px dashed #ccc';
+                bubble.style.borderRadius = '0';
+                bubble.style.paddingLeft = '0';
+            } else {
+                bubble.style.borderRadius = '50px';
+                bubble.style.borderLeft = 'none';
+            }
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.textContent = '12:30';
+            timeDiv.style.fontSize = '10px';
+            timeDiv.style.color = '#888';
+            timeDiv.style.whiteSpace = 'nowrap';
+
+            if (timeBase !== 'none') {
+                timeDiv.style.position = 'absolute';
+                if (tTop) timeDiv.style.top = tTop + 'px';
+                if (tBottom) timeDiv.style.bottom = tBottom + 'px';
+                if (tLeft) timeDiv.style.left = tLeft + 'px';
+                if (tRight) timeDiv.style.right = tRight + 'px';
+
+                if (!tTop && !tBottom && !tLeft && !tRight) {
+                     if (timeBase === 'inside') { timeDiv.style.bottom = '8px'; timeDiv.style.right = '20px'; } 
+                     else { timeDiv.style.bottom = '-16px'; timeDiv.style.right = '5px'; }
+                }
+            }
+            
+            if (timeBase === 'inside') {
+                bubble.style.position = 'relative';
+                bubble.innerHTML = `<div>预览文字 Preview</div>`;
+                bubble.appendChild(timeDiv);
+            } else {
+                 bubble.innerHTML = `<div>预览文字 Preview</div>`;
+            }
+
+            textWrapper.appendChild(bubble);
+            if (timeBase === 'outside') textWrapper.appendChild(timeDiv);
+            wrapper.appendChild(textWrapper);
+        }
+
+       
+        // 4. 保存设置 (修复版：保存所有新字段)
+        async function saveSnippetStyles() {
+            try {
+                const page = document.getElementById('snippet-style-page');
+                const collectionId = Number(page.dataset.collectionId);
+                const collection = appData.snippetCollections.find(c => c.id === collectionId);
+                if (!collection) { alert("保存失败：未找到言语集"); return; }
+
+                const getVal = (id) => { const el = document.getElementById(id); return el ? (el.type==='checkbox'?el.checked:el.value) : ''; };
+
+                const newConfig = {
+                    bubbleShape: getVal('style-bubble-shape'),
+                    fontColor: getVal('style-font-color'),
+                    fontSize: getVal('style-font-size'),
+                    customCss: getVal('style-custom-css'),
+                    padding: {
+                        top: getVal('pad-top'), bottom: getVal('pad-bottom'),
+                        left: getVal('pad-left'), right: getVal('pad-right')
+                    },
+                    timeBase: getVal('style-time-base'),
+                    timeOffsets: {
+                        top: getVal('time-top'), bottom: getVal('time-bottom'),
+                        left: getVal('time-left'), right: getVal('time-right')
+                    },
+                    decoration: {
+                        show: getVal('style-show-deco'),
+                        type: currentDecoSettings.type,
+                        value: currentDecoSettings.value,
+                        bgShow: getVal('style-deco-bg-show'),
+                        bgColor: getVal('style-deco-bg-color'),
+                        bgOpacity: getVal('style-deco-bg-opacity'),
+                        bgShape: getVal('style-deco-bg-shape'),
+                        // 保存装饰大小位置
+                        decoSize: getVal('style-deco-size'),
+                        decoOffsets: {
+                            top: getVal('deco-top'), bottom: getVal('deco-bottom'),
+                            left: getVal('deco-left'), right: getVal('deco-right')
+                        }
+                    }
+                };
+
+                collection.styleConfig = newConfig;
+                await dbActions.put('snippetCollections', collection);
+                closeSnippetStyleSettings();
+                
+                if (currentCollectionId === collectionId) {
+                    applySnippetCustomCss(newConfig.customCss);
+                    renderSnippetDetailList();
+                }
+                alert('美化方案已保存！');
+            } catch (err) { alert("保存失败: " + err.message); console.error(err); }
+        }
+        
+        // 缺失的函数 1：CSS 模板
+        function insertCssTemplate() {
+            const template = `/* 玻璃拟态特效模板 */
+.snippet-bubble {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.snippet-heart-icon { display: none; }
+.snippet-item::before {
+    content: "🩶"; 
+    font-size: 20px; 
+    margin-right: 10px;
+}`;
+            document.getElementById('style-custom-css').value = template;
+        }
+
+        // 缺失的函数 2：应用局部 CSS (缺少这个会导致点不进言语集！)
+        function applySnippetCustomCss(css) {
+            let styleTag = document.getElementById('snippet-dynamic-style');
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'snippet-dynamic-style';
+                document.head.appendChild(styleTag);
+            }
+            styleTag.textContent = css || '';
+        }
+        // === 关键修复：把美化页面的函数暴露给 HTML 按钮 ===
+        window.switchDecoTab = switchDecoTab;
+        window.toggleDecoDeleteMode = toggleDecoDeleteMode;
+        window.uploadCustomDeco = uploadCustomDeco;
+        window.exitDecoDeleteMode = exitDecoDeleteMode;
+        window.confirmDeleteDecos = confirmDeleteDecos;
+        window.saveSnippetStyles = saveSnippetStyles;
+        window.insertCssTemplate = insertCssTemplate;
+
+        // 补充缺失的“关闭美化页面”函数
+        window.closeSnippetStyleSettings = function() {
+            document.getElementById('snippet-style-page').classList.remove('active');
+        };
+        // 新增：查看言语集大图
+        window.viewFullImage = function(src) {
+            const viewer = document.getElementById('media-viewer');
+            const img = document.getElementById('media-viewer-image');
+            const vid = document.getElementById('media-viewer-video');
+            
+            img.src = src;
+            img.style.display = 'block';
+            vid.style.display = 'none';
+            viewer.style.display = 'flex';
+            
+            // 绑定点击图片关闭 (防止重复绑定先移除)
+            img.onclick = null; 
+            img.onclick = function(e) {
+                e.stopPropagation(); // 防止冒泡
+                viewer.style.display = 'none';
+            };
+        };
+        
+        // === 新增：评论操作菜单 (双击头像触发) ===
+        window.openCommentMenu = function(diaryId, commentId) {
+            const diary = appData.diaries.find(d => d.id === diaryId);
+            if (!diary) return;
+            const comment = diary.comments.find(c => c.id === commentId);
+            if (!comment) return;
+
+            const pinText = comment.isPinned ? '取消置顶' : '置顶评论';
+
+            showActionMenuModal('评论操作', [
+                { text: pinText, action: 'pin-comment', id: commentId, value: diaryId }, // value 存 diaryId
+                { text: '编辑评论', action: 'edit-comment', id: commentId, value: diaryId },
+                { text: '删除评论', action: 'delete-comment', id: commentId, value: diaryId }
+            ]);
+            
+            // 绑定菜单点击事件
+            const menuBody = document.querySelector('.action-menu-modal .modal-body');
+            if(menuBody) {
+                menuBody.onclick = async (e) => {
+                    const item = e.target.closest('.menu-item');
+                    if(!item) return;
+                    const action = item.dataset.action;
+                    const cId = Number(item.dataset.id); // commentId
+                    const dId = Number(item.dataset.value); // diaryId
+                    closeModal();
+
+                    const currentDiary = appData.diaries.find(d => d.id === dId);
+                    const currentComment = currentDiary.comments.find(c => c.id === cId);
+
+                    if (action === 'delete-comment') {
+                        showConfirmModal('删除评论', '确定要删除这条评论吗？', async () => {
+                            currentDiary.comments = currentDiary.comments.filter(c => c.id !== cId);
+                            await dbActions.put('diaries', currentDiary);
+                            refreshDiaryCard(dId); // 刷新卡片
+                        });
+                    } else if (action === 'pin-comment') {
+                        // 切换置顶状态
+                        currentComment.isPinned = !currentComment.isPinned;
+                        await dbActions.put('diaries', currentDiary);
+                        refreshDiaryCard(dId);
+                    } else if (action === 'edit-comment') {
+                        // 简单的编辑弹窗
+                        if(currentComment.content.startsWith('data:image')) {
+                            alert('图片评论不支持编辑，请删除后重发。');
+                            return;
+                        }
+                        showPromptModal('编辑评论', '', async (newContent) => {
+                            if(newContent) {
+                                currentComment.content = newContent;
+                                await dbActions.put('diaries', currentDiary);
+                                refreshDiaryCard(dId);
+                            }
+                        }, '', 'text', currentComment.content);
+                    }
+                };
+            }
+        };
+
+        // 辅助：刷新单个日记卡片的评论区
+        function refreshDiaryCard(diaryId) {
+            const diary = appData.diaries.find(d => d.id === diaryId);
+            const card = document.querySelector(`.diary-card[data-diary-id="${diaryId}"]`);
+            if (card && diary) {
+                const commentSection = card.querySelector('.comment-section');
+                commentSection.innerHTML = renderCommentsHTML(diaryId, diary.comments);
+            }
+        }
+        
     }
+        
 </script>
 </html>
