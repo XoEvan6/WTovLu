@@ -1612,6 +1612,1306 @@
             overflow-y: auto !important;
             padding-bottom: 50px;
         }
+        
+        /* ========================================= */
+        /* === 聊天室与角色列表样式 (适配版) === */
+        /* ========================================= */
+        
+        /* 变量定义 */
+        :root {
+            --z-content: 10;
+            --z-sticky: 20;
+            --z-chatroom: 200; /* 保证覆盖在所有页面之上 */
+            --z-chatroom-header: 210;
+            --z-chatroom-footer: 210;
+        }
+
+        /* 顶部切换 Tab 样式 */
+        .wechat-search-container {
+            position: relative;
+            text-align: center;
+        }
+        .wechat-header-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--primary-text);
+        }
+        .wechat-pill-tabs { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 2px; 
+            background-color: rgba(0,0,0,0.05); 
+            padding: 3px; 
+            border-radius: 8px; 
+            width: fit-content; 
+            margin: 0 auto; 
+        }
+        .dark-mode .wechat-pill-tabs { background-color: rgba(255,255,255,0.1); }
+        
+        .wechat-tab-btn { 
+            padding: 6px 16px; 
+            font-size: 13px; 
+            font-weight: 500; 
+            color: var(--secondary-text); 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .wechat-tab-btn.active { 
+            background-color: var(--card-bg); 
+            color: var(--primary-text); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .wechat-plus-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        /* 角色/聊天列表容器 */
+        .chat-list-container { 
+            width: 100%; 
+            padding: 10px 0; 
+            animation: fadeIn 0.3s ease;
+        }
+        .normal-section, .chat-list-group { 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            padding: 5px 0; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        /* 具体的列表项样式 (修改后) */
+.chat-item-content, .chat-swipe-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px; /* 减小上下内边距 */
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    background-color: var(--card-bg);
+}
+.chat-item-content:last-child, .chat-swipe-row:last-child { border-bottom: none; }
+
+.chat-item-avatar, .chat-avatar {
+    width: 44px; height: 44px; /* 减小头像尺寸 */
+    border-radius: 8px; /* 圆角减小，更像微信 */
+    object-fit: cover;
+    margin-right: 12px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+}
+.chat-item-text, .chat-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+/* 新增：用于包裹名字和时间的行 */
+.chat-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.chat-item-name, .chat-name {
+    font-size: 15px; /* 减小字号 */
+    font-weight: 500; /* 字体变细一点 */
+    color: var(--primary-text);
+    margin-bottom: 2px; /* 减小间距 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* 新增：时间样式 */
+.chat-time {
+    font-size: 11px;
+    color: var(--secondary-text);
+    flex-shrink: 0; /* 防止被压缩 */
+    margin-left: 10px;
+}
+.chat-item-msg, .chat-preview {
+    font-size: 12px; /* 减小字号 */
+    color: var(--secondary-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* === 聊天室界面 (全屏) === */
+        .chat-room {
+            position: fixed !important;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--global-bg) !important;
+            z-index: var(--z-chatroom);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%); /* 默认在右侧屏幕外 */
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .chat-room.active { transform: translateX(0); } /* 滑入 */
+
+        .room-header {
+            height: 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; margin-top: env(safe-area-inset-top);
+            background-color: var(--global-bg);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-text);
+        }
+
+        .room-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px 10px;
+    padding-bottom: 80px; /* 留出底部空间 */
+    background-color: var(--theme-diary-page-bg-color, var(--global-bg)); /* 跟随日记背景 */
+    background-image: var(--theme-diary-page-bg-image);
+    background-size: contain; /* 修改：从 cover 改为 contain */
+    background-position: center;
+    background-repeat: no-repeat; /* 新增：防止图片平铺 */
+    background-attachment: local; /* 新增：让背景随内容滚动 */
+}
+        .msg-input {
+            flex: 1;
+            background-color: var(--global-bg);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            max-height: 100px;
+            color: var(--primary-text);
+        }
+        .footer-btn-side {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            color: var(--secondary-text);
+            cursor: pointer;
+        }
+        
+        /* === 修复：聊天室页面全屏显示，隐藏日记头部 === */
+        body.chat-page-active .top-bar {
+            display: none !important; /* 强制隐藏日记通用顶部栏 */
+        }
+        body.chat-page-active #chat-page {
+            padding-top: 0 !important; /* 去除顶部留白，让聊天标题顶上去 */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 修复搜索栏和Tab的位置 */
+        .wechat-search-container {
+            background-color: var(--global-bg); 
+            padding-top: max(15px, env(safe-area-inset-top)); /* 适配刘海屏 */
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        /* === 角色管理样式 (修复版) === */
+        /* 1. 修复滚动卡顿 */
+        .modal-body {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .role-edit-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 5px;
+        }
+
+        /* 2. 头部布局：头像与资料高度对齐 */
+        .role-header-layout {
+            display: flex;
+            gap: 15px;
+            height: 150px; /* 固定高度 */
+        }
+        
+        .role-avatar-upload {
+            width: 110px; /* 稍微窄一点 */
+            height: 100%; /* 撑满高度 */
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: var(--global-bg);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .role-avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .role-avatar-upload .placeholder { font-size: 12px; color: #999; text-align: center; padding: 5px; }
+        
+        .role-info-inputs {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 均匀分布 */
+            padding-bottom: 2px;
+        }
+        
+        /* 3. 强制修复输入框样式 (解决重叠问题) */
+        /* 使用 !important 覆盖全局的 input 样式 */
+        input.role-line-input {
+            width: 100% !important;
+            height: auto !important;
+            border: none !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            padding: 2px 0 !important;
+            margin: 0 !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            color: var(--primary-text) !important;
+        }
+        input.role-line-input:focus { 
+            border-bottom-color: var(--accent-color) !important; 
+            outline: none !important;
+        }
+
+        .role-other-info {
+            width: 100%;
+            height: 80px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            resize: none;
+            background-color: var(--global-bg);
+            font-size: 14px;
+        }
+
+        /* 4. 底部功能区 (左右排列布局) */
+        .role-bottom-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 5px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 分类和置顶放在同一行 */
+        .role-options-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .role-select-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--global-bg);
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+        
+        .role-select-box {
+            border: none !important;
+            background: transparent !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 14px;
+            height: auto !important;
+        }
+
+        .role-icon-btn-small {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--secondary-text);
+            cursor: pointer;
+        }
+
+        /* 5. 美化：iOS风格开关 (Toggle Switch) */
+        .role-switch-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* 隐藏原生 checkbox */
+        .role-switch-input { 
+            display: none; 
+        }
+        
+        /* 轨道 */
+        .role-switch-track {
+            width: 40px;
+            height: 22px;
+            background-color: #e9e9ea;
+            border-radius: 22px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        .dark-mode .role-switch-track { background-color: #39393d; }
+        
+        /* 滑块 */
+        .role-switch-track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+        
+        /* 选中状态 */
+        .role-switch-input:checked + .role-switch-track {
+            background-color: var(--accent-color);
+        }
+        .role-switch-input:checked + .role-switch-track::after {
+            transform: translateX(18px);
+        }
+        
+        /* === 角色列表分组样式 (图一) === */
+        .role-category-group {
+            margin-bottom: 20px;
+        }
+        .role-category-header {
+            font-size: 13px;
+            color: var(--secondary-text);
+            margin-bottom: 8px;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .role-category-header i { margin-right: 5px; font-size: 10px; }
+        
+        .role-list-card {
+            background-color: rgba(255, 255, 255, 0.85); /* 稍微透明 */
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .dark-mode .role-list-card { background-color: rgba(28, 28, 30, 0.85); }
+        
+        .role-list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .dark-mode .role-list-item { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .role-list-item:last-child { border-bottom: none; }
+        .role-list-item:active { background-color: rgba(0,0,0,0.05); }
+        
+        .role-list-avatar {
+            width: 44px; height: 44px;
+            border-radius: 10px; /* 圆角矩形头像 */
+            object-fit: cover;
+            margin-right: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .role-list-info { flex: 1; }
+        .role-list-name { font-size: 16px; font-weight: 600; color: var(--primary-text); }
+        .role-list-desc { font-size: 12px; color: var(--secondary-text); margin-top: 2px; }
+        .role-pinned-tag { color: var(--accent-color); margin-right: 5px; font-size: 12px; }
+        
+        /* ========================================= */
+        /* === 聊天室核心样式 (P2 样式适配) === */
+        /* ========================================= */
+        
+        /* 聊天室容器 (全屏覆盖) */
+        .chat-room {
+            position: fixed !important; /* 强制固定 */
+            top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;
+            box-sizing: border-box !important;
+            padding-top: env(safe-area-inset-top) !important;
+            z-index: 200 !important; /* 保证最上层 */
+            background-color: var(--global-bg) !important;
+            display: flex; flex-direction: column;
+            transform: translateX(100%); /* 默认隐藏在右边 */
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .chat-room.active { transform: translateX(0); }
+        
+        /* === 聊天室头部：文件夹风格 + 柔和过渡 === */
+        .room-header { 
+            height: 70px; 
+            /* 1. 改为跟随全局背景色（通常是白，夜间是黑），不再是灰色 */
+            background-color: var(--global-bg) !important; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 15px 0 0; 
+            z-index: 210; 
+            flex-shrink: 0;
+            padding-top: max(10px, env(safe-area-inset-top));
+            
+            /* 关键：允许内容溢出，为了让下面的渐变层显示出来 */
+            overflow: visible !important; 
+            position: relative; 
+        }
+
+        
+/* 表情包注释文字 */
+.sticker-caption {
+    font-size: 12px;
+    color: var(--secondary-text);
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* === 表情包面板样式 (修复版) === */
+#sticker-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%; 
+    background-color: var(--card-bg);
+    z-index: 220; 
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    display: none; 
+    flex-direction: column;
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* 头部：标题与功能按钮 */
+.sticker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 搜索与分类栏 (合并显示) */
+.sticker-bar-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding: 5px 0 5px 15px;
+}
+/* 左侧搜索框 */
+#sticker-search {
+    width: 80px; /* 固定宽度 */
+    font-size: 13px;
+    border: none;
+    background: rgba(0,0,0,0.05);
+    padding: 6px 10px;
+    border-radius: 15px;
+    outline: none;
+    margin-right: 10px;
+}
+/* 右侧分类Tab (可滑动) */
+.sticker-tabs {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    scrollbar-width: none; /* 隐藏滚动条 */
+    padding-right: 15px;
+}
+.sticker-tab {
+    white-space: nowrap;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--secondary-text);
+    cursor: pointer;
+    position: relative;
+}
+.sticker-tab.active {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+.sticker-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 3px;
+    background-color: var(--accent-color);
+    border-radius: 2px;
+}
+
+/* 内容区域 */
+.sticker-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+.sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.sticker-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    padding: 5px;
+    border-radius: 8px;
+}
+.sticker-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+.sticker-item span {
+    font-size: 10px;
+    color: var(--secondary-text);
+    margin-top: 4px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* === 修复：管理模式样式 (ID选择器) === */
+/* 之前用了 .sticker-panel 导致权重不够或匹配不上，改成 #sticker-panel */
+#sticker-panel.manage-mode .sticker-item {
+    background-color: rgba(0,0,0,0.05); /* 选中态背景 */
+}
+.sticker-select-checkbox {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    width: 18px;
+    height: 18px;
+    z-index: 2;
+}
+/* 只要父级有 manage-mode，复选框就显示 */
+#sticker-panel.manage-mode .sticker-select-checkbox {
+    display: block;
+}
+
+/* 底部管理操作栏 */
+.sticker-manage-bar {
+    display: none;
+    padding: 10px 15px;
+    border-top: 1px solid var(--border-color);
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+}
+#sticker-panel.manage-mode .sticker-manage-bar {
+    display: flex;
+}
+        
+        /* 左侧“凸出”的标签区域 */
+        .room-header-left {
+            background-color: var(--card-bg); /* 卡片色 */
+            height: 48px; 
+            display: flex;
+            align-items: center;
+            padding: 0 25px 0 15px; 
+            border-radius: 0 24px 24px 0; 
+            gap: 12px; 
+            
+            /* 3. 增强阴影：因为背景白了，阴影要明显一点才能看出来叠放 */
+            box-shadow: 3px 3px 15px rgba(0,0,0,0.12); 
+        }
+
+        /* 右侧圆形菜单按钮 */
+        .room-header-menu-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--primary-text);
+            
+            /* 3. 增强阴影 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12); 
+        }
+
+        /* 4. 夜间模式适配：阴影变白（发光效果） */
+        .dark-mode .room-header-left,
+        .dark-mode .room-header-menu-btn {
+            /* 在黑底上，用淡淡的白色阴影来体现层次 */
+            box-shadow: 0 0 10px rgba(255,255,255,0.15); 
+            background-color: var(--card-bg); /* 确保是深灰色块 */
+        }
+
+        /* 返回按钮 (X) */
+        .room-back-btn { 
+            font-size: 20px; cursor: pointer; color: var(--secondary-text); width: 24px; text-align: center;
+        }
+        /* 标题样式 */
+        #current-room-name {
+            font-size: 18px; font-weight: 900; color: var(--primary-text); letter-spacing: 0.5px;
+        }
+        
+        /* 聊天内容区 */
+        .room-content {
+            flex: 1; overflow-y: auto; padding: 15px 10px;
+            /* 底部留出空间给输入框和角色头像 */
+            padding-bottom: 120px; 
+            background: transparent;
+        }
+
+                /* 修复背景图偏移和放大问题 */
+    .room-content {
+        background-attachment: fixed;
+        background-position: center center; /* 水平垂直居中 */
+        background-size: cover; /* 先用cover，如果太大再调整 */
+    }
+
+    /* 新增：消息作者昵称样式 */
+    .msg-author-name {
+        font-size: 11px;
+        color: var(--secondary-text);
+        margin: 0 8px 4px;
+        display: none; /* 默认隐藏, JS控制显示 */
+    }
+    .message-bubble.user .msg-author-name {
+    text-align: right;
+}
+
+/* 气泡核心样式 (最终修复版) */
+.message-bubble {
+    display: flex;
+    width: 100%;
+    padding: 0 10px;
+    margin-bottom: 15px !important; /* 增加气泡间距 */
+    align-items: flex-start; /* 整体顶部对齐 */
+}
+.message-bubble .bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 75%;
+    position: relative;
+}
+/* 自己的气泡（靠右） */
+.message-bubble.user {
+    justify-content: flex-end;
+}
+.message-bubble.user .bubble-wrapper {
+    align-items: flex-end;
+    order: 0; /* 气泡在左 */
+}
+.message-bubble.user .avatar-img {
+    order: 1; /* 头像在右 */
+    margin-left: 8px;
+}
+/* 他人的气泡（靠左） */
+.message-bubble.ai {
+    justify-content: flex-start;
+}
+.message-bubble.ai .bubble-wrapper {
+    align-items: flex-start;
+}
+.message-bubble.ai .avatar-img {
+    margin-right: 8px;
+}
+
+/* 气泡内容基础样式 */
+.message-bubble .content {
+    padding: 10px 14px; 
+    font-size: 15px;    
+    line-height: 1.5;
+    position: relative; 
+    word-wrap: break-word; 
+    z-index: 1;
+    border-radius: 18px; /* 默认四个角都是圆的 */
+}
+.message-bubble.user .content {
+    background-color: #929292;
+    color: #fff;
+}
+.message-bubble.ai .content {
+    background-color: #fff;
+    color: #000;
+}
+
+/* 气泡头像 */
+.message-bubble .avatar-img {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    object-fit: cover;
+    margin-top: 15px; /* 与昵称高度大致对齐 */
+}
+
+/* 时间戳 */
+.time {
+    font-size: 10px;
+    color: #999;
+    margin: 0 8px;
+    align-self: flex-end;
+    white-space: nowrap;
+    display: none; /* 默认隐藏, JS控制 */
+}
+.message-bubble.user .time { order: -1; } /* 自己在左 */
+.message-bubble.ai .time { order: 1; } /* 对方在右 */
+
+/* 图片消息样式 */
+.message-bubble .content.photo-only {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+    .photo-msg-img {
+        width: 80px; /* 限制大小 */
+        height: 80px; /* 限制大小 */
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+        cursor: pointer;
+    }
+    
+    /* 新增：引用条样式 */
+    .reply-quote-bar {
+        background-color: rgba(0,0,0,0.05);
+        padding: 6px 10px;
+        font-size: 12px;
+        color: var(--secondary-text);
+        border-left: 3px solid var(--accent-color);
+        border-radius: 4px;
+        margin-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    .dark-mode .reply-quote-bar {
+        background-color: rgba(255,255,255,0.08);
+    }
+
+        /* === 底部输入栏 (透明背景) === */
+        /* === 聊天室底部新样式 (仿图三布局) === */
+        .room-footer {
+            position: absolute !important; 
+            bottom: 0 !important; 
+            left: 0 !important; 
+            width: 100% !important;
+            /* 背景透明，但保留一点点渐变防止文字看不清 */
+            background: linear-gradient(to top, var(--global-bg) 20%, transparent) !important;
+            backdrop-filter: none;
+            box-shadow: none; 
+            border: none;
+            padding: 10px 15px;
+            padding-bottom: max(15px, env(safe-area-inset-bottom));
+            display: flex; 
+            align-items: center; /* 垂直居中 */
+            gap: 10px;
+            z-index: 210;
+        }
+
+        /* 角色选择器 (圆圆的头像，紧挨着输入框上方) */
+        #chat-role-selector {
+            position: absolute; 
+            bottom: 100%; /* 关键：固定在 footer 的上方 */
+            left: 0; 
+            width: 100%; 
+            padding: 5px 15px; 
+            display: flex; 
+            gap: 12px; /* 头像之间的间距 */
+            overflow-x: auto; 
+            /* 隐藏滚动条 */
+            scrollbar-width: none; 
+            pointer-events: auto;
+            z-index: 211;
+        }
+        #chat-role-selector::-webkit-scrollbar { display: none; }
+
+        /* 角色头像样式 */
+        .chat-role-option {
+            width: 42px; 
+            height: 42px;
+            border-radius: 50%; /* 正圆形 */
+            object-fit: cover;
+            border: 2px solid transparent; /* 默认无边框 */
+            transition: all 0.2s;
+            opacity: 0.6; /* 未选中变淡 */
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background-color: var(--card-bg);
+            flex-shrink: 0;
+        }
+        /* 选中状态 */
+        .chat-role-option.active {
+            opacity: 1;
+            transform: scale(1.1); /* 选中稍微变大 */
+            border-color: var(--accent-color); /* 选中亮起边框 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        /* 输入框样式 */
+        .msg-input {
+            flex: 1; /* 占据剩余空间 */
+            min-width: 0;
+            height: 40px;
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color);
+            border-radius: 20px; /* 胶囊圆角 */
+            padding: 0 15px; 
+            font-size: 15px; 
+            color: var(--primary-text);
+            outline: none; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 0 !important; /* 【关键修改】强制去除底部边距，确保水平对齐 */
+        }
+
+        /* 底部圆形按钮 (图片、发送) */
+        .chat-action-btn {
+            width: 40px; 
+            height: 40px;
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: var(--card-bg); /* 按钮背景 */
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+        /* 发送按钮特殊颜色 */
+        .chat-action-btn.send {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+        }
+        
+        .footer-btn-side {
+            width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary-text); font-size: 22px; flex-shrink: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5); /* 按钮也加点底 */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .dark-mode .footer-btn-side { background: rgba(50,50,50,0.5); }
+        
+            /* === 聊天室设置样式 === */
+    .button-danger-full {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--danger-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    .color-swatch-display {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        margin-left: 10px;
+    }
+    #chat-custom-css-input {
+        width: 100%;
+        height: 120px;
+        font-family: monospace;
+        font-size: 12px;
+        resize: vertical;
+        margin-bottom: 0; /* 覆盖通用样式 */
+    }
+    
+        /* 聊天批量删除样式 */
+    .batch-delete-item {
+        display: flex;
+        align-items: center;
+        padding: 5px 15px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--card-bg);
+    }
+    .chat-delete-checkbox {
+        margin-right: 15px;
+        width: 18px;
+        height: 18px;
+    }
+    
+    /* === 修复补丁开始 === */
+
+/* 1. 修复背景图不撑满的问题 */
+.room-content {
+    background-size: cover !important; /* 强制铺满 */
+    background-position: center !important;
+    background-attachment: fixed !important;
+    width: 100%;
+}
+
+/* 2. 强制显示时间戳 (修复勾选不显示的问题) */
+.time {
+    display: block !important; /* 强制显示 */
+    font-size: 10px;
+    color: #999;
+    margin: 0 8px;
+    align-self: flex-end; /* 默认底部对齐 */
+    white-space: nowrap;
+    position: relative; /* 允许微调位置 */
+}
+
+/* 3. 使用你提供的新版气泡尾巴 (SVG Path) */
+/* 先清除旧的伪元素样式，防止冲突 */
+.message-bubble::before, 
+.message-bubble::after {
+    content: none !important;
+    display: none !important;
+}
+
+
+/* === 气泡样式更新 (使用 message-bubble) === */
+
+/* 1. 基础重置 - 确保容器宽度正常 */
+.message-bubble {
+    display: flex;
+    width: 100%;
+    padding: 0 10px;
+    margin-bottom: 15px !important;
+    align-items: flex-start;
+}
+
+/* 2. 布局控制：自己靠右，对方靠左 */
+.message-bubble.user { justify-content: flex-end; }
+.message-bubble.ai { justify-content: flex-start; }
+
+/* 3. 头像与气泡的排列顺序 */
+.message-bubble.user .avatar-img { order: 1; margin-left: 8px; } /* 自己头像在右 */
+.message-bubble.user .bubble-wrapper { order: 0; align-items: flex-end; }
+
+.message-bubble.ai .avatar-img { margin-right: 8px; } /* 对方头像在左 */
+.message-bubble.ai .bubble-wrapper { align-items: flex-start; }
+
+/* 4. 气泡包裹层 */
+.message-bubble .bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 75%;
+    position: relative;
+}
+
+/* === 您提供的核心样式 === */
+
+/* 消息气泡 - 发送方 */
+.message-bubble.user .content {
+    background-color: #459;
+    border-radius: 16px 16px 16px 16px;
+    padding: 6px 8px;
+    margin-left: auto;
+    position: relative;
+    color: #FFFFFF;
+    z-index: 1; /* 确保文字在尾巴上面 */
+}
+
+/* 发送方气泡箭头 */
+.message-bubble.user .content::after {
+    content: "";
+    position: absolute;
+    right: -8.9px;
+    bottom: -0.7px;
+    width: 20px;
+    height: 20px;
+    background: inherit; /* 修改：跟随气泡背景色 */
+    clip-path: path('M-2,13 C4,6 -3,2 22,8 C6,13 6,12 1,19 Z');
+    transform: rotate(-72deg) scaleX(0.7);
+    z-index: -1;
+}
+
+/* 消息气泡 - 接收方 */
+.message-bubble.ai .content {
+    background-color: #E9E9EB;
+    border-radius: 16px 16px 16px 16px;
+    padding: 6px 8px;
+    margin-right: auto;
+    position: relative;
+    color: #000000;
+    z-index: 1; /* 确保文字在尾巴上面 */
+}
+
+/* 接收方气泡箭头 */
+.message-bubble.ai .content::after {
+    content: "";
+    position: absolute;
+    left: -10.6px;
+    bottom: -3px;
+    width: 20px;
+    height: 16px;
+    background: inherit; /* 修改：跟随气泡背景色 */
+    clip-path: path('M13,4 C17,-1 1,2 0,29 C20,2 21,39 12,10 Z');
+    transform: rotate(-153deg) scaleX(0.8);
+    z-index: -1;
+}
+
+/* 文本层级 */
+.message-bubble.ai .content > *,
+.message-bubble.ai .content-text {
+    position: relative;
+    z-index: 1;
+}
+
+/* 图片消息去除尾巴 */
+.message-bubble .content.photo-only::after {
+    display: none !important;
+}
+
+/* 聊天预览框样式 */
+.chat-preview-box {
+    background-image: var(--preview-bg);
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+}
+/* === 修复补丁结束 === */
+
+/* === 聊天室全屏背景与透明头尾修复版 === */
+
+/* 1. 聊天室主容器 (背景图将应用在这里) */
+.chat-room {
+    background-color: var(--global-bg); /* 默认背景色 */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* 2. 头部：绝对定位 + 透明 */
+.room-header {
+    position: absolute; /* 浮动在上方 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100; /* 层级高 */
+    background: transparent !important;
+    border-bottom: none !important;
+    pointer-events: none; /* 让空白处不挡点击 */
+}
+/* 恢复头部按钮的点击和背景 */
+.room-header-left, .room-header-menu-btn {
+    pointer-events: auto;
+    background-color: var(--card-bg) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* 3. 底部：绝对定位 + 透明 */
+.room-footer {
+    position: absolute; /* 浮动在下方 */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    background: transparent !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    pointer-events: none;
+}
+/* 恢复底部控件交互 */
+.room-footer > * {
+    pointer-events: auto;
+}
+
+/* 4. 内容区：撑满全屏 */
+.room-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 关键：给上下留出空间，防止内容被头尾遮挡 */
+    padding-top: 80px !important; 
+    /* 修改这里：加大底部留白，防止被角色头像遮挡 */
+    padding-bottom: 120px !important; 
+    background: transparent !important; /* 自身透明，显示父容器背景 */
+    z-index: 1;
+}
+
+/* === 新增：学生证样式 (Role Card) (修复版v2) === */
+.student-card-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); 
+    z-index: 800; /* 【修改点】降低层级，确保普通弹窗(1000)能盖住它 */
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+    pointer-events: auto; 
+}
+
+.student-card {
+    width: 340px; /*稍微加宽*/
+    background: #fff; 
+    border-radius: 0; /* 图二看起来是直角或很小的圆角，这里去圆角显正式 */
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+    position: relative;
+    font-family: "Courier New", Courier, monospace; /* 机打字体风格 */
+    border: 3px solid currentColor;
+}
+
+/* 顶部黑条 */
+.sc-header {
+    height: 50px; 
+    background-color: #000000; /* 默认黑 */
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 15px; color: #ffffff;
+    border-bottom: 2px solid #000;
+}
+
+/* 中间内容 */
+.sc-body {
+    display: flex; 
+    padding: 20px; 
+    background-color: #fff;
+    position: relative;
+}
+
+/* 左侧照片区 */
+.sc-photo-area {
+    width: 100px; 
+    display: flex; flex-direction: column; 
+    margin-right: 20px;
+    flex-shrink: 0; /* 防止被挤压 */
+}
+.sc-photo-box {
+    width: 100%; height: 125px;
+    background-color: #000;
+    padding: 3px; /* 黑框厚度 */
+    cursor: pointer; /*以此提示可点击*/
+}
+.sc-photo {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block; background: #fff;
+}
+.sc-validity {
+    font-size: 10px; margin-top: 8px; 
+    white-space: nowrap; /* 强制不换行 */
+    font-weight: bold;
+    transform: scale(0.9); transform-origin: left top; /* 缩小一点防止换行 */
+}
+
+/* 右侧信息区 */
+.sc-info-area { 
+    flex: 1; 
+    display: flex; flex-direction: column; gap: 15px; 
+    padding-top: 5px;
+    min-width: 0; /* 关键：允许flex子项内的文本换行 */
+}
+.sc-row { 
+    display: flex; 
+    align-items: flex-start; /* 顶部对齐，防止多行文字错位 */
+    font-size: 14px;
+}
+.sc-label { 
+    width: 70px; /* 固定标签宽度 */
+    font-weight: 900; 
+    font-size: 14px; /* 字体加大 */
+    flex-shrink: 0;
+    color: inherit; opacity: 0.6;
+    letter-spacing: 1px;
+}
+.sc-value { 
+    flex: 1; 
+    font-weight: bold; 
+    font-size: 14px; 
+    word-break: break-all; /* 允许任意位置换行，防止撑破 */
+    white-space: pre-wrap; /* 保留换行 */
+    line-height: 1.4;
+    color: inherit; 
+}
+
+/* 底部条形码装饰区 */
+.sc-footer {
+    height: 40px; 
+    background-color: #666; /* 默认灰 */
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 10px;
+    position: relative;
+    border-top: 2px solid #000;
+}
+/* 模拟条形码 */
+.sc-barcode-lines {
+    height: 25px; width: 90%;
+    background: repeating-linear-gradient(
+        to right,
+        #fff 0px, #fff 2px,
+        transparent 2px, transparent 4px,
+        #fff 5px, #fff 8px,
+        transparent 8px, transparent 9px
+    );
+}
+
+/* 5. 修复：图片/表情包完全无气泡样式 */
+.message-bubble.user .content.photo-only,
+.message-bubble.ai .content.photo-only {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+.message-bubble .content.photo-only::after {
+    display: none !important;
+}
+.photo-msg-img {
+    max-width: 150px; 
+    border-radius: 8px;
+    display: block;
+}
+
+/* 修复：管理模式下表情包图片强制显示，并防止复选框遮挡 */
+#sticker-panel.manage-mode .sticker-item img {
+    display: block !important;
+    opacity: 1 !important;
+}
+/* 让复选框更大一点，更好点 */
+.sticker-select-checkbox {
+    width: 20px; height: 20px;
+    border: 2px solid var(--accent-color);
+}
 
     </style>
 </head>
@@ -1812,6 +3112,27 @@
                                     <button class="button button-primary" data-action="apply-custom-css" style="flex:1; margin:0;">应用</button>
                                     <button class="button button-secondary" data-action="reset-custom-css" style="flex:1; margin:0;">清空</button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 存储管理组 (新增) -->
+                    <div class="theme-section">
+                        <h3>存储与体积</h3>
+                        <div class="theme-card-group">
+                            <div style="padding: 15px;">
+                                <div id="storage-stats" style="font-size:14px; color:var(--primary-text); margin-bottom:15px; line-height:1.6;">
+                                    <div style="display:flex; justify-content:space-between;"><span>总占用(预估):</span> <span id="storage-total" style="font-weight:bold;">计算中...</span></div>
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--secondary-text);"><span> ├─ 图片/媒体:</span> <span id="storage-images">...</span></div>
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--secondary-text);"><span> └─ 文字/数据:</span> <span id="storage-text">...</span></div>
+                                </div>
+                                
+                                <button class="button button-secondary" style="width:100%; margin:0;" onclick="window.compressAllImagesAction()">
+                                    <i class="fas fa-compress-arrows-alt"></i> 智能压缩图片
+                                </button>
+                                <p style="font-size:11px; color:var(--secondary-text); margin-top:8px;">
+                                    * 压缩将把图片转换为WebP格式并限制尺寸。内容不会丢失，但清晰度会略微降低以节省空间。导出文件也会变小。
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -2388,13 +3709,324 @@
 
                 </div>
             </div>
+            <!-- ======================================================================= -->
+            <!-- 中文注释：聊天室主页面 (角色列表/聊天列表) -->
+            <!-- ======================================================================= -->
+            <div id="chat-page" class="page">
+                <!-- 顶部切换栏 -->
+                <div class="wechat-search-container" style="position: sticky; top: -15px; z-index: 10; background: var(--global-bg); padding-bottom: 10px;">
+                    <div class="wechat-header-title" style="margin-bottom: 10px;">聊天室</div>
+                    <div class="wechat-pill-tabs">
+                        <div class="wechat-tab-btn active" data-tab="role-list">角色列表</div>
+                        <div class="wechat-tab-btn" data-tab="chat-list">聊天列表</div>
+                    </div>
+                    <!-- 右上角添加按钮 -->
+                    <div class="wechat-plus-btn" id="chat-plus-btn"><i class="fas fa-plus"></i></div>
+                </div>
+
+                <!-- 角色列表容器 -->
+                <div id="role-list-view" class="chat-list-container">
+                    <div class="normal-section" id="role-list-content">
+                        <!-- JS将在这里生成角色 -->
+                        <div style="text-align:center; padding:20px; color:#999; font-size:13px;">暂无角色，点击右上角添加</div>
+                    </div>
+                </div>
+
+                <!-- 聊天列表容器 (默认隐藏) -->
+                <div id="chat-list-view" class="chat-list-container" style="display: none;">
+                    <div class="chat-list-group" id="chat-room-list-content">
+                        <!-- JS将在这里生成聊天室 -->
+                        <div style="text-align:center; padding:20px; color:#999; font-size:13px;">暂无聊天，点击右上角创建</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================================================= -->
+            <!-- 中文注释：具体的聊天室界面 (全屏覆盖) -->
+            <!-- ======================================================================= -->
+            <div id="chat-room-interface" class="chat-room">
+                <!-- 聊天室头部 (仿图二布局) -->
+                <div class="room-header">
+                    <!-- 左侧：返回 + 标题 -->
+                    <div class="room-header-left">
+                        <i class="fas fa-times room-back-btn" id="exit-chat-room"></i> <!-- 图标改成X，更像图二 -->
+                        <span id="current-room-name">聊天中</span>
+                    </div>
+                    
+                                    <!-- 右侧：圆形菜单按钮 -->
+                <div class="room-header-menu-btn" id="chat-settings-btn">
+                    <i class="fas fa-bars"></i> <!-- 汉堡菜单图标 -->
+                </div>
+                </div>
+
+                <!-- 消息内容区 -->
+                <div class="room-content" id="chat-room-messages">
+                    <div class="date-divider">东京天气好不好 你好不</div>
+                    <!-- 示例气泡 (测试用) -->
+                    <div class="Miu-miu ai">
+                        <img src="https://via.placeholder.com/100" class="avatar-img">
+                        <div class="bubble-wrapper">
+                            <div class="content">朽木侵蝕の雨季 、</div>
+                        </div>
+                    </div>
+                </div>
+                
+                            <!-- 新增：引用回复预览栏 -->
+            <div id="chat-reply-preview" style="display: none; padding: 5px 15px; background: var(--global-bg); border-top: 1px solid var(--border-color);">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                    <span id="reply-preview-text"></span>
+                    <i class="fas fa-times" style="cursor:pointer;" onclick="hideReplyPreview()"></i>
+                </div>
+            </div>
+            
+            <!-- 表情包面板 (新布局) -->
+            <div id="sticker-panel">
+                <div class="sticker-header">
+                    <div style="font-weight:bold;">我的表情</div>
+                    <div>
+                        <span style="font-size:14px; color:var(--accent-color); margin-right:15px; cursor:pointer;" onclick="openStickerCategoryManage()">分类</span>
+                        <span style="font-size:14px; color:var(--accent-color); margin-right:15px; cursor:pointer;" onclick="toggleStickerManageMode()">管理</span>
+                        <span style="font-size:14px; color:var(--accent-color); cursor:pointer;" onclick="openStickerImportMenu()">上传</span>
+                    </div>
+                </div>
+                
+                <!-- 新布局：搜索框 + 分类Tab 在同一行 -->
+                <div class="sticker-bar-row">
+                    <input type="text" id="sticker-search" placeholder="搜索...">
+                    <div class="sticker-tabs" id="sticker-tabs">
+                        <!-- JS 生成分类 Tab -->
+                    </div>
+                </div>
+
+                <div class="sticker-body">
+                    <div class="sticker-grid" id="sticker-grid">
+                        <!-- JS 生成表情 -->
+                    </div>
+                </div>
+                
+                <!-- 底部管理栏 -->
+                <div class="sticker-manage-bar" id="sticker-manage-bar">
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <input type="checkbox" id="sticker-select-all" style="margin:0;"> 
+                        <span style="font-size:14px;">全选</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="button button-secondary" style="margin:0; padding:5px 12px; font-size:12px;" onclick="moveSelectedStickers()">移动</button>
+                        <button class="button button-secondary" style="margin:0; padding:5px 12px; font-size:12px;" onclick="exportSelectedStickers()">导出</button>
+                        <button class="button button-danger" style="margin:0; padding:5px 12px; font-size:12px;" onclick="deleteSelectedStickers()">删除</button>
+                    </div>
+                </div>
+            </div>
+
+                            <!-- 底部输入区 -->
+            <div class="room-footer">
+                <!-- 角色头像 (CSS控制它显示在输入框上方) -->
+                <div id="chat-role-selector">
+                    <!-- JS生成角色头像 -->
+                </div>
+                
+                <!-- 输入框 (左侧) -->
+                <input type="text" class="msg-input" id="chat-msg-input" placeholder="说点什么...">
+                
+                <!-- 表情按钮 (占位) -->
+                <div class="chat-action-btn" id="chat-emoji-btn">
+                    <i class="far fa-smile"></i>
+                </div>
+
+                <!-- 图片按钮 (SVG图标) -->
+                <div class="chat-action-btn" id="chat-img-btn" data-action="send-chat-image">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                </div>
+                
+                <!-- 发送按钮 -->
+                <div class="chat-action-btn send" id="chat-send-btn" data-action="send-chat-msg">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+            </div>
 
         </div>
+        
+                <!-- 聊天室设置页面 (更新版) -->
+<div id="chat-settings-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">聊天设置</div>
+        <div class="modal-body">
+            
+            <!-- 1. 新增：实时预览区域 -->
+            <div class="chat-preview-box" id="chat-setting-preview-box">
+                <!-- 对方消息预览 -->
+                <div class="Miu-miu ai">
+                    <img src="https://via.placeholder.com/40" class="avatar-img">
+                    <div class="bubble-wrapper">
+                        <div class="role-name-in-chat" style="font-size:11px; color:#888; margin-bottom:2px;">对方</div>
+                        <div class="content has-tail" id="preview-bubble-ai">你好呀</div>
+                    </div>
+                    <div class="time" id="preview-time-ai">10:00</div>
+                </div>
+                <!-- 自己消息预览 -->
+                <div class="Miu-miu user">
+                    <div class="time" id="preview-time-user">10:01</div>
+                    <div class="bubble-wrapper">
+                        <div class="content has-tail" id="preview-bubble-user">测试消息</div>
+                    </div>
+                    <img src="https://via.placeholder.com/40" class="avatar-img">
+                </div>
+            </div>
+
+            <!-- 外观设置 -->
+            <div class="theme-section">
+                <h3>基本信息 & 外观</h3> <!-- 修改标题 -->
+                <div class="theme-card-group">
+                    <!-- 新增：聊天名称 -->
+                    <div class="theme-setting-item">
+                        <label>聊天名称</label>
+                        <input type="text" id="chat-setting-name" placeholder="请输入名称">
+                    </div>
+                    <!-- 新增：聊天头像 -->
+                    <div class="theme-setting-item">
+                        <label>聊天封面</label>
+                        <div class="controls">
+                            <img id="chat-setting-avatar-preview" src="" style="width:30px;height:30px;border-radius:50%;margin-right:5px;object-fit:cover;display:none;">
+                            <button class="button button-secondary" id="chat-avatar-upload-btn">更换封面</button>
+                        </div>
+                    </div>
+                    <!-- 原有的背景设置 -->
+                    <div class="theme-setting-item">
+                        <label>聊天背景</label>
+                        <div class="controls">
+                            <button class="button button-secondary" id="chat-bg-upload-btn">更换</button>
+                            <button class="button button-secondary" id="chat-bg-reset-btn">重置</button>
+                        </div>
+                    </div>
+                    <!-- 气泡颜色 -->
+                    <div class="theme-setting-item">
+                        <label>我的气泡</label>
+                        <input type="color" id="chat-my-bubble-color">
+                    </div>
+                    <div class="theme-setting-item">
+                        <label>对方气泡</label>
+                        <input type="color" id="chat-other-bubble-color">
+                    </div>
+                    <!-- 字体颜色 -->
+                    <div class="theme-setting-item">
+                        <label>我的文字</label>
+                        <input type="color" id="chat-main-font-color">
+                    </div>
+                    <div class="theme-setting-item">
+                        <label>对方文字</label>
+                        <input type="color" id="chat-other-font-color">
+                    </div>
+                    <!-- 新增：时间戳颜色 -->
+                    <div class="theme-setting-item">
+                        <label>时间戳颜色</label>
+                        <input type="color" id="chat-time-color">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 细节微调 -->
+            <div class="theme-section">
+                <h3>大小 & 间距</h3>
+                <div class="theme-card-group">
+                    <div class="theme-setting-item" style="flex-direction:column; align-items:flex-start;">
+                        <label style="width:100%; display:flex; justify-content:space-between; margin-bottom:5px;">
+                            字体大小 <span id="chat-font-size-val" style="color:#888;">15px</span>
+                        </label>
+                        <input type="range" id="chat-font-size" min="12" max="24" step="1" style="width:100%;">
+                    </div>
+                    
+                    <!-- 新增：时间戳微调 -->
+                    <div class="theme-setting-item" style="flex-direction:column; align-items:flex-start;">
+                        <label style="margin-bottom:5px;">时间戳大小/位置 (px)</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; width:100%;">
+                            <div style="display:flex;align-items:center;"><span style="width:30px;font-size:12px;">字号</span><input type="number" id="chat-time-size" placeholder="10"></div>
+                            <div style="display:flex;align-items:center;"><span style="width:30px;font-size:12px;">上移</span><input type="number" id="chat-time-top" placeholder="0"></div>
+                            <div style="display:flex;align-items:center;"><span style="width:30px;font-size:12px;">左移</span><input type="number" id="chat-time-left" placeholder="0"></div>
+                            <div style="display:flex;align-items:center;"><span style="width:30px;font-size:12px;">右移</span><input type="number" id="chat-time-right" placeholder="0"></div>
+                        </div>
+                    </div>
+
+                    <!-- 气泡内边距 -->
+                    <div class="theme-setting-item" style="flex-direction:column; align-items:flex-start;">
+                        <label style="margin-bottom:5px;">气泡内边距 (上 右 下 左)</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:5px; width:100%;">
+                            <input type="number" id="chat-padding-top" placeholder="10">
+                            <input type="number" id="chat-padding-right" placeholder="14">
+                            <input type="number" id="chat-padding-bottom" placeholder="10">
+                            <input type="number" id="chat-padding-left" placeholder="14">
+                        </div>
+                    </div>
+                    <!-- 气泡圆角 -->
+                    <div class="theme-setting-item" style="flex-direction:column; align-items:flex-start;">
+                        <label style="margin-bottom:5px;">气泡圆角 (左上 右上 右下 左下)</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:5px; width:100%;">
+                            <input type="number" id="chat-radius-tl" placeholder="18">
+                            <input type="number" id="chat-radius-tr" placeholder="18">
+                            <input type="number" id="chat-radius-br" placeholder="18">
+                            <input type="number" id="chat-radius-bl" placeholder="18">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 显示开关 -->
+            <div class="theme-section">
+                <h3>显示开关</h3>
+                <div class="theme-card-group">
+                    <div class="theme-setting-item">
+                        <label>显示头像</label>
+                        <input type="checkbox" id="chat-show-avatar">
+                    </div>
+                    <div class="theme-setting-item">
+                        <label>显示名字</label>
+                        <input type="checkbox" id="chat-show-name">
+                    </div>
+                    <div class="theme-setting-item">
+                        <label>显示时间戳</label>
+                        <input type="checkbox" id="chat-show-timestamp">
+                    </div>
+                    <div class="theme-setting-item">
+                        <label>置顶聊天</label>
+                        <input type="checkbox" id="chat-pin-toggle">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能设置 -->
+            <div class="theme-section">
+                <h3>高级</h3>
+                <div class="theme-card-group">
+                    <div class="theme-setting-item">
+                        <label>主角色 (我是谁)</label>
+                        <select id="chat-main-role-select" class="role-select-box" style="max-width:50%;"></select>
+                    </div>
+                    <div class="theme-setting-item">
+                        <label>分类</label>
+                        <select id="chat-category-select" class="role-select-box" style="max-width:50%;"></select>
+                    </div>
+                    <div class="theme-setting-item" style="flex-direction:column; align-items:flex-start;">
+                        <label style="margin-bottom:5px;">自定义CSS</label>
+                        <textarea id="chat-custom-css-input" placeholder="输入CSS代码..." style="height:80px;"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="button-danger-full" id="delete-chat-btn">删除聊天</button>
+
+        </div>
+        <div class="modal-footer">
+            <button class="button button-secondary" id="chat-settings-cancel">取消</button>
+            <button class="button button-primary" id="chat-settings-save">保存</button>
+        </div>
+    </div>
+</div>
 
         <!-- 中文注释：底部导航栏 -->
         <nav class="bottom-nav">
             <div class="nav-item active" data-page="diary-page"><i class="fas fa-book-open"></i><span data-lang-key="nav_diary">日记</span></div>
             <div class="nav-item" data-page="calendar-page"><i class="fas fa-calendar-alt"></i><span data-lang-key="date">日期</span></div>
+            <!-- 新增：聊天室入口 -->
+            <div class="nav-item" data-page="chat-page"><i class="fas fa-comments"></i><span data-lang-key="chat">聊天</span></div>
             <div class="nav-item" data-page="my-page"><i class="fas fa-user"></i><span data-lang-key="my">我的</span></div>
         </nav>
 
@@ -2480,7 +4112,7 @@
         // 中文注释：这部分代码负责和手机本地的数据库打交道，用来存储你的所有数据（日记、设置等）。
         // 这样即使你关闭了网页再打开，数据也不会丢失。
         // =======================================================================
-        const db = await idb.openDB('platanusDB', 3, {
+        const db = await idb.openDB('platanusDB', 6, {
             upgrade(db, oldVersion, newVersion, transaction) {
                 // 中文注释：这个函数在数据库版本更新时运行，用来创建或修改数据“表”。
                 if (oldVersion < 1) {
@@ -2508,6 +4140,41 @@
                 if (oldVersion < 3) {
                     console.log('数据库升级到版本3');
                 }
+                
+               // 新增：版本 4 (角色和分类)
+        if (oldVersion < 4) {
+            if (!db.objectStoreNames.contains('chatRoles')) {
+                const store = db.createObjectStore('chatRoles', { keyPath: 'id', autoIncrement: true });
+                store.createIndex('categoryId', 'categoryId');
+            }
+            if (!db.objectStoreNames.contains('chatCategories')) {
+                db.createObjectStore('chatCategories', { keyPath: 'id', autoIncrement: true });
+            }
+            // 初始化一个默认分类
+            transaction.objectStore('chatCategories').add({ id: 1, name: '默认分类' });
+        } 
+        
+        // 新增：版本 5 (聊天室)
+                if (oldVersion < 5) {
+                    if (!db.objectStoreNames.contains('chatRooms')) {
+                        const store = db.createObjectStore('chatRooms', { keyPath: 'id', autoIncrement: true });
+                        // 也许以后会用到按时间排序
+                        store.createIndex('timestamp', 'timestamp');
+                    }
+                }
+                // 【新增】版本 6：表情包支持
+            if (oldVersion < 6) {
+                if (!db.objectStoreNames.contains('stickers')) {
+                    const store = db.createObjectStore('stickers', { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('categoryId', 'categoryId');
+                }
+                if (!db.objectStoreNames.contains('stickerCategories')) {
+                    const store = db.createObjectStore('stickerCategories', { keyPath: 'id', autoIncrement: true });
+                    // 添加默认分类
+                    store.add({ name: '默认分类' }); // id 会自动为 1
+                }
+            }
+        
             },
         });
 
@@ -2643,14 +4310,16 @@
             }
         }
 
-        // 中文注释：从数据库加载所有数据到内存中 (修复版：加载自定义图标)
+        // 中文注释：从数据库加载所有数据到内存中 (修复版：加载聊天室)
         async function loadDataFromDB() {
             const [
                 profile, diaries, notebooks, 
                 darkMode, language, theme, font, 
                 showLunarCalendar, showHolidays, 
-                fontPresets, customCss, customDecos, // 这里加了 customDecos
-                anniversaries, transactions, snippets, snippetCollections
+                fontPresets, customCss, customDecos, 
+                anniversaries, transactions, snippets, snippetCollections,
+                chatRoles, chatCategories, chatRooms,
+                stickers, stickerCategories // 【新增】
             ] = await Promise.all([
                 dbActions.get('profile', 'userProfile'), 
                 dbActions.getAll('diaries'), 
@@ -2663,11 +4332,16 @@
                 dbActions.get('settings', 'showHolidays'),
                 dbActions.get('settings', 'fontPresets'),
                 dbActions.get('settings', 'customCss'),
-                dbActions.get('settings', 'customDecos'), // 这里是新增的加载项
+                dbActions.get('settings', 'customDecos'), 
                 dbActions.getAll('anniversaries'),
                 dbActions.getAll('transactions'),
                 dbActions.getAll('snippets'),
-                dbActions.getAll('snippetCollections')
+                dbActions.getAll('snippetCollections'),
+                dbActions.getAll('chatRoles'),
+                dbActions.getAll('chatCategories'),
+                dbActions.getAll('chatRooms'), // 新增读取
+                dbActions.getAll('stickers'),        // 【新增】
+                dbActions.getAll('stickerCategories') // 【新增】
             ]);
             
             appData = {
@@ -2681,12 +4355,17 @@
                     showHolidays: showHolidays || false,
                     fontPresets: fontPresets || [],
                     customCss: customCss || '',
-                    customDecos: customDecos || [] // 这里保存到内存
+                    customDecos: customDecos || [] 
                 },
                 anniversaries: anniversaries || [],
                 transactions: transactions || [],
                 snippets: snippets || [],
-                snippetCollections: snippetCollections || []
+                snippetCollections: snippetCollections || [],
+                chatRoles: chatRoles || [],
+                chatCategories: chatCategories || [],
+                chatRooms: chatRooms || [], // 新增保存到内存
+                stickers: stickers || [],             // 【新增】
+                stickerCategories: stickerCategories || [] // 【新增】
             };
         }
         
@@ -3007,7 +4686,7 @@
             // === 新增代码开始：控制底部导航栏的显示/隐藏 ===
             const bottomNav = document.querySelector('.bottom-nav');
             // 定义哪些页面是“主页”，需要显示底部栏
-            const mainPages = ['diary-page', 'calendar-page', 'my-page'];
+            const mainPages = ['diary-page', 'calendar-page', 'my-page', 'chat-page'];
             
             if (mainPages.includes(pageId)) {
                 bottomNav.style.display = 'flex'; // 主页显示
@@ -3025,6 +4704,12 @@
             body.className = body.classList.contains('dark-mode') ? 'dark-mode' : '';
             if (appData.settings.theme.globalBgImage) body.classList.add('has-global-bg-image');
             if (pageId === 'my-page') body.classList.add('my-page-active');
+            // 新增：如果是聊天页，添加特殊类名以隐藏顶部栏
+            if (pageId === 'chat-page') {
+                body.classList.add('chat-page-active');
+            } else {
+                body.classList.remove('chat-page-active');
+            }
             if (pagesWithHeaders.includes(pageId)) body.classList.add('page-with-header');
             
             document.getElementById('notebook-icon').style.display = 'none';
@@ -3043,11 +4728,19 @@
                 case 'favorites-page':
                 case 'font-settings-page':
                 case 'theme-settings-page':
+                topBarTitle.textContent = '';
+                    // 新增这行：打开主题设置时，延迟一点计算存储（给DOM渲染留时间）
+                    setTimeout(() => { if(window.calculateStorageUsage) window.calculateStorageUsage(); }, 100);
+                    break;
                 case 'anniversary-page':
                 case 'accounting-page':
                 case 'snippets-page':
                 case 'games-page': 
                     topBarTitle.textContent = '';
+                    break;
+                    
+                    case 'chat-page':
+                    topBarTitle.textContent = ''; // 聊天页有自己的头部，隐藏通用的
                     break;
             }
             
@@ -3925,7 +5618,8 @@
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
         }
 
-        function closeModal() {
+        // 【关键修复】挂载到 window，让 HTML 中的 onclick="closeModal()" 能找到它
+        window.closeModal = function() {
             modalContainer.innerHTML = '';
         }
 
@@ -5583,22 +7277,29 @@
         }
 
         // 执行批量删除
-        function batchDeleteSnippets() {
-            const checked = document.querySelectorAll('.snippet-select-checkbox:checked');
-            if (checked.length === 0) return exitSnippetManageMode();
-
-            showConfirmModal('批量删除', `确定删除这 ${checked.length} 条言语吗？`, async () => {
-                const ids = Array.from(checked).map(cb => Number(cb.dataset.id));
-                for (const id of ids) {
-                    await dbActions.delete('snippets', id);
-                }
-                await refreshAllDataAndRender(); // 刷新数据
-                // 因为refreshAll会重置appData，我们需要重新找回当前collection
-                renderSnippetDetailList();
-                exitSnippetManageMode();
-            });
-        }
+window.executeBatchDelete = function() {
+    // 【修改点】这里改成了 .chat-delete-checkbox
+    const checked = document.querySelectorAll('.chat-delete-checkbox:checked');
+    
+    if (checked.length === 0) return;
+    showConfirmModal('批量删除', `确定删除选中的 ${checked.length} 条消息吗？`, async () => {
+        // 1. 获取要删除的时间戳集合
+        const idsToDelete = new Set(Array.from(checked).map(cb => Number(cb.dataset.id)));
         
+        // 2. 找到当前房间
+        const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+        
+        // 3. 过滤消息
+        room.messages = room.messages.filter(m => !idsToDelete.has(m.timestamp));
+        
+        // 4. 保存到数据库
+        await dbActions.put('chatRooms', room);
+        
+        // 5. 退出模式并刷新
+        window.exitChatBatchDeleteMode();
+        renderChatMessages(room); 
+    });
+}  
 
         function openAddSnippetCollectionModal() {
             showPromptModal(getLangText('add_snippet_collection'), getLangText('collection_name'), async (name) => {
@@ -7509,9 +9210,2214 @@
         
         
         
+        
+        // =======================================================
+        // === 聊天室交互逻辑 (放在 initializeApp 之前) ===
+        // =======================================================
+        
+        // 1. 顶部 Tab 切换 (角色列表 <-> 聊天列表)
+        const chatTabs = document.querySelectorAll('.wechat-tab-btn');
+        if(chatTabs.length > 0) {
+            chatTabs.forEach(btn => {
+                btn.onclick = () => { // 使用 onclick 确保绑定
+                    // 移除所有 active
+                    document.querySelectorAll('.wechat-tab-btn').forEach(b => b.classList.remove('active'));
+                    // 当前点击的加 active
+                    btn.classList.add('active');
+                    
+                    const tab = btn.dataset.tab;
+                    if (tab === 'role-list') {
+                        document.getElementById('role-list-view').style.display = 'block';
+                        document.getElementById('chat-list-view').style.display = 'none';
+                    } else {
+                        document.getElementById('role-list-view').style.display = 'none';
+                        document.getElementById('chat-list-view').style.display = 'block';
+                    }
+                };
+            });
+        }
+
+        // 2. 退出聊天室按钮
+const exitChatBtn = document.getElementById('exit-chat-room');
+if(exitChatBtn) {
+    exitChatBtn.onclick = () => {
+        document.getElementById('chat-room-interface').classList.remove('active');
+        resetChatRoomSettings(); // 退出时重置样式
+    };
+}
+        
+        // 3. 聊天主页右上角加号按钮  <--- 找到这一块
+        const chatPlusBtn = document.getElementById('chat-plus-btn');
+        if(chatPlusBtn) {
+            chatPlusBtn.onclick = () => {
+                const activeTab = document.querySelector('.wechat-tab-btn.active');
+                if (activeTab && activeTab.dataset.tab === 'role-list') {
+                    // 弹出新建角色
+                    openRoleModal(); 
+                } else {
+                    // 弹出新建聊天
+                    openCreateChatModal(); // <--- 改成了调用创建函数
+                }
+            };
+            }
+            // 新增：聊天室右上角设置按钮
+const chatSettingsBtn = document.getElementById('chat-settings-btn');
+if(chatSettingsBtn) {
+    chatSettingsBtn.onclick = () => {
+        openChatSettingsModal();
+    };
+        }
+        
+        // =======================================================
+        // === 角色管理功能实现 ===
+        // =======================================================
+        // 1. 打开角色编辑/新建弹窗 (最终版：分类操作不关闭页面)
+        function openRoleModal(roleToEdit = null) {
+            const isEdit = !!roleToEdit;
+            // 确保有一个完整的 role 对象
+            const role = roleToEdit || { name: '', avatar: '', age: '', birthday: '', height: '', other: '', categoryId: 1, isPinned: false };
+            
+            // 辅助函数：保存当前页面填写的状态
+            const getCurrentState = () => {
+                return {
+                    id: role.id, // 保持ID不变
+                    // 获取当前输入框的值
+                    name: document.getElementById('role-name').value,
+                    age: document.getElementById('role-age').value,
+                    birthday: document.getElementById('role-birth').value,
+                    height: document.getElementById('role-height').value,
+                    other: document.getElementById('role-other').value,
+                    categoryId: Number(document.getElementById('role-cat-select').value),
+                    isPinned: document.getElementById('role-pinned').checked,
+                    avatar: role.avatar // 头像链接存在 role 变量里
+                };
+            };
+
+            const catOptions = appData.chatCategories.map(c => 
+                `<option value="${c.id}" ${c.id == role.categoryId ? 'selected' : ''}>${c.name}</option>`
+            ).join('');
+
+            const avatarHtml = role.avatar 
+                ? `<img src="${role.avatar}" id="role-avatar-preview-img">` 
+                : `<div class="placeholder" id="role-avatar-placeholder"><i class="fas fa-camera"></i><br>上传头像</div><img id="role-avatar-preview-img" style="display:none">`;
+
+            const bodyHtml = `
+                <div class="role-edit-container">
+                    <div class="role-header-layout">
+                        <div class="role-avatar-upload" id="role-avatar-area">
+                            ${avatarHtml}
+                        </div>
+                        <div class="role-info-inputs">
+                            <div><span style="font-size:12px;color:#888">昵称</span><input type="text" class="role-line-input" id="role-name" value="${role.name}"></div>
+                            <div><span style="font-size:12px;color:#888">年龄</span><input type="text" class="role-line-input" id="role-age" value="${role.age}"></div>
+                            <div><span style="font-size:12px;color:#888">生日</span><input type="text" class="role-line-input" id="role-birth" value="${role.birthday}"></div>
+                            <div><span style="font-size:12px;color:#888">身高</span><input type="text" class="role-line-input" id="role-height" value="${role.height}"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div style="font-size:12px;color:#888;margin-bottom:5px;">其他资料</div>
+                        <textarea class="role-other-info" id="role-other" placeholder="性格、喜好等...">${role.other}</textarea>
+                    </div>
+                    
+                    <div class="role-bottom-controls">
+                        <div class="role-options-row">
+                            <div class="role-select-wrapper">
+                                <span style="font-size:12px;color:#888;flex-shrink:0;">分类</span>
+                                <select class="role-select-box" id="role-cat-select">${catOptions}</select>
+                                <div class="role-icon-btn-small" id="btn-add-cat" title="创建分类"><i class="fas fa-plus" style="font-size:10px;"></i></div>
+                                <div class="role-icon-btn-small" id="btn-del-cat" title="删除分类" style="color:var(--danger-color)"><i class="fas fa-trash" style="font-size:10px;"></i></div>
+                            </div>
+                            
+                            <label class="role-switch-label">
+                                <span style="font-size:12px;color:#888;">置顶</span>
+                                <input type="checkbox" id="role-pinned" class="role-switch-input" ${role.isPinned ? 'checked' : ''}>
+                                <div class="role-switch-track"></div>
+                            </label>
+                        </div>
+                        
+                        ${isEdit ? `<button class="button button-danger" id="btn-del-role" style="width:100%;margin:0;">删除角色</button>` : ''}
+                    </div>
+                </div>
+            `;
+
+            showModal(isEdit ? '编辑角色' : '创建角色', bodyHtml, 
+                `<button class="button button-secondary" id="modal-cancel">取消</button>
+                 <button class="button button-primary" id="role-save-btn">保存</button>`
+            );
+
+            // === 绑定事件 ===
+            
+            // 1. 头像上传
+            document.getElementById('role-avatar-area').onclick = () => {
+                triggerFileUpload('image/*', false, 1, (f) => {
+                    const img = document.getElementById('role-avatar-preview-img');
+                    const ph = document.getElementById('role-avatar-placeholder');
+                    img.src = f.src;
+                    img.style.display = 'block';
+                    if(ph) ph.style.display = 'none';
+                    role.avatar = f.src;
+                });
+            };
+
+            // 2. 创建分类 (修复：保存状态 -> 弹窗 -> 恢复状态)
+            document.getElementById('btn-add-cat').onclick = () => {
+                const savedState = getCurrentState(); // 保存当前填写的资料
+                
+                showPromptModal('创建分类', '请输入新分类名称', async (name) => {
+                    if(!name) { openRoleModal(savedState); return; } // 如果没填，重新打开编辑页
+                    
+                    // 数据库添加分类
+                    const newId = await dbActions.add('chatCategories', { name });
+                    
+                    // 更新内存数据
+                    const cats = await dbActions.getAll('chatCategories');
+                    appData.chatCategories = cats;
+                    
+                    // 恢复编辑页面，并选中新分类
+                    savedState.categoryId = newId; 
+                    openRoleModal(savedState);
+                });
+                
+                // 劫持弹窗的“取消”按钮，点击取消时也恢复页面
+                const cancelBtn = document.getElementById('confirm-cancel');
+                if(cancelBtn) cancelBtn.onclick = () => openRoleModal(savedState);
+            };
+
+            // 3. 删除分类 (修复：保存状态 -> 弹窗 -> 恢复状态)
+            document.getElementById('btn-del-cat').onclick = () => {
+                const savedState = getCurrentState();
+                const catId = savedState.categoryId;
+                
+                if(catId === 1) { alert("默认分类不可删除"); return; }
+                
+                showConfirmModal('删除分类', '删除后该分类下的角色将归入默认分类，确定吗？', async () => {
+                    await dbActions.delete('chatCategories', catId);
+                    
+                    // 迁移角色
+                    const roles = await dbActions.getAll('chatRoles');
+                    for(let r of roles) {
+                        if(r.categoryId === catId) { r.categoryId = 1; await dbActions.put('chatRoles', r); }
+                    }
+                    
+                    // 更新内存
+                    const cats = await dbActions.getAll('chatCategories');
+                    appData.chatCategories = cats;
+                    
+                    // 恢复编辑页面，分类重置为默认
+                    savedState.categoryId = 1;
+                    openRoleModal(savedState);
+                });
+                
+                // 劫持弹窗的“取消”按钮
+                const cancelBtn = document.getElementById('confirm-cancel');
+                if(cancelBtn) cancelBtn.onclick = () => openRoleModal(savedState);
+            };
+
+            // 4. 删除角色
+            if(isEdit) {
+                document.getElementById('btn-del-role').onclick = () => {
+                    showConfirmModal('删除角色', '确定要删除这个角色吗？', async () => {
+                        await dbActions.delete('chatRoles', role.id);
+                        await refreshAllDataAndRender();
+                        renderRoleList();
+                        closeModal();
+                    });
+                };
+            }
+
+            // 5. 保存
+            document.getElementById('role-save-btn').onclick = async () => {
+                const finalState = getCurrentState(); // 获取最终状态
+                if(!finalState.name.trim()) { alert("请输入昵称"); return; }
+                
+                // 构造保存对象
+                const newRole = {
+                    ...role, // 原始ID等
+                    ...finalState // 新的输入值
+                };
+                delete newRole.id; // 如果是新建，去掉id让数据库生成；如果是编辑，下面会补上
+                if(isEdit) newRole.id = role.id;
+
+                await dbActions.put('chatRoles', newRole);
+                await refreshAllDataAndRender();
+                renderRoleList();
+                closeModal();
+            };
+        }
+        
+        
+
+        // 2. 渲染角色列表 (核心：分组渲染)
+        function renderRoleList() {
+            const container = document.getElementById('role-list-content');
+            container.innerHTML = ''; // 清空
+            container.style.backgroundColor = 'transparent'; // 让容器透明以便显示卡片
+            container.style.boxShadow = 'none';
+
+            if(appData.chatRoles.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:50px; color:#999; font-size:13px;">暂无角色，点击右上角添加</div>`;
+                return;
+            }
+
+            // 1. 分离置顶角色
+            const pinnedRoles = appData.chatRoles.filter(r => r.isPinned);
+            const normalRoles = appData.chatRoles.filter(r => !r.isPinned);
+
+            // 2. 渲染置顶组 (如果有)
+            if(pinnedRoles.length > 0) {
+                renderRoleGroup(container, '置顶', pinnedRoles);
+            }
+
+            // 3. 渲染普通分类组
+            // 按分类ID分组
+            const groups = {};
+            appData.chatCategories.forEach(c => groups[c.id] = { name: c.name, roles: [] });
+            
+            normalRoles.forEach(r => {
+                if(groups[r.categoryId]) groups[r.categoryId].roles.push(r);
+                else {
+                    // 如果分类被删了，归到默认
+                    if(!groups[1]) groups[1] = { name:'默认分类', roles:[] };
+                    groups[1].roles.push(r);
+                }
+            });
+
+            // 遍历渲染
+            for(const catId in groups) {
+                const group = groups[catId];
+                if(group.roles.length > 0) {
+                    renderRoleGroup(container, group.name, group.roles);
+                }
+            }
+        }
+
+        // 辅助：渲染一个分组
+        function renderRoleGroup(container, title, roles) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'role-category-group';
+            
+            const header = document.createElement('div');
+            header.className = 'role-category-header';
+            header.innerHTML = `<i class="fas fa-caret-down"></i> ${title} (${roles.length})`;
+            groupDiv.appendChild(header);
+            
+            const card = document.createElement('div');
+            card.className = 'role-list-card';
+            
+            roles.forEach(role => {
+                const item = document.createElement('div');
+                item.className = 'role-list-item';
+                const avatar = role.avatar || 'https://via.placeholder.com/100?text=Role';
+                const pinnedTag = role.isPinned && title !== '置顶' ? '<span class="role-pinned-tag"><i class="fas fa-thumbtack"></i></span>' : '';
+                
+                item.innerHTML = `
+                    <img src="${avatar}" class="role-list-avatar">
+                    <div class="role-list-info">
+                        <div class="role-list-name">${pinnedTag}${role.name}</div>
+                        <div class="role-list-desc">${role.other ? role.other.substring(0, 15) + '...' : '暂无介绍'}</div>
+                    </div>
+                `;
+                item.onclick = () => openRoleModal(role); // 点击编辑
+                card.appendChild(item);
+            });
+            
+            groupDiv.appendChild(card);
+            container.appendChild(groupDiv);
+        }
+        
+        // =======================================================
+        // === 聊天室核心功能 (新建、列表、进入) ===
+        // =======================================================
+        
+        let currentChatRoomId = null;
+        let currentSenderRoleId = null; // 当前选择用哪个角色发消息
+        let currentChatSettings = {}; // 存储当前聊天室的设置
+        let isChatBatchDeleteMode = false; // 聊天批量删除模式
+
+        // 1. 打开“新建聊天”弹窗
+        function openCreateChatModal() {
+            if(appData.chatRoles.length < 2) {
+                alert("请先在角色列表中创建至少2个角色！");
+                return;
+            }
+
+            // 生成角色选择列表
+            const rolesHtml = appData.chatRoles.map(r => `
+                <label class="role-select-item" style="display:flex; align-items:center; padding:10px; border-bottom:1px solid var(--border-color);">
+                    <input type="checkbox" name="chat-role-select" value="${r.id}" style="width:20px; height:20px; margin-right:10px;">
+                    <img src="${r.avatar || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover;">
+                    <span style="font-size:15px; font-weight:bold;">${r.name}</span>
+                </label>
+            `).join('');
+
+            const bodyHtml = `
+                <div style="max-height:300px; overflow-y:auto;">
+                    <p style="margin-bottom:10px; color:#888; font-size:13px;">请选择聊天成员 (至少2人)</p>
+                    ${rolesHtml}
+                </div>
+                <div style="margin-top:15px;">
+                    <span style="font-size:13px;">聊天室名称 (可选)</span>
+                    <input type="text" id="new-chat-name" placeholder="默认为角色名组合" style="margin-top:5px;">
+                </div>
+            `;
+
+            showModal('创建聊天', bodyHtml, 
+                `<button class="button button-secondary" id="modal-cancel">取消</button>
+                 <button class="button button-primary" id="create-chat-confirm">创建</button>`
+            );
+
+            // 绑定创建事件
+            document.getElementById('create-chat-confirm').onclick = async () => {
+                const checkedBoxes = document.querySelectorAll('input[name="chat-role-select"]:checked');
+                if(checkedBoxes.length < 2) {
+                    alert("请至少选择2个角色！");
+                    return;
+                }
+
+                const memberIds = Array.from(checkedBoxes).map(cb => Number(cb.value));
+                let chatName = document.getElementById('new-chat-name').value.trim();
+
+                // 如果没填名字，自动生成
+                if(!chatName) {
+                    const names = memberIds.slice(0, 3).map(id => appData.chatRoles.find(r => r.id === id)?.name).filter(n=>n);
+                    chatName = names.join('、') + (memberIds.length > 3 ? `等${memberIds.length}人` : '');
+                }
+
+                            const newChat = {
+                name: chatName,
+                members: memberIds, // 存角色ID数组
+                messages: [], // 消息记录
+                timestamp: Date.now(), // 创建时间
+                categoryId: 1, // 默认分类
+                isPinned: false, // 默认不置顶
+                settings: {} // 默认无特殊设置
+            };
+
+                await dbActions.add('chatRooms', newChat);
+                await refreshAllDataAndRender();
+                renderChatList();
+                closeModal();
+                
+                // 自动切换到聊天列表Tab
+                document.querySelector('.wechat-tab-btn[data-tab="chat-list"]').click();
+            };
+        }
+
+        // 2. 渲染聊天列表 (仿图一样式)
+function renderChatList() {
+    const container = document.getElementById('chat-room-list-content');
+    container.innerHTML = '';
+    container.style.backgroundColor = 'transparent';
+    container.style.boxShadow = 'none';
+    
+    if(appData.chatRooms.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:50px; color:#999; font-size:13px;">暂无聊天，点击右上角创建</div>`;
+        return;
+    }
+
+    // 辅助函数：渲染一个分组
+    const renderChatGroup = (parent, title, rooms) => {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'role-category-group'; // 复用角色列表的样式
+        
+        const header = document.createElement('div');
+        header.className = 'role-category-header';
+        header.innerHTML = `<i class="fas fa-caret-down"></i> ${title} (${rooms.length})`;
+        groupDiv.appendChild(header);
+        
+        const card = document.createElement('div');
+        card.className = 'role-list-card'; // 复用角色列表的样式
+
+        rooms.forEach(room => {
+            const item = document.createElement('div');
+            item.className = 'role-list-item'; // 复用角色列表的样式
+            
+            const firstRole = appData.chatRoles.find(r => r.id === room.members[0]);
+            // 【修改点】优先使用聊天室自己的头像，没有则使用第一个成员的头像
+            let avatarSrc = room.avatar;
+            if (!avatarSrc) {
+                const firstRole = appData.chatRoles.find(r => r.id === room.members[0]);
+                avatarSrc = firstRole ? firstRole.avatar : 'https://via.placeholder.com/48';
+            }
+            
+            const lastMsgObj = room.messages.length > 0 ? room.messages.slice(-1)[0] : null;
+            let lastMsgContent = lastMsgObj ? lastMsgObj.content : '暂无消息';
+            if (lastMsgContent.startsWith('data:image')) lastMsgContent = '[图片]';
+            const lastMsgTime = lastMsgObj ? lastMsgObj.timestamp : room.timestamp;
+            const timeStr = new Date(lastMsgTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            item.innerHTML = `
+                <img src="${avatarSrc}" class="role-list-avatar">
+                <div class="role-list-info">
+                    <div class="role-list-name" style="display:flex; justify-content:space-between; width:100%;">
+                        <span>${room.name}</span>
+                        <span class="chat-time">${timeStr}</span>
+                    </div>
+                    <div class="role-list-desc">${lastMsgContent}</div>
+                </div>
+            `;
+            item.onclick = () => enterChatRoom(room.id);
+            card.appendChild(item);
+        });
+        
+        groupDiv.appendChild(card);
+        parent.appendChild(groupDiv);
+    };
+
+    // 1. 分离置顶
+    const pinnedRooms = appData.chatRooms.filter(r => r.isPinned);
+    const normalRooms = appData.chatRooms.filter(r => !r.isPinned);
+
+    // 2. 渲染置顶组
+    if (pinnedRooms.length > 0) {
+        renderChatGroup(container, '置顶聊天', pinnedRooms);
+    }
+
+    // 3. 渲染普通分类组
+    const groups = {};
+    appData.chatCategories.forEach(c => groups[c.id] = { name: c.name, rooms: [] });
+    
+    normalRooms.forEach(room => {
+        const catId = room.categoryId || 1;
+        if (groups[catId]) {
+            groups[catId].rooms.push(room);
+        } else {
+            if (!groups[1]) groups[1] = { name: '默认分类', rooms: [] };
+            groups[1].rooms.push(room);
+        }
+    });
+
+    // 排序并渲染
+    Object.values(groups).forEach(group => {
+        if (group.rooms.length > 0) {
+            // 组内按时间排序
+            group.rooms.sort((a,b) => (b.messages.slice(-1)[0]?.timestamp || b.timestamp) - (a.messages.slice(-1)[0]?.timestamp || a.timestamp));
+            renderChatGroup(container, group.name, group.rooms);
+        }
+    });
+}
+
+       // 3. 进入聊天室 (核心逻辑)
+function enterChatRoom(roomId) {
+    currentChatRoomId = roomId;
+    const room = appData.chatRooms.find(r => r.id === roomId);
+    if(!room) return;
+
+    // 1. 设置头部
+    document.getElementById('current-room-name').textContent = room.name;
+    
+    // 2. 渲染消息
+    renderChatMessages(room);
+    
+    // 3. 渲染底部角色选择器
+    const roleSelector = document.getElementById('chat-role-selector');
+    roleSelector.innerHTML = '';
+    roleSelector.style.display = 'flex';
+
+    room.members.forEach((roleId, index) => {
+        const role = appData.chatRoles.find(r => r.id === roleId);
+        if(role) {
+            const img = document.createElement('img');
+            img.src = role.avatar || 'https://via.placeholder.com/40';
+            img.className = 'chat-role-option';
+            img.dataset.roleId = role.id;
+            
+            if (index === 0) {
+                img.classList.add('active');
+                currentSenderRoleId = role.id;
+            }
+
+            img.onclick = () => {
+                document.querySelectorAll('.chat-role-option').forEach(el => el.classList.remove('active'));
+                img.classList.add('active');
+                currentSenderRoleId = role.id;
+            };
+            roleSelector.appendChild(img);
+        }
+    });
+
+    // 4. 绑定发送按钮事件
+    document.getElementById('chat-send-btn').onclick = () => {
+        const input = document.getElementById('chat-msg-input');
+        sendChatMessage(input.value);
+    };
+    
+    // 5. 绑定发送图片按钮事件
+    document.getElementById('chat-img-btn').onclick = () => {
+        triggerFileUpload('image/*', false, 1, (file) => {
+            sendChatMessage(file.src); // 直接发送图片的Base64编码
+        });
+    };
+
+    // 6. 显示界面并应用设置
+    document.getElementById('chat-room-interface').classList.add('active');
+    applyChatRoomSettings(room);
+}
+ 
+        
+        // 渲染指定聊天室的所有消息
+function renderChatMessages(room) {
+    const msgContainer = document.getElementById('chat-room-messages');
+    msgContainer.innerHTML = ''; 
+
+    const settings = room.settings || {};
+    const mainRoleId = settings.mainRoleId || null;
+    const showTimestamp = settings.showTimestamp !== false;
+    const showAvatar = settings.showAvatar !== false;
+    const showName = settings.showName === true;
+
+    room.messages.forEach(msg => {
+        const role = appData.chatRoles.find(r => r.id === msg.roleId);
+        if (!role) return;
+
+        const bubble = document.createElement('div');
+        // 【修改点】类名更改为 message-bubble
+        bubble.className = 'message-bubble';
+        
+        const isUser = role.id === mainRoleId;
+        bubble.classList.add(isUser ? 'user' : 'ai');
+
+        let contentHtml = '';
+        let contentClass = 'has-tail';
+        
+        // 【修改点】同时支持 Base64 和 网络图片链接
+        if (msg.content.startsWith('data:image') || /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(msg.content)) {
+            contentHtml = `<img src="${msg.content}" class="photo-msg-img" onclick="viewFullImage(this.src)">`;
+            contentClass = 'photo-only'; 
+        } 
+        // 兼容一下没有后缀的图片URL (如 postimg 有时候不带后缀，虽然少见，或者纯 URL 形式)
+        else if (/^https?:\/\/[^\s]+$/.test(msg.content) && !msg.content.includes(' ')) {
+             // 尝试作为图片渲染，如果裂了就是普通链接
+             contentHtml = `<img src="${msg.content}" class="photo-msg-img" onclick="viewFullImage(this.src)" onerror="this.outerHTML='<a href=\\'${msg.content}\\' target=\\'_blank\\'>${msg.content}</a>'">`;
+             contentClass = 'photo-only';
+        }
+        else {
+            contentHtml = msg.content.replace(/\n/g, '<br>');
+        }
+        
+        const timeStr = showTimestamp ? `<div class="time">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>` : '';
+        
+        // 修改：给头像增加 onclick 事件，调用 showStudentCard
+        const avatarHtml = showAvatar ? `<img src="${role.avatar || 'https://via.placeholder.com/40'}" class="avatar-img" onclick="showStudentCard(${role.id})" style="cursor:pointer;">` : '';
+        
+        const nameHtml = showName ? `<div class="msg-author-name" style="display:block;">${role.name}</div>` : '';
+        
+        // 引用消息HTML
+        let quoteHtml = '';
+        if (msg.quote) {
+            const quoteRole = appData.chatRoles.find(r => r.id === msg.quote.roleId);
+            const quoteAuthor = quoteRole ? quoteRole.name : '未知';
+            let quoteContent = msg.quote.content;
+            if (quoteContent.startsWith('data:image')) quoteContent = '[图片]';
+            quoteHtml = `<div class="reply-quote-bar"><strong>@${quoteAuthor}</strong>: ${quoteContent}</div>`;
+        }
+
+        bubble.innerHTML = `
+            ${!isUser ? avatarHtml : ''}
+            <div class="bubble-wrapper">
+                ${nameHtml}
+                ${quoteHtml}
+                <div class="content ${contentClass}">${contentHtml}</div>
+            </div>
+            ${isUser ? avatarHtml : ''}
+        `;
+        
+        // 把时间戳放在头像和气泡的外面
+        if (isUser) {
+            bubble.insertAdjacentHTML('afterbegin', timeStr);
+        } else {
+            bubble.insertAdjacentHTML('beforeend', timeStr);
+        }
+        
+        const contentDiv = bubble.querySelector('.content');
+        if (contentDiv) {
+            contentDiv.ondblclick = () => openBubbleMenu(msg, room.id);
+        }
+
+        msgContainer.appendChild(bubble);
+    });
+
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+}
+
+// 发送聊天消息（文本或图片）
+async function sendChatMessage(content) {
+    if (!content.trim() || !currentChatRoomId || !currentSenderRoleId) return;
+
+    const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+    if (!room) return;
+
+    const newMessage = {
+        roleId: currentSenderRoleId,
+        content: content,
+        timestamp: Date.now()
+    };
+
+    room.messages.push(newMessage);
+    // 更新聊天室的最后互动时间，用于排序
+    room.timestamp = Date.now(); 
+
+    await dbActions.put('chatRooms', room);
+
+    // 【修改点】在这里强制清空输入框
+    const inputEl = document.getElementById('chat-msg-input');
+    if (inputEl) inputEl.value = ''; 
+
+    renderChatMessages(room);
+    renderChatList();
+    
+    // 发送后清空引用
+    hideReplyPreview();
+};
+
+// 应用单条消息的样式（抽离出来的辅助函数）
+function applyMessageStyles(msgEl, settings) {
+    settings = settings || {};
+    const nameEl = msgEl.querySelector('.role-name-in-chat');
+    const avatarEl = msgEl.querySelector('.avatar-img');
+
+    if (settings.showAvatar === false) {
+        if(avatarEl) avatarEl.style.display = 'none';
+    }
+    if (settings.showName === false) {
+        if(nameEl) nameEl.style.display = 'none';
+    }
+}
+        
+        
+        // =======================================================
+// === 聊天室设置核心功能 ===
+// =======================================================
+
+// 打开聊天设置弹窗 (增强版：含预览)
+function openChatSettingsModal() {
+    const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+    if (!room) return;
+
+    const settings = room.settings || {};
+    currentChatSettings = JSON.parse(JSON.stringify(settings)); // 深拷贝
+
+    const modal = document.getElementById('chat-settings-modal');
+    modal.classList.add('active');
+
+    // 【新增】填充名称和头像预览
+    const nameInput = document.getElementById('chat-setting-name');
+    if (nameInput) nameInput.value = room.name || '';
+    
+    const avatarPreview = document.getElementById('chat-setting-avatar-preview');
+    if (avatarPreview) {
+        if (room.avatar) {
+            avatarPreview.src = room.avatar;
+            avatarPreview.style.display = 'block';
+        } else {
+            avatarPreview.style.display = 'none';
+        }
+    }
+
+    // --- 辅助函数：设置值 ---
+    const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val !== undefined ? val : ''; };
+    const setCheck = (id, val) => { const el = document.getElementById(id); if(el) el.checked = !!val; };
+
+    // 填充颜色
+    setVal('chat-my-bubble-color', currentChatSettings.myBubbleColor || '#929292');
+    setVal('chat-other-bubble-color', currentChatSettings.otherBubbleColor || '#FFFFFF');
+    setVal('chat-main-font-color', currentChatSettings.mainFontColor || '#FFFFFF');
+    setVal('chat-other-font-color', currentChatSettings.otherFontColor || '#000000');
+    setVal('chat-time-color', currentChatSettings.timeColor || '#999999'); 
+
+    // 填充大小和位置
+    setVal('chat-font-size', currentChatSettings.fontSize || 15);
+    const fontSizeVal = document.getElementById('chat-font-size-val');
+    if(fontSizeVal) fontSizeVal.textContent = (currentChatSettings.fontSize || 15) + 'px';
+    
+    // 时间戳设置
+    const tSet = currentChatSettings.timeSettings || {};
+    setVal('chat-time-size', tSet.size);
+    setVal('chat-time-top', tSet.top);
+    setVal('chat-time-left', tSet.left);
+    setVal('chat-time-right', tSet.right);
+
+    // 填充内边距和圆角
+    const pad = currentChatSettings.padding || {};
+    setVal('chat-padding-top', pad.top); setVal('chat-padding-right', pad.right);
+    setVal('chat-padding-bottom', pad.bottom); setVal('chat-padding-left', pad.left);
+    const rad = currentChatSettings.radius || {};
+    setVal('chat-radius-tl', rad.tl); setVal('chat-radius-tr', rad.tr);
+    setVal('chat-radius-br', rad.br); setVal('chat-radius-bl', rad.bl);
+
+    // 开关
+    setCheck('chat-show-avatar', currentChatSettings.showAvatar !== false);
+    setCheck('chat-show-name', currentChatSettings.showName === true);
+    setCheck('chat-show-timestamp', currentChatSettings.showTimestamp !== false);
+    setCheck('chat-pin-toggle', room.isPinned);
+
+    // CSS
+    setVal('chat-custom-css-input', currentChatSettings.customCss);
+
+    // 下拉框填充 (角色和分类)
+    const mainRoleSelect = document.getElementById('chat-main-role-select');
+    if (mainRoleSelect) {
+        mainRoleSelect.innerHTML = '<option value="">无</option>';
+        room.members.forEach(id => {
+            const role = appData.chatRoles.find(r => r.id === id);
+            if (role) mainRoleSelect.innerHTML += `<option value="${id}" ${currentChatSettings.mainRoleId == id ? 'selected' : ''}>${role.name}</option>`;
+        });
+    }
+    
+    const categorySelect = document.getElementById('chat-category-select');
+    if (categorySelect) {
+        categorySelect.innerHTML = appData.chatCategories.map(c => `<option value="${c.id}" ${room.categoryId == c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+    }
+
+    // --- 实时预览更新函数 ---
+    const updatePreview = () => {
+        const s = currentChatSettings;
+        const getV = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+        
+        // 读取值
+        s.myBubbleColor = getV('chat-my-bubble-color');
+        s.otherBubbleColor = getV('chat-other-bubble-color');
+        s.mainFontColor = getV('chat-main-font-color');
+        s.otherFontColor = getV('chat-other-font-color');
+        s.timeColor = getV('chat-time-color');
+        s.fontSize = getV('chat-font-size');
+        
+        s.timeSettings = {
+            size: getV('chat-time-size'),
+            top: getV('chat-time-top'), left: getV('chat-time-left'), right: getV('chat-time-right')
+        };
+        
+        s.padding = { top: getV('chat-padding-top'), right: getV('chat-padding-right'), bottom: getV('chat-padding-bottom'), left: getV('chat-padding-left') };
+        s.radius = { tl: getV('chat-radius-tl'), tr: getV('chat-radius-tr'), br: getV('chat-radius-br'), bl: getV('chat-radius-bl') };
+        
+        // 背景
+        const previewBox = document.getElementById('chat-setting-preview-box');
+        if (previewBox) {
+            if (s.background) previewBox.style.backgroundImage = `url(${s.background})`;
+            else previewBox.style.backgroundImage = 'none';
+        }
+        
+        // 应用到预览元素
+        const userBubble = document.getElementById('preview-bubble-user');
+        const aiBubble = document.getElementById('preview-bubble-ai');
+        const userTime = document.getElementById('preview-time-user');
+        const aiTime = document.getElementById('preview-time-ai');
+        
+        if (userBubble && aiBubble) {
+            userBubble.style.backgroundColor = s.myBubbleColor;
+            userBubble.style.color = s.mainFontColor;
+            aiBubble.style.backgroundColor = s.otherBubbleColor;
+            aiBubble.style.color = s.otherFontColor;
+            
+            [userBubble, aiBubble].forEach(b => {
+                b.style.fontSize = s.fontSize + 'px';
+                b.style.padding = `${s.padding.top||10}px ${s.padding.right||14}px ${s.padding.bottom||10}px ${s.padding.left||14}px`;
+                b.style.borderRadius = `${s.radius.tl||18}px ${s.radius.tr||18}px ${s.radius.br||18}px ${s.radius.bl||18}px`;
+            });
+        }
+
+        const tsEl = document.getElementById('chat-show-timestamp');
+        const tShow = tsEl ? tsEl.checked : true;
+        const tSize = s.timeSettings.size || 10;
+        const tTop = s.timeSettings.top || 0;
+        const tLeft = s.timeSettings.left || 0;
+        const tRight = s.timeSettings.right || 0;
+        
+        if (userTime && aiTime) {
+            [userTime, aiTime].forEach(t => {
+                t.style.display = tShow ? 'block' : 'none';
+                t.style.color = s.timeColor;
+                t.style.fontSize = tSize + 'px';
+                t.style.top = tTop + 'px';
+                if(t === userTime) t.style.marginRight = (8 + Number(tRight)) + 'px';
+                if(t === aiTime) t.style.marginLeft = (8 + Number(tLeft)) + 'px';
+            });
+        }
+        
+        const fsVal = document.getElementById('chat-font-size-val');
+        if (fsVal) fsVal.textContent = s.fontSize + 'px';
+    };
+
+    // 绑定事件
+    modal.querySelectorAll('input, select').forEach(input => {
+        input.oninput = updatePreview;
+    });
+    
+    // 初始化预览
+    updatePreview();
+
+    // 按钮事件
+    const saveBtn = document.getElementById('chat-settings-save');
+    if (saveBtn) saveBtn.onclick = () => saveChatSettings();
+    
+    const cancelBtn = document.getElementById('chat-settings-cancel');
+    if (cancelBtn) cancelBtn.onclick = () => {
+        modal.classList.remove('active');
+        applyChatRoomSettings(room);
+    };
+    
+    const uploadBgBtn = document.getElementById('chat-bg-upload-btn');
+    if (uploadBgBtn) uploadBgBtn.onclick = () => {
+        triggerFileUpload('image/*', false, 1, (file) => {
+            currentChatSettings.background = file.src;
+            updatePreview();
+        });
+    };
+    
+    const resetBgBtn = document.getElementById('chat-bg-reset-btn');
+    if (resetBgBtn) resetBgBtn.onclick = () => {
+        currentChatSettings.background = null;
+        updatePreview();
+    };
+    
+    // 封面上传
+    const avatarUploadBtn = document.getElementById('chat-avatar-upload-btn');
+    if (avatarUploadBtn) avatarUploadBtn.onclick = () => {
+        triggerFileUpload('image/*', false, 1, (file) => {
+            currentChatSettings.newAvatar = file.src; 
+            const img = document.getElementById('chat-setting-avatar-preview');
+            if (img) {
+                img.src = file.src;
+                img.style.display = 'block';
+            }
+            alert('封面已选择，点击“保存”生效');
+        });
+    };
+    
+    const delBtn = document.getElementById('delete-chat-btn');
+    if (delBtn) delBtn.onclick = deleteCurrentChat;
+}
+
+// 保存设置
+async function saveChatSettings() {
+    const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+    if (!room) return;
+
+    // 手动收集最新值 (与预览逻辑一致)
+    const getV = (id) => document.getElementById(id).value;
+    const getN = (id) => Number(getV(id));
+    
+    // 【新增】保存名称和头像
+    const newName = document.getElementById('chat-setting-name').value.trim();
+    if (newName) room.name = newName;
+    
+    // 如果上传了新头像（存在 currentChatSettings.newAvatar 中）
+    if (currentChatSettings.newAvatar) {
+        room.avatar = currentChatSettings.newAvatar;
+        delete currentChatSettings.newAvatar; // 清理掉
+    }
+    
+    currentChatSettings.myBubbleColor = getV('chat-my-bubble-color');
+    currentChatSettings.otherBubbleColor = getV('chat-other-bubble-color');
+    currentChatSettings.mainFontColor = getV('chat-main-font-color');
+    currentChatSettings.otherFontColor = getV('chat-other-font-color');
+    currentChatSettings.timeColor = getV('chat-time-color');
+    currentChatSettings.fontSize = getN('chat-font-size');
+    currentChatSettings.customCss = getV('chat-custom-css-input');
+    
+    currentChatSettings.padding = { top: getN('chat-padding-top'), right: getN('chat-padding-right'), bottom: getN('chat-padding-bottom'), left: getN('chat-padding-left') };
+    currentChatSettings.radius = { tl: getN('chat-radius-tl'), tr: getN('chat-radius-tr'), br: getN('chat-radius-br'), bl: getN('chat-radius-bl') };
+    currentChatSettings.timeSettings = { size: getN('chat-time-size'), top: getN('chat-time-top'), left: getN('chat-time-left'), right: getN('chat-time-right') };
+    
+    currentChatSettings.showAvatar = document.getElementById('chat-show-avatar').checked;
+    currentChatSettings.showName = document.getElementById('chat-show-name').checked;
+    currentChatSettings.showTimestamp = document.getElementById('chat-show-timestamp').checked;
+    currentChatSettings.mainRoleId = Number(document.getElementById('chat-main-role-select').value) || null;
+
+    room.settings = currentChatSettings;
+    room.isPinned = document.getElementById('chat-pin-toggle').checked;
+    room.categoryId = Number(document.getElementById('chat-category-select').value);
+
+    await dbActions.put('chatRooms', room);
+    applyChatRoomSettings(room); // 应用到真实界面
+    renderChatMessages(room); // 重新渲染消息以应用HTML结构变化
+    renderChatList();
+    
+    // 【新增】立即更新聊天室头部的标题
+    document.getElementById('current-room-name').textContent = room.name;
+    
+    document.getElementById('chat-settings-modal').classList.remove('active');
+    alert('设置已保存！');
+}
+
+// 删除当前聊天
+function deleteCurrentChat() {
+    showConfirmModal('删除聊天', '确定要删除这个聊天室及其所有消息吗？此操作不可撤销。', async () => {
+        await dbActions.delete('chatRooms', currentChatRoomId);
+        document.getElementById('chat-settings-modal').classList.remove('active');
+        document.getElementById('chat-room-interface').classList.remove('active');
+        await refreshAllDataAndRender();
+        renderChatList();
+        showPage('chat-page');
+    });
+}
+
+// 应用设置到真实界面 (包含 CSS 注入)
+function applyChatRoomSettings(room) {
+    const s = room.settings || {};
+    const roomEl = document.getElementById('chat-room-interface');
+    
+    // 背景
+    const contentEl = roomEl.querySelector('.room-content');
+    // 【修改点】背景图应用到最外层父容器 (roomEl)，而不是内容区
+    if (s.background) {
+        roomEl.style.backgroundImage = `url(${s.background})`;
+        // 如果是透明PNG背景图，保持底色
+        roomEl.style.backgroundSize = 'cover';
+        roomEl.style.backgroundPosition = 'center';
+    } else {
+        roomEl.style.backgroundImage = '';
+    }
+    if(contentEl) contentEl.style.background = 'transparent';
+
+    // 动态生成 CSS (适配 message-bubble 类名)
+    let css = '';
+    // 气泡和文字颜色
+    if (s.myBubbleColor) css += `.chat-room .message-bubble.user .content { background-color: ${s.myBubbleColor} !important; }`;
+    if (s.otherBubbleColor) css += `.chat-room .message-bubble.ai .content { background-color: ${s.otherBubbleColor} !important; }`;
+    if (s.mainFontColor) css += `.chat-room .message-bubble.user .content { color: ${s.mainFontColor} !important; }`;
+    if (s.otherFontColor) css += `.chat-room .message-bubble.ai .content { color: ${s.otherFontColor} !important; }`;
+    
+    // 字体大小
+    if (s.fontSize) css += `.chat-room .message-bubble .content { font-size: ${s.fontSize}px !important; }`;
+    
+    // 内边距 & 圆角
+    if (s.padding) css += `.chat-room .message-bubble .content { padding: ${s.padding.top||6}px ${s.padding.right||8}px ${s.padding.bottom||6}px ${s.padding.left||8}px !important; }`;
+    if (s.radius) css += `.chat-room .message-bubble .content { border-radius: ${s.radius.tl||16}px ${s.radius.tr||16}px ${s.radius.br||16}px ${s.radius.bl||16}px !important; }`;
+
+    // 时间戳样式
+    const tSet = s.timeSettings || {};
+    if (s.timeColor) css += `.chat-room .time { color: ${s.timeColor} !important; }`;
+    if (tSet.size) css += `.chat-room .time { font-size: ${tSet.size}px !important; }`;
+    if (tSet.top) css += `.chat-room .time { top: ${tSet.top}px !important; }`;
+    if (tSet.left) css += `.chat-room .message-bubble.ai .time { margin-left: ${8 + (Number(tSet.left)||0)}px !important; }`;
+    if (tSet.right) css += `.chat-room .message-bubble.user .time { margin-right: ${8 + (Number(tSet.right)||0)}px !important; }`;
+
+    // 显示控制
+    if (s.showAvatar === false) css += `.chat-room .avatar-img { display: none !important; }`;
+    if (s.showName === false) css += `.chat-room .msg-author-name { display: none !important; }`;
+    if (s.showTimestamp === false) css += `.chat-room .time { display: none !important; }`;
+
+    // 自定义 CSS
+    if (s.customCss) css += s.customCss;
+
+    let styleTag = document.getElementById('chat-dynamic-style');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'chat-dynamic-style';
+        document.head.appendChild(styleTag);
+    }
+    styleTag.textContent = css;
+}
+
+// 重置聊天室样式
+function resetChatRoomSettings() {
+    const dynamicStyle = document.getElementById('chat-dynamic-style');
+    if (dynamicStyle) dynamicStyle.textContent = '';
+    
+    const roomEl = document.getElementById('chat-room-interface');
+    roomEl.classList.remove('hide-avatars', 'hide-names');
+    
+    // 【修改点】重置父容器背景
+    roomEl.style.backgroundImage = '';
+    // 不再操作 room-content 的背景
+}
+
+// === 修复后的气泡菜单与批量删除逻辑 ===
+
+// 1. 打开气泡菜单
+window.openBubbleMenu = function(message, roomId) {
+    showActionMenuModal('消息操作', [
+        { text: '引用', action: 'quote-msg', id: message.timestamp },
+        { text: '编辑', action: 'edit-msg', id: message.timestamp },
+        { text: '删除', action: 'delete-msg', id: message.timestamp },
+        { text: '批量删除', action: 'batch-delete-msg-mode' }
+    ]);
+
+    const menuBody = document.querySelector('.action-menu-modal .modal-body');
+    if (!menuBody) return;
+
+    menuBody.onclick = async (e) => {
+        const item = e.target.closest('.menu-item');
+        if (!item) return;
+        const action = item.dataset.action;
+        const msgId = Number(item.dataset.id);
+        closeModal();
+
+        // 重新获取最新的房间数据
+        const room = appData.chatRooms.find(r => r.id === roomId);
+        if (!room) return;
+        const msgIndex = room.messages.findIndex(m => m.timestamp === msgId);
+
+        switch (action) {
+            case 'quote-msg':
+                if (msgIndex !== -1) {
+                    currentQuote = room.messages[msgIndex];
+                    showReplyPreview();
+                }
+                break;
+            case 'edit-msg':
+                if (msgIndex !== -1) {
+                    if (room.messages[msgIndex].content.startsWith('data:image')) {
+                        alert('图片消息不支持编辑。');
+                        return;
+                    }
+                    showPromptModal('编辑消息', '', async (newContent) => {
+                        if (newContent) {
+                            room.messages[msgIndex].content = newContent;
+                            await dbActions.put('chatRooms', room);
+                            renderChatMessages(room);
+                        }
+                    }, '', 'text', room.messages[msgIndex].content);
+                }
+                break;
+            case 'delete-msg':
+                showConfirmModal('删除消息', '确定要删除这条消息吗？', async () => {
+                    if (msgIndex !== -1) {
+                        room.messages.splice(msgIndex, 1);
+                        await dbActions.put('chatRooms', room);
+                        renderChatMessages(room);
+                    }
+                });
+                break;
+            case 'batch-delete-msg-mode':
+                // 关键：调用全局的进入模式函数
+                window.enterChatBatchDeleteMode(room.id); 
+                break;
+        }
+    };
+};
+
+// 2. 进入批量删除模式 (挂载到 window 确保全局可访问)
+window.enterChatBatchDeleteMode = function(roomId) {
+    const room = appData.chatRooms.find(r => r.id === roomId);
+    if (!room) return;
+
+    // 标记状态
+    isChatBatchDeleteMode = true;
+    const interfaceEl = document.getElementById('chat-room-interface');
+    interfaceEl.classList.add('batch-delete-mode');
+    
+    // 获取显示设置，确保删除模式下样式一致
+    const settings = room.settings || {};
+    const mainRoleId = settings.mainRoleId || null;
+    const showTimestamp = settings.showTimestamp !== false;
+    const showAvatar = settings.showAvatar !== false;
+    const showName = settings.showName === true;
+    
+    const msgContainer = document.getElementById('chat-room-messages');
+    msgContainer.innerHTML = '';
+    
+    room.messages.forEach(msg => {
+        const role = appData.chatRoles.find(r => r.id === msg.roleId);
+        if (!role) return;
+
+        // 创建包裹行，用于放 Checkbox 和 消息体
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center'; /* 垂直居中 */
+        row.style.marginBottom = '15px';
+        row.style.width = '100%';
+
+        // 1. 复选框
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'chat-delete-checkbox';
+        checkbox.dataset.id = msg.timestamp;
+        checkbox.style.marginRight = '10px';
+        checkbox.style.flexShrink = '0'; // 防止被挤压
+        checkbox.style.width = '20px';
+        checkbox.style.height = '20px';
+
+        // 2. 消息气泡 (完全复用 renderChatMessages 的逻辑结构)
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble'; // 使用新类名
+        bubble.style.marginBottom = '0'; // 去掉气泡本身的下边距，由 row 控制
+        bubble.style.flexGrow = '1'; // 占满剩余空间
+        
+        const isUser = role.id === mainRoleId;
+        bubble.classList.add(isUser ? 'user' : 'ai');
+
+        let contentHtml = '';
+        let contentClass = 'has-tail';
+        // 修改这里：增加对 http 链接图片的判断
+        if (msg.content.startsWith('data:image') || /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)/i.test(msg.content)) {
+            contentHtml = `<img src="${msg.content}" class="photo-msg-img" style="pointer-events:none;">`; // 删除模式下禁止点开大图
+            contentClass = 'photo-only';
+        } else {
+            contentHtml = msg.content.replace(/\n/g, '<br>');
+        }
+        
+        const timeStr = showTimestamp ? `<div class="time">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>` : '';
+        const avatarHtml = showAvatar ? `<img src="${role.avatar || 'https://via.placeholder.com/40'}" class="avatar-img">` : '';
+        const nameHtml = showName ? `<div class="msg-author-name" style="display:block;">${role.name}</div>` : '';
+        
+        // 引用 (简化显示)
+        let quoteHtml = '';
+        if (msg.quote) {
+            const quoteRole = appData.chatRoles.find(r => r.id === msg.quote.roleId);
+            const quoteAuthor = quoteRole ? quoteRole.name : '未知';
+            let quoteContent = msg.quote.content;
+            if (quoteContent.startsWith('data:image')) quoteContent = '[图片]';
+            quoteHtml = `<div class="reply-quote-bar"><strong>@${quoteAuthor}</strong>: ${quoteContent}</div>`;
+        }
+
+        bubble.innerHTML = `
+            ${!isUser ? avatarHtml : ''}
+            <div class="bubble-wrapper">
+                ${nameHtml}
+                ${quoteHtml}
+                <div class="content ${contentClass}">${contentHtml}</div>
+            </div>
+            ${isUser ? avatarHtml : ''}
+        `;
+        
+        if (isUser) {
+            bubble.insertAdjacentHTML('afterbegin', timeStr);
+        } else {
+            bubble.insertAdjacentHTML('beforeend', timeStr);
+        }
+
+        // 组装
+        row.appendChild(checkbox);
+        row.appendChild(bubble);
+        
+        // 点击整行触发勾选
+        row.onclick = (e) => {
+            if(e.target !== checkbox) checkbox.checked = !checkbox.checked;
+            const count = document.querySelectorAll('.chat-delete-checkbox:checked').length;
+            document.getElementById('chat-selected-count').textContent = `已选 ${count} 项`;
+        };
+
+        msgContainer.appendChild(row);
+    });
+    
+    // 显示底部操作栏 (这部分保持不变)
+    const manageBar = document.createElement('div');
+    manageBar.id = 'chat-manage-bar';
+    manageBar.className = 'snippet-input-bar'; 
+    manageBar.style.display = 'flex';
+    manageBar.style.justifyContent = 'space-between';
+    manageBar.style.zIndex = '999';
+    manageBar.innerHTML = `
+        <button class="button button-secondary" style="margin:0;" onclick="window.exitChatBatchDeleteMode()">取消</button>
+        <span id="chat-selected-count" style="font-weight:bold;">已选 0 项</span>
+        <button class="button button-danger" style="margin:0;" onclick="window.executeBatchDelete()">删除</button>
+    `;
+    
+    interfaceEl.appendChild(manageBar);
+    document.querySelector('.room-footer').style.display = 'none';
+};
+
+// 3. 退出批量删除模式
+window.exitChatBatchDeleteMode = function() {
+    isChatBatchDeleteMode = false;
+    document.getElementById('chat-room-interface').classList.remove('batch-delete-mode');
+    
+    const manageBar = document.getElementById('chat-manage-bar');
+    if (manageBar) manageBar.remove();
+    
+    document.querySelector('.room-footer').style.display = 'flex'; // 恢复输入框
+    
+    // 重新渲染正常消息
+    const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+    if (room) renderChatMessages(room);
+};
+
+// 4. 执行批量删除
+window.executeBatchDelete = function() {
+    const checked = document.querySelectorAll('.chat-delete-checkbox:checked');
+    if (checked.length === 0) {
+        alert("请先选择要删除的消息");
+        return;
+    }
+    
+    showConfirmModal('批量删除', `确定删除选中的 ${checked.length} 条消息吗？`, async () => {
+        const idsToDelete = new Set(Array.from(checked).map(cb => Number(cb.dataset.id)));
+        const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+        
+        if (room) {
+            room.messages = room.messages.filter(m => !idsToDelete.has(m.timestamp));
+            await dbActions.put('chatRooms', room);
+            
+            window.exitChatBatchDeleteMode(); // 退出并刷新
+        }
+    });
+};
+
+// 新增：全局变量用于存储当前引用的消息
+let currentQuote = null;
+
+// 新增：显示引用预览
+function showReplyPreview() {
+    if (!currentQuote) return;
+    const previewBar = document.getElementById('chat-reply-preview');
+    const previewText = document.getElementById('reply-preview-text');
+    const role = appData.chatRoles.find(r => r.id === currentQuote.roleId);
+    const author = role ? role.name : '未知';
+    let content = currentQuote.content;
+    if (content.startsWith('data:image')) content = '[图片]';
+    
+    previewText.innerHTML = `正在回复 <strong>@${author}</strong>: ${content}`;
+    previewBar.style.display = 'block';
+}
+
+// 新增：隐藏引用预览 (也挂载到window上让HTML的onclick能调用)
+window.hideReplyPreview = function() {
+    currentQuote = null;
+    document.getElementById('chat-reply-preview').style.display = 'none';
+}
+
+// 新增：修改发送消息函数以包含引用
+const originalSendChatMessage = sendChatMessage;
+sendChatMessage = async (content) => {
+    // 检查：内容为空、无房间ID、无发送角色ID 则不执行
+    if (!content || !currentChatRoomId || !currentSenderRoleId) return;
+
+    const room = appData.chatRooms.find(r => r.id === currentChatRoomId);
+    if (!room) return;
+
+    const newMessage = {
+        roleId: currentSenderRoleId,
+        content: content,
+        timestamp: Date.now()
+    };
+    
+    // 如果有引用，则添加引用信息
+    if (currentQuote) {
+        newMessage.quote = {
+            roleId: currentQuote.roleId,
+            content: currentQuote.content.length > 20 ? currentQuote.content.substring(0, 20) + '...' : currentQuote.content
+        };
+    }
+
+    room.messages.push(newMessage);
+    room.timestamp = Date.now();
+
+    await dbActions.put('chatRooms', room);
+
+    // 【修改点】强制获取输入框并清空
+    const inputEl = document.getElementById('chat-msg-input');
+    if (inputEl) {
+        inputEl.value = ''; 
+    }
+
+    renderChatMessages(room);
+    renderChatList();
+    
+    // 发送后清空引用
+    hideReplyPreview();
+};
+
+     // =======================================================
+    // === 表情包系统逻辑 (修复版) ===
+    // =======================================================
+    
+    let currentStickerCatId = 'all'; // 当前选中的分类
+    let isStickerManageMode = false; // 是否处于管理模式
+
+    // 1. 打开/关闭表情包面板
+    const emojiBtn = document.getElementById('chat-emoji-btn');
+    if (emojiBtn) {
+        emojiBtn.onclick = () => {
+            const panel = document.getElementById('sticker-panel');
+            if (panel.style.display === 'flex') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'flex';
+                renderStickerUI();
+            }
+        };
+    }
+    
+    document.getElementById('chat-room-messages').addEventListener('click', () => {
+        document.getElementById('sticker-panel').style.display = 'none';
+    });
+
+    // 2. 渲染 UI
+    function renderStickerUI() {
+        const tabsEl = document.getElementById('sticker-tabs');
+        const gridEl = document.getElementById('sticker-grid');
+        const searchVal = document.getElementById('sticker-search').value.toLowerCase();
+        
+        // 渲染 Tab
+        let tabsHtml = `<div class="sticker-tab ${currentStickerCatId==='all'?'active':''}" onclick="switchStickerTab('all')">全部</div>`;
+        appData.stickerCategories.forEach(c => {
+            tabsHtml += `<div class="sticker-tab ${currentStickerCatId===c.id?'active':''}" onclick="switchStickerTab(${c.id})">${c.name}</div>`;
+        });
+        tabsHtml += `<div class="sticker-tab ${currentStickerCatId==='uncategorized'?'active':''}" onclick="switchStickerTab('uncategorized')">未分类</div>`;
+        tabsEl.innerHTML = tabsHtml;
+
+        // 筛选
+        let stickersToShow = appData.stickers;
+        if (currentStickerCatId !== 'all') {
+            if (currentStickerCatId === 'uncategorized') {
+                stickersToShow = stickersToShow.filter(s => !s.categoryId);
+            } else {
+                stickersToShow = stickersToShow.filter(s => s.categoryId === currentStickerCatId);
+            }
+        }
+        if (searchVal) {
+            stickersToShow = stickersToShow.filter(s => (s.name||'').toLowerCase().includes(searchVal));
+        }
+
+        // 渲染 Grid
+        gridEl.innerHTML = '';
+        stickersToShow.forEach(s => {
+            const item = document.createElement('div');
+            item.className = 'sticker-item';
+            
+            // 勾选框
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'sticker-select-checkbox';
+            checkbox.dataset.id = s.id;
+            
+            item.innerHTML = `
+                <img src="${s.url}" loading="lazy">
+                <span class="sticker-caption">${s.name || '未命名'}</span>
+            `;
+            item.prepend(checkbox);
+
+            item.onclick = (e) => {
+                if (isStickerManageMode) {
+                    if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
+                } else {
+                    sendStickerMessage(s);
+                }
+            };
+            gridEl.appendChild(item);
+        });
+    }
+
+    window.switchStickerTab = (catId) => {
+        currentStickerCatId = catId;
+        renderStickerUI();
+    };
+    
+    document.getElementById('sticker-search').addEventListener('input', renderStickerUI);
+
+    function sendStickerMessage(sticker) {
+        sendChatMessage(sticker.url);
+        document.getElementById('sticker-panel').style.display = 'none';
+    }
+
+    // 4. 上传/导入 (代码保持复用之前的逻辑)
+    window.openStickerImportMenu = () => {
+        showActionMenuModal('上传表情包', [
+            { text: '本地相册导入', action: 'sticker-local' },
+            { text: 'URL 批量导入', action: 'sticker-url' },
+            { text: '文件导入 (txt)', action: 'sticker-file' }
+        ]);
+        
+        modalContainer.querySelector('.modal-body').onclick = (e) => {
+            const action = e.target.dataset.action;
+            if (!action) return;
+            closeModal();
+            
+            if (action === 'sticker-local') {
+                triggerFileUpload('image/*', true, 50, async (file) => {
+                    const newSticker = {
+                        name: file.name.split('.')[0],
+                        url: file.src,
+                        categoryId: (currentStickerCatId !== 'all' && currentStickerCatId !== 'uncategorized') ? currentStickerCatId : null
+                    };
+                    await dbActions.add('stickers', newSticker);
+                    const list = await dbActions.getAll('stickers');
+                    appData.stickers = list;
+                    renderStickerUI();
+                });
+            } else if (action === 'sticker-url') {
+                showPromptModal('URL 批量导入', '请按格式粘贴：名称 URL', (text) => {
+                    parseAndImportStickers(text);
+                }, '', 'text'); // 这里可以偷懒用 text，如果想用 textarea，可以沿用上一次的 trick
+                // 为了保险，还是用 trick 换成 textarea
+                setTimeout(() => {
+                    const input = document.querySelector('.custom-modal-input');
+                    if(input) {
+                        const ta = document.createElement('textarea');
+                        ta.className = 'custom-modal-input';
+                        ta.style.height = '150px';
+                        ta.value = input.value;
+                        input.replaceWith(ta);
+                        document.querySelector('.confirm-ok').onclick = () => { parseAndImportStickers(ta.value); closeModal(); };
+                    }
+                }, 10);
+            } else if (action === 'sticker-file') {
+                triggerFileUpload('.txt', false, 1, (file) => {
+                    const base64 = file.src.split(',')[1];
+                    const text = decodeURIComponent(escape(window.atob(base64)));
+                    parseAndImportStickers(text);
+                });
+            }
+        };
+    };
+
+    async function parseAndImportStickers(text) {
+        if (!text) return;
+        const lines = text.split('\n');
+        let count = 0;
+        const regex = /^(.+?)[:：,，\s]+(https?:\/\/.+)$/;
+
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+            const match = line.match(regex);
+            if (match) {
+                const name = match[1].trim();
+                const url = match[2].trim();
+                const catId = (currentStickerCatId !== 'all' && currentStickerCatId !== 'uncategorized') ? currentStickerCatId : null;
+                await dbActions.add('stickers', { name, url, categoryId: catId });
+                count++;
+            }
+        }
+        appData.stickers = await dbActions.getAll('stickers');
+        renderStickerUI();
+        alert(`成功导入 ${count} 个表情包`);
+    }
+
+    // 5. 管理功能 (修复版)
+    window.toggleStickerManageMode = () => {
+        isStickerManageMode = !isStickerManageMode;
+        const panel = document.getElementById('sticker-panel');
+        // 关键修复：使用 classList 操作，CSS 对应 #sticker-panel.manage-mode
+        if (isStickerManageMode) {
+            panel.classList.add('manage-mode');
+        } else {
+            panel.classList.remove('manage-mode');
+            document.querySelectorAll('.sticker-select-checkbox').forEach(c => c.checked = false);
+        }
+    };
+
+    document.getElementById('sticker-select-all').onclick = (e) => {
+        document.querySelectorAll('.sticker-select-checkbox').forEach(c => c.checked = e.target.checked);
+    };
+
+    window.deleteSelectedStickers = async () => {
+        const checked = document.querySelectorAll('.sticker-select-checkbox:checked');
+        if (checked.length === 0) return;
+        if (confirm(`删除 ${checked.length} 个表情？`)) {
+            for (const cb of checked) {
+                await dbActions.delete('stickers', Number(cb.dataset.id));
+            }
+            appData.stickers = await dbActions.getAll('stickers');
+            renderStickerUI();
+            window.toggleStickerManageMode();
+        }
+    };
+
+    window.moveSelectedStickers = () => {
+        const checked = document.querySelectorAll('.sticker-select-checkbox:checked');
+        if (checked.length === 0) return;
+        let options = `<option value="">未分类</option>`;
+        appData.stickerCategories.forEach(c => options += `<option value="${c.id}">${c.name}</option>`);
+        
+        const bodyHtml = `<p>移动到：</p><select id="move-sticker-select">${options}</select>`;
+        showModal('移动表情包', bodyHtml, `<button class="button button-primary" onclick="confirmMoveStickers()">确定</button>`);
+        
+        window.confirmMoveStickers = async () => {
+            const targetCatId = document.getElementById('move-sticker-select').value;
+            const newCatId = targetCatId ? Number(targetCatId) : null;
+            for (const cb of checked) {
+                const sticker = appData.stickers.find(s => s.id === Number(cb.dataset.id));
+                if (sticker) {
+                    sticker.categoryId = newCatId;
+                    await dbActions.put('stickers', sticker);
+                }
+            }
+            appData.stickers = await dbActions.getAll('stickers');
+            renderStickerUI();
+            closeModal();
+            window.toggleStickerManageMode();
+        };
+    };
+
+    // 【新增】导出功能 (支持5种格式)
+    window.exportSelectedStickers = () => {
+        const checked = document.querySelectorAll('.sticker-select-checkbox:checked');
+        if (checked.length === 0) return;
+
+        // 生成数据的函数
+        const generateText = (format) => {
+            let text = "";
+            checked.forEach(cb => {
+                const s = appData.stickers.find(x => x.id === Number(cb.dataset.id));
+                if (!s) return;
+                switch(format) {
+                    case '1': text += `${s.name}：${s.url}\n`; break; // 中文冒号
+                    case '2': text += `${s.name} ${s.url}\n`; break;  // 空格
+                    case '3': text += `${s.name}，${s.url}\n`; break; // 中文逗号
+                    case '4': text += `${s.name},${s.url}\n`; break;  // 英文逗号
+                    case '5': text += `${s.name}:${s.url}\n`; break;  // 英文冒号
+                }
+            });
+            return text;
+        };
+
+        const bodyHtml = `
+            <div style="margin-bottom:10px;">
+                选择格式：
+                <select id="export-format-select" onchange="updateExportArea()">
+                    <option value="1">注释：URL</option>
+                    <option value="2">注释 URL</option>
+                    <option value="3">注释，URL</option>
+                    <option value="4">注释,URL</option>
+                    <option value="5">注释:URL</option>
+                </select>
+            </div>
+            <textarea id="export-area" style="width:100%; height:150px;">${generateText('1')}</textarea>
+        `;
+        
+        showModal('导出表情包', bodyHtml, `<button class="button button-primary" onclick="closeModal()">关闭</button>`);
+
+        // 挂载更新函数到 window
+        window.updateExportArea = () => {
+            const fmt = document.getElementById('export-format-select').value;
+            document.getElementById('export-area').value = generateText(fmt);
+        };
+    };
+
+    // 6. 分类管理 (完整修复版：包含添加、删除、渲染)
+    let isCatDeleteMode = false;
+
+    // 打开管理面板
+    window.openStickerCategoryManage = () => {
+        isCatDeleteMode = false;
+        window.renderCatManageUI();
+    };
+
+    // 渲染管理界面
+    window.renderCatManageUI = () => {
+        // 1. 生成列表HTML
+        const renderList = () => {
+            if (appData.stickerCategories.length === 0) return '<div style="text-align:center;color:#999;padding:20px;">暂无分类</div>';
+            return appData.stickerCategories.map(c => {
+                const isDefault = (c.id === 1 || c.name === '默认分类');
+                // 删除模式下：显示复选框；正常模式下：如果是默认分类显示文字，否则留空
+                let leftContent = '';
+                if (isCatDeleteMode && !isDefault) {
+                    leftContent = `<input type="checkbox" class="cat-del-checkbox" value="${c.id}" style="margin-right:10px; width:20px; height:20px;">`;
+                }
+                
+                return `
+                <div style="display:flex; align-items:center; padding:12px 10px; border-bottom:1px solid var(--border-color);">
+                    ${leftContent}
+                    <span style="font-size:15px; flex:1;">${c.name}</span>
+                    ${isDefault ? '<span style="font-size:12px;color:#999;">默认</span>' : ''}
+                </div>`;
+            }).join('');
+        };
+
+        // 2. 生成头部操作栏HTML
+        let topBarHtml = '';
+        if (isCatDeleteMode) {
+            // 删除模式头部
+            topBarHtml = `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid var(--border-color);">
+                    <span style="color:var(--danger-color); font-weight:bold;">请勾选删除项</span>
+                    <div style="display:flex; gap:10px;">
+                        <button class="button button-secondary" style="margin:0; padding:5px 10px; font-size:13px;" onclick="window.toggleCatDeleteMode(false)">取消</button>
+                        <button class="button button-danger" style="margin:0; padding:5px 10px; font-size:13px;" onclick="window.executeDeleteCats()">确认删除</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            // 正常模式头部 (添加 + 切换删除模式)
+            topBarHtml = `
+                <div style="display:flex; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--border-color); align-items:center;">
+                    <input type="text" id="new-cat-name" placeholder="输入新分类名..." class="custom-modal-input" style="margin:0; flex:1;">
+                    <button class="button button-primary" style="margin:0; padding:0; width:50px; height:35px; font-size:13px;" onclick="window.addStickerCategory()">添加</button>
+                    <button class="button button-danger" style="margin:0; padding:0; width:50px; height:35px; font-size:13px;" onclick="window.toggleCatDeleteMode(true)">删除</button>
+                </div>
+            `;
+        }
+
+        const bodyHtml = `
+            ${topBarHtml}
+            <div id="sticker-cat-list" style="max-height:300px; overflow-y:auto; margin-top:10px;">
+                ${renderList()}
+            </div>
+        `;
+        
+        // 3. 显示弹窗 (如果弹窗已打开则只更新内容)
+        const activeModal = document.querySelector('.modal.active');
+        if (activeModal && activeModal.querySelector('.modal-header').textContent === '管理表情分类') {
+            activeModal.querySelector('.modal-body').innerHTML = bodyHtml;
+        } else {
+            showModal('管理表情分类', bodyHtml, `<button class="button button-secondary" onclick="window.closeModal()">完成</button>`);
+        }
+    };
+
+    // 切换删除模式
+    window.toggleCatDeleteMode = (enable) => {
+        isCatDeleteMode = enable;
+        window.renderCatManageUI();
+    };
+
+    // 添加分类函数
+    window.addStickerCategory = async () => {
+        const input = document.getElementById('new-cat-name');
+        if (!input) return;
+        const name = input.value.trim();
+        if (!name) { alert('请输入分类名称'); return; }
+        
+        await dbActions.add('stickerCategories', { name });
+        appData.stickerCategories = await dbActions.getAll('stickerCategories');
+        
+        // 刷新界面
+        window.renderCatManageUI();
+        renderStickerUI(); // 刷新背后的表情面板
+        input.value = ''; // 清空输入框
+    };
+
+    // 执行删除函数 (修复版：使用自定义弹窗，解决无法删除的问题)
+    window.executeDeleteCats = async () => {
+        const checked = document.querySelectorAll('.cat-del-checkbox:checked');
+        if (checked.length === 0) {
+            alert('请先勾选要删除的分类');
+            return;
+        }
+
+        // 【修改点】使用 showConfirmModal 代替原生的 confirm
+        showConfirmModal('确认删除', `确定删除这 ${checked.length} 个分类吗？该分类下的表情将变为“未分类”。`, async () => {
+            const ids = Array.from(checked).map(cb => Number(cb.value));
+            
+            // 1. 数据库删除分类
+            for(const id of ids) {
+                await dbActions.delete('stickerCategories', id);
+            }
+
+            // 2. 重置受影响表情的分类ID
+            const allStickers = await dbActions.getAll('stickers');
+            for (const s of allStickers) {
+                if (ids.includes(s.categoryId)) {
+                    s.categoryId = null; 
+                    await dbActions.put('stickers', s);
+                }
+            }
+
+            // 3. 更新内存数据
+            appData.stickerCategories = await dbActions.getAll('stickerCategories');
+            appData.stickers = await dbActions.getAll('stickers');
+            
+            // 4. 刷新界面
+            isCatDeleteMode = false;
+            window.renderCatManageUI();
+            renderStickerUI();
+        });
+    };
+
+
+    // 5. 管理模式 (修复版：挂载到 window)
+    window.toggleStickerManageMode = () => {
+        isStickerManageMode = !isStickerManageMode;
+        const panel = document.getElementById('sticker-panel');
+        if (isStickerManageMode) {
+            panel.classList.add('manage-mode');
+        } else {
+            panel.classList.remove('manage-mode');
+            document.querySelectorAll('.sticker-select-checkbox').forEach(c => c.checked = false);
+        }
+    };
+
+    document.getElementById('sticker-select-all').onclick = (e) => {
+        document.querySelectorAll('.sticker-select-checkbox').forEach(c => c.checked = e.target.checked);
+    };
+
+    // 【修复】删除选中表情包
+    window.deleteSelectedStickers = async () => {
+        const checked = document.querySelectorAll('.sticker-select-checkbox:checked');
+        if (checked.length === 0) return;
+        
+        // 使用自定义弹窗，确保回调能执行
+        showConfirmModal('删除表情', `确定删除选中的 ${checked.length} 个表情吗？`, async () => {
+            for (const cb of checked) {
+                await dbActions.delete('stickers', Number(cb.dataset.id));
+            }
+            // 刷新数据
+            appData.stickers = await dbActions.getAll('stickers');
+            renderStickerUI();
+            window.toggleStickerManageMode(); // 退出管理模式
+        });
+    };
+
+    window.moveSelectedStickers = () => {
+        const checked = document.querySelectorAll('.sticker-select-checkbox:checked');
+        if (checked.length === 0) return;
+        let options = `<option value="">未分类</option>`;
+        appData.stickerCategories.forEach(c => options += `<option value="${c.id}">${c.name}</option>`);
+        
+        const bodyHtml = `<p>移动到：</p><select id="move-sticker-select">${options}</select>`;
+        showModal('移动表情包', bodyHtml, `<button class="button button-primary" onclick="confirmMoveStickers()">确定</button>`);
+        
+        // 挂载确认函数
+        window.confirmMoveStickers = async () => {
+            const targetCatId = document.getElementById('move-sticker-select').value;
+            const newCatId = targetCatId ? Number(targetCatId) : null;
+            for (const cb of checked) {
+                const sticker = appData.stickers.find(s => s.id === Number(cb.dataset.id));
+                if (sticker) {
+                    sticker.categoryId = newCatId;
+                    await dbActions.put('stickers', sticker);
+                }
+            }
+            appData.stickers = await dbActions.getAll('stickers');
+            renderStickerUI();
+            window.closeModal();
+            window.toggleStickerManageMode();
+        };
+    };
+
+    // 【修复】导出功能 (增加复制按钮)
+    window.exportSelectedStickers = () => {
+        const checked = document.querySelectorAll('.sticker-select-checkbox:checked');
+        if (checked.length === 0) return;
+
+        // 生成数据的函数
+        const generateText = (format) => {
+            let text = "";
+            checked.forEach(cb => {
+                const s = appData.stickers.find(x => x.id === Number(cb.dataset.id));
+                if (!s) return;
+                switch(format) {
+                    case '1': text += `${s.name}：${s.url}\n`; break;
+                    case '2': text += `${s.name} ${s.url}\n`; break;
+                    case '3': text += `${s.name}，${s.url}\n`; break;
+                    case '4': text += `${s.name},${s.url}\n`; break;
+                    case '5': text += `${s.name}:${s.url}\n`; break;
+                }
+            });
+            return text;
+        };
+
+        const bodyHtml = `
+            <div style="margin-bottom:10px;">
+                选择格式：
+                <select id="export-format-select" onchange="window.updateExportArea()">
+                    <option value="1">注释：URL</option>
+                    <option value="2">注释 URL</option>
+                    <option value="3">注释，URL</option>
+                    <option value="4">注释,URL</option>
+                    <option value="5">注释:URL</option>
+                </select>
+            </div>
+            <textarea id="export-area" style="width:100%; height:150px;">${generateText('1')}</textarea>
+        `;
+        
+        // 【新增】底部增加“复制”按钮
+        showModal('导出表情包', bodyHtml, `
+            <button class="button button-secondary" onclick="window.copyExportText()">复制</button>
+            <button class="button button-primary" onclick="window.closeModal()">关闭</button>
+        `);
+
+        // 挂载辅助函数
+        window.updateExportArea = () => {
+            const fmt = document.getElementById('export-format-select').value;
+            document.getElementById('export-area').value = generateText(fmt);
+        };
+        window.copyExportText = () => {
+            const text = document.getElementById('export-area').value;
+            navigator.clipboard.writeText(text).then(() => alert('已复制到剪贴板'));
+        };
+    };
+
+
+    // ===========================================
+    // === 学生证 (Role Card) 最终修复版 ===
+    // ===========================================
+
+    // 辅助：颜色变浅 (用于底部条)
+    function adjustColorLightness(hex, percent) {
+        if (!hex || !hex.startsWith('#')) return '#666666';
+        const num = parseInt(hex.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) + amt;
+        const G = (num >> 8 & 0x00FF) + amt;
+        const B = (num & 0x0000FF) + amt;
+        return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+    }
+
+    // 辅助：颜色变深 (用于边框) - percent 是负数变深
+    function darkenColor(hex, percent) {
+        return adjustColorLightness(hex, -percent);
+    }
+
+    // 强制关闭学生证 (挂载到 window 确保点击能触发)
+    window.closeStudentCard = function(e) {
+        // 只有点击 overlay 本身才关闭，点击内部卡片不关闭
+        if (e.target.id === 'student-card-overlay') {
+            e.target.classList.remove('active');
+        }
+    };
+
+   // 1. 先定义一个全局关闭函数 (新增)
+    window.closeStudentCardOverlay = function(e) {
+        // 只有点击的是遮罩层本身(id为student-card-overlay)时才关闭
+        if (e.target.id === 'student-card-overlay') {
+            document.getElementById('student-card-overlay').classList.remove('active');
+        }
+    };
+
+    // 显示学生证 (绝对强制版：解决卡死问题)
+    window.showStudentCard = function(roleId) {
+        const role = appData.chatRoles.find(r => r.id === roleId);
+        if (!role) return;
+
+        // 1. 如果已经有打开的遮罩层，先强制移除，防止叠加
+        const oldOverlay = document.getElementById('student-card-overlay');
+        if (oldOverlay) {
+            oldOverlay.parentNode.removeChild(oldOverlay);
+        }
+
+        // 配置样式
+        const bg = role.cardTheme || '#000000'; 
+        const txt = role.cardTitleColor || '#ffffff';
+        const validDate = role.cardValidDate || '2024.01 - 2028.01';
+        const footerColor = adjustColorLightness(bg, 40); 
+        const borderColor = darkenColor(bg, 30);
+        const avatarSrc = role.avatar || 'https://via.placeholder.com/100';
+
+        // 2. 创建新遮罩层
+        const overlay = document.createElement('div');
+        overlay.id = 'student-card-overlay';
+        overlay.className = 'student-card-overlay';
+        
+        // 3. 【核心修复】直接在 JS 里绑定 onclick，不依赖 HTML 属性
+        // 点击遮罩层任意位置 -> 关闭
+        overlay.onclick = function(e) {
+            // 只有当点击目标正是 overlay 自己时（即点击了背景），才关闭
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+                // 延时一点点销毁，让动画播完（如果CSS有动画的话）
+                setTimeout(() => {
+                    if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                }, 300); 
+            }
+        };
+
+        // 4. 构建卡片 HTML
+        overlay.innerHTML = `
+            <div class="student-card" id="student-card-inner" style="border-color: ${borderColor}; color: ${bg};">
+                <div class="sc-header" style="background-color: ${bg}; color: #fff;">
+                    <span style="font-size: 22px; font-weight: bold; letter-spacing: 2px;">学生証</span>
+                    <span style="font-size: 14px; font-weight: bold;">Student ID</span>
+                </div>
+                
+                <div class="sc-body" style="color: ${txt};">
+                    <div class="sc-photo-area">
+                        <div class="sc-photo-box" style="background-color:${bg};" id="sc-photo-btn">
+                            <img src="${avatarSrc}" class="sc-photo">
+                        </div>
+                        <div class="sc-validity">
+                            有效期: ${validDate}
+                        </div>
+                    </div>
+                    
+                    <div class="sc-info-area">
+                        <div class="sc-row"><div class="sc-label">Name</div><div class="sc-value">${role.name}</div></div>
+                        <div class="sc-row"><div class="sc-label">Age</div><div class="sc-value">${role.age || '-'}</div></div>
+                        <div class="sc-row"><div class="sc-label">Gender</div><div class="sc-value">${role.birthday || '-'}</div></div>
+                        <div class="sc-row"><div class="sc-label">Other</div><div class="sc-value">${role.other || '-'}</div></div>
+                    </div>
+                </div>
+
+                <div class="sc-footer" style="background-color: ${footerColor}; border-top-color: ${bg};">
+                    <div class="sc-barcode-lines"></div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        // 5. 绑定内部点击事件 (头像点击去设置，卡片点击不关闭)
+        const cardInner = document.getElementById('student-card-inner');
+        if(cardInner) {
+            cardInner.onclick = function(e) {
+                e.stopPropagation(); // 阻止冒泡到 overlay，防止关闭
+            };
+        }
+
+        const photoBtn = document.getElementById('sc-photo-btn');
+        if(photoBtn) {
+            photoBtn.onclick = function(e) {
+                e.stopPropagation(); // 阻止冒泡
+                window.openCardBeautifyMenu(role.id);
+            };
+        }
+
+        // 显示
+        setTimeout(() => overlay.classList.add('active'), 10);
+    };
+    
+    // 打开学生证美化设置 (补全缺失的函数)
+    window.openCardBeautifyMenu = function(roleId) {
+        const role = appData.chatRoles.find(r => r.id === roleId);
+        if (!role) return;
+
+        // 这里定义弹窗内容，包含主题色、字体色、有效期修改
+        const bodyHtml = `
+            <div class="setting-group">
+                <p style="font-weight:bold; margin-bottom:5px;">主题颜色</p>
+                <p style="font-size:12px; color:#888;">控制：顶部黑条、照片背景、边框、底部条色调</p>
+                <input type="color" id="card-bg-input" value="${role.cardTheme || '#000000'}" style="width:100%; height:40px;">
+            </div>
+            
+            <div class="setting-group">
+                <p style="font-weight:bold; margin-bottom:5px;">字体颜色</p>
+                <p style="font-size:12px; color:#888;">控制：中间信息区的文字颜色</p>
+                <input type="color" id="card-txt-input" value="${role.cardTitleColor || '#ffffff'}" style="width:100%; height:40px;">
+            </div>
+            
+            <div class="setting-group">
+                <p style="font-weight:bold; margin-bottom:5px;">有效期文字</p>
+                <input type="text" id="card-date-input" class="custom-modal-input" value="${role.cardValidDate || ''}" placeholder="例如: 2024.01 - 2028.01" style="margin:0;">
+            </div>
+        `;
+
+        // 这里的 onclick 绑定的是下面的 saveCardSettings
+        showModal('学生证美化', bodyHtml, 
+            `<button class="button button-secondary" onclick="window.closeModal()">取消</button>
+             <button class="button button-primary" onclick="window.saveCardSettings(${role.id})">保存</button>`
+        );
+    };
+
+    // 保存设置 (同步更新颜色逻辑)
+    window.saveCardSettings = async function(roleId) {
+        const role = appData.chatRoles.find(r => r.id === roleId);
+        if (!role) return;
+
+        role.cardTheme = document.getElementById('card-bg-input').value; // 主题色
+        role.cardTitleColor = document.getElementById('card-txt-input').value; // 字体色
+        role.cardValidDate = document.getElementById('card-date-input').value;
+
+        const db = await idb.openDB('platanusDB', 6);
+        await db.put('chatRoles', role);
+        
+        window.closeModal(); // 关闭设置面板
+        
+        // 稍微延时刷新，防止设置面板关闭的点击事件穿透到遮罩层导致学生证也关闭
+        setTimeout(() => {
+            window.showStudentCard(roleId); 
+        }, 50);
+    };
+    
+    // ===========================================
+    // === 存储管理与压缩逻辑 (新增) ===
+    // ===========================================
+
+    // 计算存储占用
+    window.calculateStorageUsage = async function() {
+        const statsEl = document.getElementById('storage-total');
+        if(!statsEl) return; // 如果不在设置页就不计算
+
+        let totalSize = 0;
+        let imageSize = 0;
+
+        // 辅助函数：计算字符串字节数
+        const getStrSize = (str) => str ? str.length : 0; 
+        // 简单判断是否为Base64图片
+        const isImage = (str) => typeof str === 'string' && str.startsWith('data:image');
+
+        // 1. 扫描日记
+        for(const d of appData.diaries) {
+            totalSize += getStrSize(d.content);
+            if(d.media) {
+                d.media.forEach(m => {
+                    const s = getStrSize(m.src);
+                    totalSize += s;
+                    if(m.type === 'image') imageSize += s;
+                });
+            }
+            if(d.comments) {
+                d.comments.forEach(c => {
+                    const s = getStrSize(c.content);
+                    totalSize += s;
+                    if(isImage(c.content)) imageSize += s;
+                });
+            }
+        }
+
+        // 2. 扫描聊天室
+        for(const r of appData.chatRooms) {
+            totalSize += getStrSize(r.avatar) + getStrSize(r.background); // 聊天室本身的图
+            if(isImage(r.avatar)) imageSize += getStrSize(r.avatar);
+            
+            if(r.messages) {
+                r.messages.forEach(m => {
+                    const s = getStrSize(m.content);
+                    totalSize += s;
+                    if(isImage(m.content)) imageSize += s;
+                });
+            }
+        }
+
+        // 3. 扫描角色/贴图/其他
+        appData.chatRoles.forEach(r => { 
+            totalSize += getStrSize(r.avatar); 
+            if(isImage(r.avatar)) imageSize += getStrSize(r.avatar);
+        });
+        appData.stickers.forEach(s => {
+            totalSize += getStrSize(s.url);
+            if(isImage(s.url)) imageSize += getStrSize(s.url);
+        });
+        appData.snippetCollections.forEach(c => {
+            totalSize += getStrSize(c.cover) + getStrSize(c.background);
+            if(isImage(c.cover)) imageSize += getStrSize(c.cover);
+        });
+        // 加上用户资料图
+        totalSize += getStrSize(appData.profile.avatar) + getStrSize(appData.profile.background);
+        if(isImage(appData.profile.avatar)) imageSize += getStrSize(appData.profile.avatar);
+
+        // 格式化显示
+        const formatSize = (bytes) => {
+            if(bytes === 0) return '0 KB';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        };
+
+        const textSize = totalSize - imageSize;
+        document.getElementById('storage-total').textContent = formatSize(totalSize);
+        document.getElementById('storage-images').textContent = formatSize(imageSize);
+        document.getElementById('storage-text').textContent = formatSize(textSize);
+    };
+
+    // 触发压缩流程
+    window.compressAllImagesAction = function() {
+        showConfirmModal('压缩图片', '即将开始压缩所有图片。这可能需要一点时间，期间请勿关闭页面。确定开始吗？', async () => {
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;justify-content:center;align-items:center;color:white;flex-direction:column;";
+            loadingOverlay.innerHTML = `<i class="fas fa-spinner fa-spin" style="font-size:40px;margin-bottom:20px;"></i><div id="compress-status">准备中...</div>`;
+            document.body.appendChild(loadingOverlay);
+
+            const updateStatus = (text) => document.getElementById('compress-status').textContent = text;
+
+            try {
+                let count = 0;
+                // 压缩工具函数
+                const compress = async (base64) => {
+                    if(!base64 || !base64.startsWith('data:image')) return base64;
+                    // 如果已经是 webp 且比较短，可能已经压过了，跳过
+                    // if(base64.startsWith('data:image/webp') && base64.length < 50000) return base64; 
+                    
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.src = base64;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // 限制最大尺寸为 1280px (平衡清晰度和体积)
+                            const MAX_SIZE = 1280;
+                            if (width > height) {
+                                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                            } else {
+                                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            // 转换为 WebP，质量 0.7
+                            resolve(canvas.toDataURL('image/webp', 0.7));
+                        };
+                        img.onerror = () => resolve(base64); // 失败则返回原图
+                    });
+                };
+
+                updateStatus('正在压缩日记图片...');
+                for(const d of appData.diaries) {
+                    if(d.media) {
+                        for(let i=0; i<d.media.length; i++) {
+                            if(d.media[i].type === 'image') {
+                                d.media[i].src = await compress(d.media[i].src);
+                                count++;
+                            }
+                        }
+                    }
+                    // 压缩日记里的图片评论
+                    if(d.comments) {
+                        for(const c of d.comments) {
+                            if(c.content.startsWith('data:image')) {
+                                c.content = await compress(c.content);
+                                count++;
+                            }
+                        }
+                    }
+                    await dbActions.put('diaries', d);
+                }
+
+                updateStatus('正在压缩聊天室图片...');
+                for(const r of appData.chatRooms) {
+                    if(r.avatar && r.avatar.startsWith('data:image')) r.avatar = await compress(r.avatar);
+                    if(r.background && r.background.startsWith('data:image')) r.background = await compress(r.background);
+                    if(r.messages) {
+                        for(const m of r.messages) {
+                            if(m.content.startsWith('data:image')) {
+                                m.content = await compress(m.content);
+                                count++;
+                            }
+                        }
+                    }
+                    await dbActions.put('chatRooms', r);
+                }
+
+                updateStatus('正在压缩其他资源...');
+                // 角色头像
+                for(const r of appData.chatRoles) {
+                    if(r.avatar && r.avatar.startsWith('data:image')) {
+                        r.avatar = await compress(r.avatar);
+                        await dbActions.put('chatRoles', r);
+                        count++;
+                    }
+                }
+                // 表情包 (只压缩本地上传的 Base64，网络链接不管)
+                for(const s of appData.stickers) {
+                    if(s.url && s.url.startsWith('data:image')) {
+                        s.url = await compress(s.url);
+                        await dbActions.put('stickers', s);
+                        count++;
+                    }
+                }
+                // 言语集封面
+                for(const c of appData.snippetCollections) {
+                    if(c.cover && c.cover.startsWith('data:image')) c.cover = await compress(c.cover);
+                    if(c.background && c.background.startsWith('data:image')) c.background = await compress(c.background);
+                    await dbActions.put('snippetCollections', c);
+                }
+                // 个人资料
+                if(appData.profile.avatar && appData.profile.avatar.startsWith('data:image')) {
+                    appData.profile.avatar = await compress(appData.profile.avatar);
+                }
+                if(appData.profile.background && appData.profile.background.startsWith('data:image')) {
+                    appData.profile.background = await compress(appData.profile.background);
+                }
+                await dbActions.set('profile', 'userProfile', appData.profile);
+
+                document.body.removeChild(loadingOverlay);
+                alert(`压缩完成！共处理了 ${count} 张图片。`);
+                
+                // 刷新数据和界面
+                await refreshAllDataAndRender();
+                window.calculateStorageUsage(); // 重新计算大小
+
+            } catch(e) {
+                document.body.removeChild(loadingOverlay);
+                alert('压缩过程中出错: ' + e.message);
+                console.error(e);
+            }
+        });
+    };
+    
+        
         // =======================================================================
         // 11. 初始化
         // =======================================================================
+        
         async function initializeApp() {
             document.querySelector('.send-btn').addEventListener('mousedown', (e) => {
                 e.preventDefault();
@@ -7537,6 +11443,8 @@
             }
 
             await refreshAllDataAndRender();
+            renderRoleList(); // 初始化角色列表
+            renderChatList();
             showPage('diary-page');
         }
 
